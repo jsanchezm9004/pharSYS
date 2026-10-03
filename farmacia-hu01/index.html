@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Productos disponibles | PharSYS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+  <!-- Barra de navegación: conecta con los módulos de cada HU -->
+  <header class="barra"><nav class="interior" aria-label="Principal">
+    <a class="logo" href="index.html">PharSYS</a>
+    <a class="enlace activo" href="index.html">Página principal</a>
+    <a class="enlace" href="registro/index.html">Registrar clientes</a>
+    <a class="enlace" href="login/index.html">Iniciar sesión</a>
+    <a class="enlace" href="carrito.html">Carrito de compras</a>
+  </nav></header>
+  <main>
+    <!-- Título y pestañas de categorías -->
+    <div class="encabezado">
+      <h1>Productos disponibles</h1>
+      <div class="filtros" role="group" aria-label="Categorías">
+        <button class="filtro activo">Todos</button>
+        <button class="filtro">Medicamentos</button>
+        <button class="filtro">Vitaminas</button>
+        <button class="filtro">Cuidado personal</button>
+        <button class="filtro">Primeros auxilios</button>
+      </div>
+    </div>
+    <!-- Aquí js/productos.js dibuja las tarjetas -->
+    <section class="grilla" id="listaProductos" aria-label="Lista de productos"></section>
+  </main>
+  <div id="mensaje" role="status" aria-live="polite"></div>
+  <script src="js/productos.js"></script>
+  <script src="js/carrito.js"></script>
+  <script src="js/principal.js"></script>
+</body>
+</html>

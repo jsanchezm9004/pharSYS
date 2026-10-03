@@ -1,0 +1,71 @@
+/* ===== Paleta de colores del equipo ===== */
+:root {
+  --azul-oscuro: #003273; --azul: #023E73; --blanco: #FEFEFE;
+  --verde: #429C29; --verde-claro: #88BF78; --naranja: #FF681C;
+  /* grises suaves del diseño (fondos, bordes y textos secundarios) */
+  --fondo-suave: #F4F6F8; --borde: #E3E8EE; --gris: #6B7A8C;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: "Plus Jakarta Sans", system-ui, "Segoe UI", Arial, sans-serif; color: var(--azul-oscuro); background: var(--blanco); min-height: 100vh; }
+a { color: var(--azul); font-weight: 600; text-decoration: none; }
+a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px solid var(--verde-claro); outline-offset: 2px; border-radius: 6px; }
+
+/* ===== Barra de navegación ===== */
+.barra { background: var(--azul-oscuro); }
+.barra .interior { max-width: 1200px; margin: 0 auto; padding: 14px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 24px; }
+.logo { font-weight: 800; font-size: 1.3rem; margin-right: auto; color: var(--blanco); }
+.enlace { color: var(--blanco); font-size: .95rem; padding: 6px 2px; border-bottom: 3px solid transparent; }
+.enlace:hover, .enlace.activo { border-bottom-color: var(--verde-claro); }
+
+/* ===== Título y filtros por categoría ===== */
+main { max-width: 1200px; margin: 0 auto; padding: 32px 24px 56px; }
+.encabezado { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 24px; }
+h1 { font-size: 1.9rem; font-weight: 800; color: var(--azul-oscuro); }
+.filtros { display: flex; gap: 4px; background: var(--fondo-suave); padding: 5px; border-radius: 12px; overflow-x: auto; max-width: 100%; }
+.filtro { font: inherit; font-size: .8rem; font-weight: 500; color: var(--gris); background: none; border: 0; padding: 8px 14px; border-radius: 9px; cursor: pointer; white-space: nowrap; }
+.filtro.activo { background: var(--blanco); color: var(--azul-oscuro); font-weight: 700; box-shadow: 0 1px 4px rgba(0, 50, 115, .12); }
+
+/* ===== Tarjeta de producto ===== */
+.grilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+.tarjeta { background: var(--blanco); border: 1px solid var(--borde); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; transition: box-shadow .2s; }
+.tarjeta:hover { box-shadow: 0 8px 24px rgba(0, 50, 115, .12); }
+.imagen { position: relative; aspect-ratio: 16 / 10; background: var(--fondo-suave); display: grid; place-items: center; }
+.imagen svg { width: 42%; height: auto; }
+.tarjeta.agotado .imagen svg { opacity: .4; }
+.insignia { position: absolute; top: 12px; left: 12px; background: var(--azul-oscuro); color: var(--blanco); font-weight: 700; font-size: .7rem; padding: 5px 10px; border-radius: 6px; }
+.insignia.oferta { background: var(--naranja); }
+.insignia.agotada { background: var(--gris); }
+.fav { position: absolute; top: 10px; right: 10px; width: 36px; height: 36px; border-radius: 50%; border: 0; background: var(--blanco); cursor: pointer; display: grid; place-items: center; }
+.fav svg { width: 18px; height: 18px; fill: none; stroke: var(--gris); stroke-width: 2; }
+.fav.activo svg { fill: var(--naranja); stroke: var(--naranja); }
+.cuerpo { padding: 16px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.categoria { font-size: .65rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--verde); }
+.cuerpo h3 { font-size: 1rem; font-weight: 700; }
+.presentacion, .meta, .lab { font-size: .8rem; color: var(--gris); }
+.meta.bajo { color: var(--naranja); font-weight: 700; }
+details { font-size: .8rem; color: var(--gris); margin-top: 6px; }
+summary { cursor: pointer; color: var(--azul); font-weight: 600; }
+details p { margin: 6px 0; }
+details dl { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; }
+details dt { font-weight: 600; }
+.fila { display: flex; justify-content: space-between; align-items: flex-end; margin-top: auto; padding-top: 14px; }
+.anterior { display: block; font-size: .7rem; color: var(--gris); text-decoration: line-through; }
+.precio { font-size: 1.1rem; font-weight: 800; color: var(--azul-oscuro); }
+/* Botón verde "+" para agregar al carrito */
+.agregar { width: 40px; height: 40px; border: 0; border-radius: 10px; background: var(--verde); color: var(--blanco); font: inherit; font-size: 1.6rem; line-height: 1; cursor: pointer; }
+.agregar:hover { background: var(--azul-oscuro); }
+.agregar:disabled { background: var(--borde); color: var(--gris); cursor: not-allowed; }
+
+/* Mensaje flotante */
+#mensaje { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--azul-oscuro); color: var(--blanco); padding: 12px 20px; border-radius: 10px; opacity: 0; pointer-events: none; transition: opacity .2s; }
+#mensaje.visible { opacity: 1; }
+
+/* ===== Carrito ===== */
+.sub { color: var(--gris); margin: 6px 0 24px; }
+.item { background: var(--blanco); border: 1px solid var(--borde); border-radius: 16px; padding: 16px 20px; margin-bottom: 12px; display: grid; grid-template-columns: 1fr auto auto; gap: 16px; align-items: center; }
+.item h3 { font-size: 1rem; }
+.etiqueta { display: inline-block; margin-top: 6px; background: var(--verde-claro); color: var(--azul-oscuro); font-weight: 700; font-size: .75rem; padding: 3px 12px; border-radius: 99px; }
+.eliminar { font: inherit; font-weight: 700; padding: 8px 14px; border-radius: 10px; cursor: pointer; background: var(--blanco); color: var(--naranja); border: 1.5px solid var(--naranja); }
+.vacio { background: var(--fondo-suave); border-radius: 16px; padding: 32px; text-align: center; color: var(--gris); }
+@media (max-width: 600px) { .item { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
