@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pharSYS | Carrito</title>
+    <link rel="stylesheet" href="estiloCarrito.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="topbar">
+        <div class="brand" aria-label="pharSYS">
+          <img src="imagenes/logo-sin-fondo.png" alt="Logo de pharSYS" />
+          <div class="brand-copy">
+            <span class="brand-phar">phar</span><span class="brand-sys">SYS</span>
+          </div>
+        </div>
+
+        <nav class="main-nav" aria-label="Navegación principal">
+          <a href="#">Inicio</a>
+          <a href="#">Medicamentos</a>
+          <a href="#">Cuida tu salud</a>
+          <a href="#">Ofertas</a>
+        </nav>
+
+        <div class="topbar-actions">
+          <button class="icon-button" aria-label="Buscar">⌕</button>
+          <button class="icon-button cart-button" aria-label="Carrito">
+            🛒
+            <span class="cart-count">2</span>
+          </button>
+        </div>
+      </header>
+
+      <main class="cart-page">
+        <section class="cart-panel" aria-label="Productos del carrito">
+          <div class="section-header">
+            <div>
+              <p class="eyebrow">Mi compra</p>
+              <h1>Carrito de compras</h1>
+            </div>
+            <a href="#" class="secondary-link">Seguir comprando</a>
+          </div>
+
+          <article class="cart-item" data-price="42.5" data-qty="1">
+            <div class="product-thumb thumb-azure" aria-hidden="true">
+              <span class="pill pill-large"></span>
+              <span class="pill pill-small"></span>
+            </div>
+
+            <div class="product-info">
+              <div class="item-head">
+                <div>
+                  <h2>Vitamina C Plus</h2>
+                  <p>Suplemento de inmunidad · 60 cápsulas</p>
+                </div>
+                <button class="text-button remove-item">Eliminar</button>
+              </div>
+
+              <div class="item-meta">
+                <span class="stock-badge"><span class="dot"></span>En stock</span>
+                <div class="price-wrap">
+                  <span class="unit-price">$42.50</span>
+                  <div class="qty-control" aria-label="Cantidad del producto">
+                    <button class="qty-btn decrement" aria-label="Disminuir cantidad">−</button>
+                    <span class="qty-value">1</span>
+                    <button class="qty-btn increment" aria-label="Aumentar cantidad">+</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="cart-item" data-price="68.9" data-qty="1">
+            <div class="product-thumb thumb-green" aria-hidden="true">
+              <span class="pill pill-large"></span>
+              <span class="pill pill-small"></span>
+            </div>
+
+            <div class="product-info">
+              <div class="item-head">
+                <div>
+                  <h2>Paracetamol Forte</h2>
+                  <p>Analgésico y antipirético · 24 tabletas</p>
+                </div>
+                <button class="text-button remove-item">Eliminar</button>
+              </div>
+
+              <div class="item-meta">
+                <span class="stock-badge"><span class="dot"></span>En stock</span>
+                <div class="price-wrap">
+                  <span class="unit-price">$68.90</span>
+                  <div class="qty-control" aria-label="Cantidad del producto">
+                    <button class="qty-btn decrement" aria-label="Disminuir cantidad">−</button>
+                    <span class="qty-value">1</span>
+                    <button class="qty-btn increment" aria-label="Aumentar cantidad">+</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="cart-item" data-price="31.2" data-qty="2">
+            <div class="product-thumb thumb-mint" aria-hidden="true">
+              <span class="pill pill-large"></span>
+              <span class="pill pill-small"></span>
+            </div>
+
+            <div class="product-info">
+              <div class="item-head">
+                <div>
+                  <h2>Omega 3 Kids</h2>
+                  <p>Complemento nutricional · 2 frascos</p>
+                </div>
+                <button class="text-button remove-item">Eliminar</button>
+              </div>
+
+              <div class="item-meta">
+                <span class="stock-badge"><span class="dot"></span>En stock</span>
+                <div class="price-wrap">
+                  <span class="unit-price">$31.20</span>
+                  <div class="qty-control" aria-label="Cantidad del producto">
+                    <button class="qty-btn decrement" aria-label="Disminuir cantidad">−</button>
+                    <span class="qty-value">2</span>
+                    <button class="qty-btn increment" aria-label="Aumentar cantidad">+</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <aside class="summary-panel" aria-label="Resumen del pedido">
+          <div class="summary-card">
+            <h3>Resumen</h3>
+
+            <div class="summary-row">
+              <span>Subtotal</span>
+              <strong id="subtotal">$142.60</strong>
+            </div>
+            <div class="summary-row">
+              <span>Envío</span>
+              <strong id="shipping">$12.00</strong>
+            </div>
+            <div class="summary-row discount">
+              <span>Descuento</span>
+              <strong id="discount">-$14.00</strong>
+            </div>
+
+            <div class="coupon-box">
+              <label for="coupon">Cupón</label>
+              <div class="coupon-input">
+                <input id="coupon" type="text" value="PHAR10" aria-label="Código de cupón" />
+                <button type="button">Aplicar</button>
+              </div>
+            </div>
+
+            <div class="summary-total">
+              <span>Total</span>
+              <strong id="total">$140.60</strong>
+            </div>
+
+            <p class="items-count"><span id="item-count">4</span> artículos</p>
+
+            <button type="button" class="primary-button">Proceder al pago</button>
+            <button type="button" class="secondary-button">Guardar carrito</button>
+          </div>
+        </aside>
+      </main>
+    </div>
+
+    <script src="src/app.js"></script>
+  </body>
+</html>
