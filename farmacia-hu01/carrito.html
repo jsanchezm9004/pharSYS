@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Carrito de compras | PharSYS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+  <!-- Barra de navegación: conecta con los módulos de cada HU -->
+  <header class="barra"><nav class="interior" aria-label="Principal">
+    <a class="logo" href="index.html">PharSYS</a>
+    <a class="enlace" href="index.html">Página principal</a>
+    <a class="enlace" href="registro/index.html">Registrar clientes</a>
+    <a class="enlace" href="login/index.html">Iniciar sesión</a>
+    <a class="enlace activo" href="carrito.html">Carrito de compras</a>
+  </nav></header>
+  <main>
+    <h1>Carrito de compras</h1>
+    <p class="sub">Productos que agregaste desde la página principal.</p>
+    <!-- Aquí js/carrito.js muestra los productos agregados -->
+    <section id="listaCarrito" aria-label="Productos en el carrito"></section>
+
+    <!-- HU-04 (Juliana): desde aquí continúa su trabajo.
+         Falta: cantidad (+ / -), lote, fecha de vencimiento, cantidad disponible,
+         total y el botón "Confirmar y Pagar". -->
+    <section id="zonaHU04"></section>
+  </main>
+  <script src="js/productos.js"></script>
+  <script src="js/carrito.js"></script>
+</body>
+</html>
