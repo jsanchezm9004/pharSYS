@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Iniciar sesión | PharSYS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/styles.css">
+</head>
+<body>
+
+  <main class="contenedor">
+      <section class="tarjeta" aria-label="Iniciar sesión">
+      <h2 class="titulo">Iniciar sesión</h2>
+
+      <form id="formLogin" novalidate>
+    <section class="tarjeta" aria-label="Iniciar sesión">
+      <form id="formLogin" novalidate>
+        <div id="aviso" class="aviso" role="alert"></div>
+
+        <div class="campo" id="campoUsuario">
+          <label for="usuario">Usuario</label>
+          <div class="entrada">
+            <input type="text" id="usuario" name="usuario" placeholder="correo electronico " autocomplete="username" required>
+          </div>
+          <p class="mensaje-error" id="errorUsuario"></p>
+        </div>
+
+        <div class="campo" id="campoClave">
+          <label for="clave">Contraseña</label>
+          <div class="entrada">
+            <input type="password" id="clave" name="clave" placeholder="contraseña " autocomplete="current-password" required>
+            <button type="button" class="ver" id="btnVer" aria-label="Ver contraseña">mostrar contraseña </button>
+          </div>
+          <p class="mensaje-error" id="errorClave"></p>
+        </div>
+
+        <div class="opciones">
+          <label class="recordar">
+            <input type="checkbox" id="recordar"> Recordarme
+          </label>
+          <a href="#">¿Olvidaste tu contraseña?</a>
+        </div>
+
+        <div id="ayuda" class="ayuda" role="status">
+          <strong>¿No puedes ingresar? Prueba esto:</strong>
+          <ul>
+            <li>Revisa que tu usuario y contraseña estén bien escritos (cuida las mayúsculas).</li>
+            <li><a href="#">Recupera tu contraseña</a> si no la recuerdas.</li>
+            <li>Escríbenos a <a href="mailto:soporte@PharSYS.com">soporte@PharSYS.com</a> para que restablezcamos tu acceso.</li>
+          </ul>
+        </div>
+
+        <button type="submit" class="boton" id="btnEntrar">Iniciar sesión</button>
+      </form>
+
+      <p class="registro" id="registro">¿Aún no tienes cuenta? <a href="#">Crear cuenta</a></p>
+
+      <div id="vistaBienvenida">
+        <h2 id="saludo"></h2>
+        <span class="perfil" id="perfilTxt"></span>
+        <ul class="permisos" id="listaPermisos"></ul>
+        <button type="button" class="boton" id="btnSalir" style="width:100%">Cerrar sesión</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById("formLogin");
+    const usuario = document.getElementById("usuario");
+    const clave = document.getElementById("clave");
+    const aviso = document.getElementById("aviso");
+    const ayuda = document.getElementById("ayuda");
+    const btnEntrar = document.getElementById("btnEntrar");
+    const btnVer = document.getElementById("btnVer");
+    const recordar = document.getElementById("recordar");
+
+    // Cada persona registrada tiene un identificador único, una contraseña y un perfil.
+    // (Datos de prueba: en un proyecto real esto vive en una base de datos y se valida en el servidor.)
+    const USUARIOS = {
+      cliente01:  { clave: "Cliente123",  perfil: "Cliente",       nombre: "Laura" },
+      empleado01: { clave: "Empleado123", perfil: "Empleado",      nombre: "Carlos" },
+      admin01:    { clave: "Admin123",    perfil: "Administrador", nombre: "Marta" }
+    };
+
+    // Limitaciones de acceso según el perfil
+    const PERMISOS = {
+      "Cliente":       ["Ver el catálogo de medicamentos", "Comprar productos", "Consultar sus pedidos"],
+      "Empleado":      ["Registrar ventas", "Consultar y actualizar el inventario", "Atender pedidos de clientes"],
+      "Administrador": ["Supervisar ventas y empleados", "Gestionar usuarios y perfiles", "Ver reportes generales"]
+    };
+    const DESTINO = { "Cliente": "tienda.html", "Empleado": "empleado.html", "Administrador": "admin.html" };
+
+    // Recordar usuario
+    try {
+      const guardado = localStorage.getItem("usuarioRecordado");
+      if (guardado) { usuario.value = guardado; recordar.checked = true; }
+    } catch (e) {}
+
+    // Contraseña enmascarada; solo se ve al dar clic en "Ver contraseña"
+    btnVer.addEventListener("click", () => {
+      const oculta = clave.type === "password";
+      clave.type = oculta ? "text" : "password";
+      btnVer.textContent = oculta ? "Ocultar contraseña" : "Ver contraseña";
+      btnVer.setAttribute("aria-label", btnVer.textContent);
+    });
+
+    function marcarError(campoId, errorId, texto) {
+      document.getElementById(campoId).classList.toggle("invalido", Boolean(texto));
+      document.getElementById(errorId).textContent = texto || "";
+      return !texto;
+    }
+    // Los campos no pueden quedar vacíos
+    function validarUsuario() {
+      return marcarError("campoUsuario", "errorUsuario", usuario.value.trim() ? "" : "Escribe tu usuario.");
+    }
+    function validarClave() {
+      return marcarError("campoClave", "errorClave", clave.value ? "" : "Escribe tu contraseña.");
+    }
+    usuario.addEventListener("blur", validarUsuario);
+    clave.addEventListener("blur", validarClave);
+
+    function mostrarAviso(tipo, texto) {
+      aviso.className = "aviso " + tipo;
+      aviso.textContent = texto;
+    }
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      aviso.className = "aviso";
+      ayuda.classList.remove("visible");
+
+      const a = validarUsuario(), b = validarClave();
+      if (!a || !b) return;
+
+      btnEntrar.disabled = true;
+      btnEntrar.textContent = "Verificando...";
+
+      setTimeout(() => {
+        const id = usuario.value.trim().toLowerCase();
+        const registro = USUARIOS[id];
+        btnEntrar.disabled = false;
+        btnEntrar.textContent = "Iniciar sesión";
+
+        // Usuario no registrado
+        if (!registro) {
+          mostrarAviso("error", "Este usuario no está registrado. Revisa el dato o crea una cuenta.");
+          ayuda.classList.add("visible");
+          return;
+        }
+        // Contraseña incorrecta
+        if (registro.clave !== clave.value) {
+          mostrarAviso("error", "La contraseña es incorrecta. Inténtalo de nuevo.");
+          ayuda.classList.add("visible");
+          return;
+        }
+        // Acceso correcto
+        try {
+          if (recordar.checked) localStorage.setItem("usuarioRecordado", usuario.value.trim());
+          else localStorage.removeItem("usuarioRecordado");
+        } catch (e) {}
+        mostrarBienvenida(registro);
+      }, 600);
+    });
+
+    function mostrarBienvenida(registro) {
+      form.style.display = "none";
+      document.getElementById("registro").style.display = "none";
+      document.getElementById("saludo").textContent = "Hola, " + registro.nombre;
+      document.getElementById("perfilTxt").textContent = "Perfil: " + registro.perfil;
+      document.getElementById("listaPermisos").innerHTML =
+        PERMISOS[registro.perfil].map(p => "<li>" + p + "</li>").join("");
+      document.getElementById("vistaBienvenida").style.display = "block";
+      // window.location.href = DESTINO[registro.perfil]; // redirige según el perfil
+    }
+
+    document.getElementById("btnSalir").addEventListener("click", () => location.reload());
+  </script>
+</body>
+</html>
