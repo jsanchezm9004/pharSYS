@@ -3,35 +3,100 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Productos disponibles | PharSYS</title>
+  <title>PharSYS | Bienestar a tu alcance</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/navegacion.css">
   <link rel="stylesheet" href="css/estilos.css">
 </head>
 <body>
-  <!-- Barra de navegación: conecta con los módulos de cada HU -->
-  <header class="barra"><nav class="interior" aria-label="Principal">
-    <a class="logo" href="index.html">PharSYS</a>
-    <a class="enlace activo" href="index.html">Página principal</a>
-    <a class="enlace" href="registro/index.html">Registrar clientes</a>
-    <a class="enlace" href="login/index.html">Iniciar sesión</a>
-    <a class="enlace" href="carrito.html">Carrito de compras</a>
-  </nav></header>
-  <main>
-    <!-- Título y pestañas de categorías -->
-    <div class="encabezado">
-      <h1>Productos disponibles</h1>
-      <div class="filtros" role="group" aria-label="Categorías">
-        <button class="filtro activo">Todos</button>
-        <button class="filtro">Medicamentos</button>
-        <button class="filtro">Vitaminas</button>
-        <button class="filtro">Cuidado personal</button>
-        <button class="filtro">Primeros auxilios</button>
+  <header class="tienda-cabecera">
+    <div class="tienda-superior">
+      <a class="marca-tienda" href="index.html" aria-label="PharSYS, inicio">
+        <img src="../imagenes/logo-sin-fondo.png" alt="">
+        <span><strong>pharSYS</strong><small>Tu farmacia en línea</small></span>
+      </a>
+      <label class="busqueda-tienda">
+        <span aria-hidden="true">⌕</span>
+        <input id="buscarProducto" type="search" placeholder="¿Qué producto estás buscando?" aria-label="Buscar productos">
+      </label>
+      <div class="acciones-tienda">
+        <a class="acceso-tienda" href="login/index.html"><span aria-hidden="true">♙</span><span>Mi cuenta</span></a>
+        <a class="acceso-tienda" href="carrito.html"><span aria-hidden="true">🛒</span><span>Mi carrito</span></a>
+        <div class="pharsys-menu-root" data-base="" data-current="home" data-layout="inline"></div>
       </div>
     </div>
-    <!-- Aquí js/productos.js dibuja las tarjetas -->
-    <section class="grilla" id="listaProductos" aria-label="Lista de productos"></section>
+    <nav class="navegacion-tienda" aria-label="Secciones de la tienda">
+      <a href="#inicio" aria-current="page">Inicio</a>
+      <a href="#catalogo" data-categoria="Medicamentos">Medicamentos</a>
+      <a href="#catalogo" data-categoria="Vitaminas">Vitaminas</a>
+      <a href="#catalogo" data-categoria="Cuidado personal">Cuidado personal</a>
+      <a href="#catalogo" data-categoria="Primeros auxilios">Primeros auxilios</a>
+      <a href="#catalogo">Ofertas</a>
+      <a href="#categorias">Servicios de salud</a>
+    </nav>
+  </header>
+  <main>
+    <section class="hero-tienda" id="inicio" aria-labelledby="tituloBienvenida">
+      <div class="hero-contenido">
+        <p class="sobretitulo">Cuidamos de ti, todos los días</p>
+        <h1 id="tituloBienvenida">Bienestar a tu alcance,<br><span>sin salir de casa.</span></h1>
+        <p class="hero-descripcion">Encuentra medicamentos, vitaminas y cuidado personal en un solo lugar.</p>
+        <div class="hero-acciones">
+          <a class="boton-tienda" href="#catalogo">Explorar productos <span aria-hidden="true">›</span></a>
+          <a class="boton-secundario" href="registro/index.html">Crear mi cuenta</a>
+        </div>
+        <div class="hero-confianza">
+          <span>✓ Compra fácil</span>
+          <span>✓ Catálogo disponible en línea</span>
+        </div>
+      </div>
+      <div class="hero-ilustracion" aria-label="Catálogo PharSYS">
+        <div class="tarjeta-destacada">
+          <span class="icono-destacado" aria-hidden="true">＋</span>
+          <p>Encuentra lo que necesitas</p>
+          <strong><span id="totalProductos">—</span> productos disponibles</strong>
+          <small>Explora nuestro catálogo</small>
+        </div>
+        <div class="etiqueta-farmacia"><span aria-hidden="true">✚</span> Tu farmacia, más cerca</div>
+      </div>
+    </section>
+
+    <section class="beneficios-tienda" aria-label="Ventajas de PharSYS">
+      <article><span aria-hidden="true">▣</span><div><strong>Compra sencilla</strong><small>Explora el catálogo en línea</small></div></article>
+      <article><span aria-hidden="true">✓</span><div><strong>Productos disponibles</strong><small>Consulta existencias al momento</small></div></article>
+      <article><span aria-hidden="true">♡</span><div><strong>Todo para tu bienestar</strong><small>Salud y cuidado personal</small></div></article>
+      <article><span aria-hidden="true">＋</span><div><strong>Atención PharSYS</strong><small>Estamos para ayudarte</small></div></article>
+    </section>
+
+    <section class="categorias-tienda" id="categorias" aria-labelledby="tituloCategorias">
+      <div class="titulo-seccion">
+        <div><p class="sobretitulo">Compra por categoría</p><h2 id="tituloCategorias">Todo lo que necesitas para cuidarte</h2></div>
+        <a href="#catalogo" data-categoria="Todos">Ver catálogo <span aria-hidden="true">›</span></a>
+      </div>
+      <div class="tarjetas-categoria">
+        <button class="tarjeta-categoria categoria-medicamentos" data-categoria="Medicamentos"><span class="icono-categoria">Rx</span><span><strong>Medicamentos</strong><small>Encuentra tu tratamiento</small></span><span class="flecha-categoria">›</span></button>
+        <button class="tarjeta-categoria categoria-vitaminas" data-categoria="Vitaminas"><span class="icono-categoria">C+</span><span><strong>Vitaminas</strong><small>Refuerza tu bienestar</small></span><span class="flecha-categoria">›</span></button>
+        <button class="tarjeta-categoria categoria-cuidado" data-categoria="Cuidado personal"><span class="icono-categoria">♡</span><span><strong>Cuidado personal</strong><small>Cuídate cada día</small></span><span class="flecha-categoria">›</span></button>
+        <button class="tarjeta-categoria categoria-auxilios" data-categoria="Primeros auxilios"><span class="icono-categoria">＋</span><span><strong>Primeros auxilios</strong><small>Lo esencial para tu hogar</small></span><span class="flecha-categoria">›</span></button>
+      </div>
+    </section>
+
+    <section class="catalogo-tienda" id="catalogo" aria-labelledby="tituloCatalogo">
+      <div class="titulo-seccion encabezado-catalogo">
+        <div><p class="sobretitulo">Seleccionados para ti</p><h2 id="tituloCatalogo">Nuestros productos</h2></div>
+        <div class="filtros" role="group" aria-label="Filtrar productos por categoría">
+          <button class="filtro activo">Todos</button>
+          <button class="filtro">Medicamentos</button>
+          <button class="filtro">Vitaminas</button>
+          <button class="filtro">Cuidado personal</button>
+          <button class="filtro">Primeros auxilios</button>
+        </div>
+      </div>
+      <section class="grilla" id="listaProductos" aria-label="Lista de productos"></section>
+    </section>
   </main>
   <div id="mensaje" role="status" aria-live="polite"></div>
+  <script src="js/navegacion.js"></script>
   <script src="js/productos.js"></script>
   <script src="js/carrito.js"></script>
   <script src="js/principal.js"></script>

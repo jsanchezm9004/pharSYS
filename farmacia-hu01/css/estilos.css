@@ -11,6 +11,82 @@ a { color: var(--azul); font-weight: 600; text-decoration: none; }
 a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px solid var(--verde-claro); outline-offset: 2px; border-radius: 6px; }
 
 /* ===== Barra de navegación ===== */
+.tienda-cabecera { border-bottom: 1px solid var(--borde); background: var(--blanco); }
+.tienda-superior { max-width: 1200px; min-height: 76px; margin: 0 auto; padding: 12px 24px; display: flex; align-items: center; gap: 24px; }
+.marca-tienda { display: flex; align-items: center; gap: 9px; min-width: 165px; color: var(--azul-oscuro); }
+.marca-tienda img { width: 39px; height: 39px; object-fit: contain; }
+.marca-tienda strong, .marca-tienda small { display: block; }
+.marca-tienda strong { font-size: 1.15rem; font-weight: 800; }
+.marca-tienda small { color: var(--gris); font-size: .64rem; }
+.busqueda-tienda { display: flex; align-items: center; gap: 10px; flex: 1; max-width: 530px; padding: 11px 14px; border: 1px solid var(--borde); border-radius: 10px; background: #fafbfd; color: var(--gris); }
+.busqueda-tienda span { font-size: 1.2rem; }
+.busqueda-tienda input { width: 100%; border: 0; outline: 0; background: transparent; color: var(--azul-oscuro); font: inherit; font-size: .82rem; }
+.acciones-tienda { display: flex; align-items: center; gap: 14px; margin-left: auto; }
+.acceso-tienda { display: flex; align-items: center; gap: 6px; color: var(--azul-oscuro); font-size: .78rem; white-space: nowrap; }
+.acceso-tienda > span:first-child { font-size: 1rem; }
+.pharsys-menu-root[data-layout="inline"] .pharsys-menu-toggle { padding: 9px 12px; }
+.navegacion-tienda { display: flex; justify-content: center; gap: clamp(16px, 3vw, 38px); padding: 0 20px; border-top: 1px solid #f1f3f6; }
+.navegacion-tienda { scrollbar-width: none; }
+.navegacion-tienda::-webkit-scrollbar { display: none; }
+.navegacion-tienda a { padding: 12px 2px 10px; border-bottom: 2px solid transparent; color: var(--gris); font-size: .76rem; white-space: nowrap; }
+.navegacion-tienda a:hover, .navegacion-tienda a[aria-current="page"] { border-bottom-color: var(--verde); color: var(--verde); }
+
+/* ===== Portada de la tienda ===== */
+.hero-tienda { display: grid; grid-template-columns: 1fr .92fr; min-height: 300px; overflow: hidden; border-radius: 22px; background: #f1f6ef; }
+.hero-contenido { align-self: center; padding: 38px clamp(24px, 5vw, 58px); }
+.sobretitulo { margin-bottom: 8px; color: var(--verde); font-size: .67rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.hero-contenido h1 { font-size: clamp(1.75rem, 3vw, 2.6rem); line-height: 1.16; }
+.hero-contenido h1 span { color: var(--verde); }
+.hero-descripcion { max-width: 440px; margin-top: 12px; color: var(--gris); font-size: .86rem; line-height: 1.7; }
+.hero-acciones { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+.boton-tienda, .boton-secundario { display: inline-flex; align-items: center; gap: 12px; padding: 11px 16px; border-radius: 9px; font-size: .78rem; }
+.boton-tienda { background: var(--verde); color: var(--blanco); }
+.boton-tienda:hover { background: var(--azul-oscuro); color: var(--blanco); }
+.boton-tienda span { font-size: 1.1rem; }
+.boton-secundario { border: 1px solid var(--borde); background: var(--blanco); color: var(--azul-oscuro); }
+.hero-confianza { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 19px; color: var(--gris); font-size: .67rem; }
+.hero-confianza span::first-letter { color: var(--verde); }
+.hero-ilustracion { position: relative; display: grid; place-items: center; min-height: 250px; margin: 18px; overflow: hidden; border-radius: 17px; background: radial-gradient(ellipse at 25% 35%, #a7e5d8 0, transparent 43%), linear-gradient(120deg, #d8f1e8, #bdcee0 75%); }
+.hero-ilustracion::before, .hero-ilustracion::after { position: absolute; content: ""; border-radius: 50%; background: rgba(255,255,255,.22); }
+.hero-ilustracion::before { width: 190px; height: 190px; left: -55px; bottom: -95px; }
+.hero-ilustracion::after { width: 140px; height: 140px; right: -35px; top: -55px; }
+.tarjeta-destacada { z-index: 1; width: min(260px, 75%); padding: 22px; border-radius: 18px; background: var(--blanco); box-shadow: 0 12px 30px rgba(0,50,115,.12); }
+.icono-destacado { display: grid; width: 30px; height: 30px; margin-bottom: 18px; place-items: center; border-radius: 8px; background: var(--verde); color: var(--blanco); font-size: 1.35rem; }
+.tarjeta-destacada p { margin-bottom: 5px; color: var(--verde); font-size: .62rem; font-weight: 800; text-transform: uppercase; }
+.tarjeta-destacada strong, .tarjeta-destacada small { display: block; }
+.tarjeta-destacada strong { font-size: 1rem; }
+.tarjeta-destacada small { margin-top: 4px; color: var(--gris); font-size: .68rem; }
+.etiqueta-farmacia { position: absolute; right: 16px; bottom: 14px; z-index: 1; padding: 10px 13px; border-radius: 10px; background: var(--blanco); color: var(--azul-oscuro); font-size: .68rem; font-weight: 700; box-shadow: 0 6px 16px rgba(0,50,115,.1); }
+.etiqueta-farmacia span { margin-right: 6px; color: var(--verde); }
+.beneficios-tienda { display: grid; grid-template-columns: repeat(4, 1fr); margin: 18px 0 46px; padding: 15px 8px; border: 1px solid var(--borde); border-radius: 14px; }
+.beneficios-tienda article { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 4px 10px; border-right: 1px solid var(--borde); }
+.beneficios-tienda article:last-child { border: 0; }
+.beneficios-tienda article > span { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 8px; background: #eff6eb; color: var(--verde); }
+.beneficios-tienda strong, .beneficios-tienda small { display: block; }
+.beneficios-tienda strong { font-size: .69rem; }
+.beneficios-tienda small { margin-top: 3px; color: var(--gris); font-size: .58rem; }
+.categorias-tienda, .catalogo-tienda { scroll-margin-top: 20px; }
+.titulo-seccion { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+.titulo-seccion h2 { color: var(--azul-oscuro); font-size: 1.25rem; }
+.titulo-seccion > a { color: var(--verde); font-size: .76rem; white-space: nowrap; }
+.tarjetas-categoria { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 46px; }
+.tarjeta-categoria { display: flex; align-items: center; gap: 12px; min-width: 0; padding: 15px; border: 1px solid transparent; border-radius: 14px; text-align: left; cursor: pointer; font: inherit; }
+.tarjeta-categoria:hover { border-color: var(--borde); transform: translateY(-2px); }
+.categoria-medicamentos { background: #eef4fb; }
+.categoria-vitaminas { background: #f0f6eb; }
+.categoria-cuidado { background: #fff4ee; }
+.categoria-auxilios { background: #edf6f4; }
+.icono-categoria { display: grid; flex: 0 0 42px; height: 42px; place-items: center; border-radius: 11px; background: var(--blanco); color: var(--azul); font-size: .9rem; font-weight: 800; box-shadow: 0 4px 12px rgba(0,50,115,.06); }
+.categoria-vitaminas .icono-categoria { color: var(--verde); }
+.categoria-cuidado .icono-categoria { color: var(--naranja); }
+.tarjeta-categoria strong, .tarjeta-categoria small { display: block; }
+.tarjeta-categoria strong { font-size: .76rem; }
+.tarjeta-categoria small { margin-top: 4px; color: var(--gris); font-size: .62rem; }
+.flecha-categoria { margin-left: auto; color: var(--gris); }
+.catalogo-tienda { padding-top: 2px; }
+.encabezado-catalogo { align-items: center; }
+
+/* ===== Barra de navegación ===== */
 .barra { background: var(--azul-oscuro); }
 .barra .interior { max-width: 1200px; margin: 0 auto; padding: 14px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 24px; }
 .logo { font-weight: 800; font-size: 1.3rem; margin-right: auto; color: var(--blanco); }
@@ -68,4 +144,34 @@ details dt { font-weight: 600; }
 .eliminar { font: inherit; font-weight: 700; padding: 8px 14px; border-radius: 10px; cursor: pointer; background: var(--blanco); color: var(--naranja); border: 1.5px solid var(--naranja); }
 .vacio { background: var(--fondo-suave); border-radius: 16px; padding: 32px; text-align: center; color: var(--gris); }
 @media (max-width: 600px) { .item { grid-template-columns: 1fr; } }
+@media (max-width: 800px) {
+  .tienda-superior { flex-wrap: wrap; gap: 12px; }
+  .busqueda-tienda { order: 3; flex-basis: 100%; max-width: none; }
+  .acciones-tienda { gap: 8px; }
+  .navegacion-tienda { justify-content: flex-start; overflow-x: auto; }
+  .hero-tienda { grid-template-columns: 1fr; }
+  .hero-contenido { padding-bottom: 20px; }
+  .hero-ilustracion { min-height: 220px; margin-top: 0; }
+  .beneficios-tienda { grid-template-columns: repeat(2, 1fr); row-gap: 12px; }
+  .beneficios-tienda article:nth-child(2) { border-right: 0; }
+  .tarjetas-categoria { grid-template-columns: repeat(2, 1fr); }
+  .encabezado-catalogo { align-items: flex-start; flex-direction: column; }
+}
+@media (max-width: 480px) {
+  .tienda-superior { padding: 10px 16px; }
+  .marca-tienda { min-width: 0; }
+  .acceso-tienda { font-size: 0; }
+  .acceso-tienda > span:first-child { font-size: 1.1rem; }
+  .pharsys-menu-root[data-layout="inline"] .pharsys-menu-toggle { padding: 9px 10px; }
+  .hero-contenido { padding: 28px 20px 18px; }
+  .hero-ilustracion { min-height: 190px; }
+  .beneficios-tienda { margin-bottom: 36px; }
+  .beneficios-tienda article { justify-content: flex-start; padding: 4px; }
+  .beneficios-tienda small { font-size: .53rem; }
+  .tarjetas-categoria { gap: 8px; }
+  .tarjeta-categoria { gap: 8px; padding: 11px 9px; }
+  .icono-categoria { flex-basis: 34px; height: 34px; }
+  .tarjeta-categoria strong { font-size: .68rem; }
+  .tarjeta-categoria small { font-size: .55rem; }
+}
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }

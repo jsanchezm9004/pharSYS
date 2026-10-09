@@ -6,9 +6,11 @@
   <title>Iniciar sesión | PharSYS</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="farmacia-hu01/css/navegacion.css">
   <link rel="stylesheet" href="styles/styles.css">
 </head>
 <body>
+  <div class="pharsys-menu-root" data-base="farmacia-hu01/" data-current="login-prototype"></div>
 
   <main class="contenedor">
       <section class="tarjeta" aria-label="Iniciar sesión">
@@ -55,7 +57,7 @@
         <button type="submit" class="boton" id="btnEntrar">Iniciar sesión</button>
       </form>
 
-      <p class="registro" id="registro">¿Aún no tienes cuenta? <a href="#">Crear cuenta</a></p>
+      <p class="registro" id="registro">¿Aún no tienes cuenta? <a href="farmacia-hu01/registro/index.html">Crear cuenta</a></p>
 
       <div id="vistaBienvenida">
         <h2 id="saludo"></h2>
@@ -66,6 +68,7 @@
     </section>
   </main>
 
+  <script src="farmacia-hu01/js/navegacion.js"></script>
   <script>
     const form = document.getElementById("formLogin");
     const usuario = document.getElementById("usuario");

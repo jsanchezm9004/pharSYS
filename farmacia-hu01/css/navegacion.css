@@ -1,0 +1,136 @@
+.pharsys-menu-root {
+  position: fixed;
+  z-index: 1000;
+  top: 16px;
+  right: max(16px, calc((100vw - 1200px) / 2));
+  font-family: "Plus Jakarta Sans", system-ui, "Segoe UI", Arial, sans-serif;
+}
+
+.pharsys-menu-root[data-layout="inline"] {
+  position: relative;
+  inset: auto;
+}
+
+.pharsys-menu-root[data-layout="catalog"] {
+  position: relative;
+  inset: auto;
+  display: flex;
+  justify-content: flex-end;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 14px 24px 0;
+}
+
+.pharsys-menu-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(255, 255, 255, .3);
+  border-radius: 12px;
+  padding: 11px 16px;
+  background: #003273;
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0, 50, 115, .18);
+}
+
+.pharsys-menu-toggle:hover,
+.pharsys-menu-toggle[aria-expanded="true"] {
+  background: #023e73;
+}
+
+.pharsys-menu-icon {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.pharsys-menu-panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: min(290px, calc(100vw - 32px));
+  max-height: min(70vh, 560px);
+  padding: 12px;
+  overflow-y: auto;
+  border: 1px solid #e3e8ee;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 18px 48px rgba(0, 35, 79, .2);
+}
+
+.pharsys-menu-panel[hidden] {
+  display: none;
+}
+
+.pharsys-menu-heading {
+  padding: 8px 10px 6px;
+  color: #6b7a8c;
+  font-size: .75rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.pharsys-menu-section + .pharsys-menu-section {
+  margin-top: 6px;
+  border-top: 1px solid #e3e8ee;
+}
+
+.pharsys-menu-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 10px;
+  padding: 11px 10px;
+  color: #003273;
+  font-size: .92rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.pharsys-menu-link:hover,
+.pharsys-menu-link[aria-current="page"] {
+  background: #f1f5f9;
+  color: #003273;
+}
+
+.pharsys-menu-link:focus-visible,
+.pharsys-menu-toggle:focus-visible {
+  outline: 3px solid #88bf78;
+  outline-offset: 3px;
+}
+
+.pharsys-menu-symbol {
+  width: 22px;
+  text-align: center;
+  font-size: 1.05rem;
+}
+
+@media (max-width: 600px) {
+  .pharsys-menu-root {
+    top: 10px;
+    right: 10px;
+  }
+
+  .pharsys-menu-root[data-layout="inline"] {
+    top: auto;
+    right: auto;
+  }
+
+  .pharsys-menu-root[data-layout="catalog"] {
+    top: auto;
+    right: auto;
+    padding: 10px 24px 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pharsys-menu-root *,
+  .pharsys-menu-root *::before,
+  .pharsys-menu-root *::after {
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+}

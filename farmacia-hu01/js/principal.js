@@ -5,10 +5,14 @@ let categoriaActiva = "Todos";
 function pintarProductos() {
   document.getElementById("listaProductos").innerHTML = "";
   productos
-    .filter(p => categoriaActiva === "Todos" || p.categoria === categoriaActiva)
+    .filter(p => (categoriaActiva === "Todos" || p.categoria === categoriaActiva)
+      && (!document.getElementById("buscarProducto").value.trim()
+        || `${p.nombre} ${p.categoria} ${p.laboratorio} ${p.descripcion}`.toLowerCase()
+          .includes(document.getElementById("buscarProducto").value.trim().toLowerCase())))
     .forEach(p => p.mostrarDatos());
 }
 pintarProductos();
+document.getElementById("totalProductos").textContent = productos.length;
 
 // Muestra un mensaje corto abajo de la pantalla
 function mostrarMensaje(texto) {
@@ -27,6 +31,23 @@ document.querySelector(".filtros").addEventListener("click", e => {
   categoriaActiva = boton.textContent;
   pintarProductos();
 });
+
+function seleccionarCategoria(categoria) {
+  categoriaActiva = categoria;
+  document.querySelectorAll(".filtro").forEach(boton => {
+    boton.classList.toggle("activo", boton.textContent === categoria);
+  });
+  document.getElementById("tituloCatalogo").textContent =
+    categoria === "Todos" ? "Nuestros productos" : categoria;
+  pintarProductos();
+  document.getElementById("catalogo").scrollIntoView({ behavior: "smooth" });
+}
+
+document.querySelectorAll("[data-categoria]").forEach(enlace => {
+  enlace.addEventListener("click", () => seleccionarCategoria(enlace.dataset.categoria));
+});
+
+document.getElementById("buscarProducto").addEventListener("input", pintarProductos);
 
 // Clics dentro de la lista de productos
 document.getElementById("listaProductos").addEventListener("click", e => {

@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>pharSYS | Carrito</title>
+    <link rel="stylesheet" href="farmacia-hu01/css/navegacion.css" />
     <link rel="stylesheet" href="estiloCarrito.css" />
   </head>
   <body>
@@ -16,12 +17,7 @@
           </div>
         </div>
 
-        <nav class="main-nav" aria-label="Navegación principal">
-          <a href="#">Inicio</a>
-          <a href="#">Medicamentos</a>
-          <a href="#">Cuida tu salud</a>
-          <a href="#">Ofertas</a>
-        </nav>
+        <div class="pharsys-menu-root" data-base="farmacia-hu01/" data-current="cart-prototype" data-layout="inline"></div>
 
         <div class="topbar-actions">
           <button class="icon-button" aria-label="Buscar">⌕</button>
@@ -39,7 +35,7 @@
               <p class="eyebrow">Mi compra</p>
               <h1>Carrito de compras</h1>
             </div>
-            <a href="#" class="secondary-link">Seguir comprando</a>
+            <a href="farmacia-hu01/index.html" class="secondary-link">Seguir comprando</a>
           </div>
 
           <article class="cart-item" data-price="42.5" data-qty="1">
@@ -169,6 +165,7 @@
       </main>
     </div>
 
+    <script src="farmacia-hu01/js/navegacion.js"></script>
     <script src="src/app.js"></script>
   </body>
 </html>
