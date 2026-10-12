@@ -21,7 +21,11 @@
       </label>
       <div class="acciones-tienda">
         <a class="acceso-tienda" href="login/index.html"><span aria-hidden="true">♙</span><span>Mi cuenta</span></a>
-        <a class="acceso-tienda" href="carrito.html"><span aria-hidden="true">🛒</span><span>Mi carrito</span></a>
+        <a class="acceso-tienda" href="../carritoCompras.html">
+          <span aria-hidden="true">🛒</span>
+          <span>Carrito</span>
+          <span class="cart-count-badge" aria-live="polite">0</span>
+        </a>
         <div class="pharsys-menu-root" data-base="" data-current="home" data-layout="inline"></div>
       </div>
     </div>
@@ -31,7 +35,6 @@
       <a href="#catalogo" data-categoria="Vitaminas">Vitaminas</a>
       <a href="#catalogo" data-categoria="Cuidado personal">Cuidado personal</a>
       <a href="#catalogo" data-categoria="Primeros auxilios">Primeros auxilios</a>
-      <a href="#catalogo">Ofertas</a>
       <a href="#categorias">Servicios de salud</a>
     </nav>
   </header>
@@ -99,6 +102,16 @@
   <script src="js/navegacion.js"></script>
   <script src="js/productos.js"></script>
   <script src="js/carrito.js"></script>
+  <script>
+    function actualizarContadorCatalogo() {
+      const total = JSON.parse(localStorage.getItem("carritoPharSYS") || "[]").length;
+      document.querySelectorAll(".cart-count-badge").forEach(el => {
+        el.textContent = String(total);
+      });
+    }
+    document.addEventListener("pharsys:cart-updated", actualizarContadorCatalogo);
+    actualizarContadorCatalogo();
+  </script>
   <script src="js/principal.js"></script>
 </body>
 </html>

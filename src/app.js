@@ -1,6 +1,6 @@
-const currencyFormatter = new Intl.NumberFormat('es-MX', {
+const currencyFormatter = new Intl.NumberFormat('es-COP', {
   style: 'currency',
-  currency: 'MXN',
+  currency: 'COP',
   minimumFractionDigits: 2,
 });
 
@@ -28,7 +28,7 @@ const updateSummary = () => {
   });
 
   const shipping = activeItems.length > 0 ? 12 : 0;
-  const discount = 14;
+  const discount = subtotal > 200000 ? subtotal * 0.1 : 0;
   const total = subtotal + shipping - discount;
 
   subtotalEl.textContent = currencyFormatter.format(subtotal);

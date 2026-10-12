@@ -7,7 +7,7 @@ document.querySelectorAll(".pharsys-menu-root").forEach((root, index) => {
       label: "Tienda",
       links: [
         { page: "home", label: "Inicio / catálogo", icon: "⌂", href: `${base}index.html` },
-        { page: "cart", label: "Carrito de compras", icon: "🛒", href: `${base}carrito.html` },
+        { page: "cart", label: "Carrito de compras", icon: "🛒", href: `${base}../carritoCompras.html` },
       ],
     },
     {
@@ -16,15 +16,7 @@ document.querySelectorAll(".pharsys-menu-root").forEach((root, index) => {
         { page: "register", label: "Registrar clientes", icon: "＋", href: `${base}registro/index.html` },
         { page: "login", label: "Iniciar sesión", icon: "↪", href: `${base}login/index.html` },
       ],
-    },
-    {
-      label: "Pantallas alternativas",
-      links: [
-        { page: "cart-prototype", label: "Carrito (diseño alternativo)", icon: "🛍", href: `${base}../carritoCompras.html` },
-        { page: "register-prototype", label: "Registro (formulario alternativo)", icon: "＋", href: `${base}../registro.html` },
-        { page: "login-prototype", label: "Acceso (formulario alternativo)", icon: "↪", href: `${base}../login.html` },
-      ],
-    },
+    }
   ];
 
   root.innerHTML = `

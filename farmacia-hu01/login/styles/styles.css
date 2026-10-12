@@ -25,7 +25,7 @@ body {
 /* ---------- Formulario ---------- */
 .contenedor { width: 100%; display: grid; place-items: center; padding: 32px 24px; }
 .tarjeta {
-  width: 100%; max-width: 420px;
+  width: 100%; max-width: 460px;
   background: var(--blanco);
   border-radius: 20px;
   padding: 40px 36px;
@@ -57,7 +57,7 @@ form { display: grid; gap: 18px; }
 .mensaje-error { color: var(--error); font-size: .82rem; margin-top: 6px; min-height: 1em; }
 
 .ver {
-  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
   background: none; border: 0; cursor: pointer;
   color: var(--azul); font: inherit; font-size: .85rem; font-weight: 600;
   padding: 6px 8px; border-radius: 6px;
@@ -77,6 +77,7 @@ a:focus-visible { outline: 2px solid var(--azul); outline-offset: 2px; border-ra
   padding: 14px; border: 0; border-radius: 10px; cursor: pointer;
   background: var(--azul); color: var(--blanco);
   transition: background .15s, transform .1s;
+  margin-top: 8px;
 }
 .boton:hover { background: var(--azul-oscuro); }
 .boton:active { transform: scale(.98); }

@@ -5,7 +5,7 @@
     --texto: #1d2733;
     --suave: #5b6b7c;
     --borde: #c9d3df;
-    --acento: #2d4fd7;
+    --acento: #003273;
     --error: #c62828;
     --ok: #1b7f4b;
   }
@@ -27,6 +27,8 @@
   legend { font-weight: 600; padding: 0 .4rem; }
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
   .campo { display: flex; flex-direction: column; gap: .25rem; }
+  .entrada { position: relative; }
+  .entrada input { width: 100%; padding-right: 130px; }
   label { font-size: .9rem; font-weight: 600; }
   .req { color: var(--error); }
   input, select, textarea {
@@ -64,6 +66,24 @@
   }
   footer p { margin: .15rem 0; }
   footer strong { color: #fff; }
+
+  .ver {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: 0;
+    cursor: pointer;
+    color: #1565C0;
+    font: inherit;
+    font-size: .85rem;
+    font-weight: 600;
+    padding: 6px 8px;
+    border-radius: 6px;
+  }
+  .ver:hover { text-decoration: underline; }
+  .ver:focus-visible { outline: 2px solid #1565C0; }
 
   /* Separación del bloque de aceptación de términos */
   .check { margin-top: 1rem; }

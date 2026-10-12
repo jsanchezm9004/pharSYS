@@ -17,13 +17,12 @@
           </div>
         </div>
 
-        <div class="pharsys-menu-root" data-base="farmacia-hu01/" data-current="cart-prototype" data-layout="inline"></div>
+        <div class="pharsys-menu-root" data-base="farmacia-hu01/" data-current="cart" data-layout="inline"></div>
 
         <div class="topbar-actions">
-          <button class="icon-button" aria-label="Buscar">⌕</button>
           <button class="icon-button cart-button" aria-label="Carrito">
             🛒
-            <span class="cart-count">2</span>
+            <span class="cart-count">0</span>
           </button>
         </div>
       </header>
@@ -38,92 +37,7 @@
             <a href="farmacia-hu01/index.html" class="secondary-link">Seguir comprando</a>
           </div>
 
-          <article class="cart-item" data-price="42.5" data-qty="1">
-            <div class="product-thumb thumb-azure" aria-hidden="true">
-              <span class="pill pill-large"></span>
-              <span class="pill pill-small"></span>
-            </div>
-
-            <div class="product-info">
-              <div class="item-head">
-                <div>
-                  <h2>Vitamina C Plus</h2>
-                  <p>Suplemento de inmunidad · 60 cápsulas</p>
-                </div>
-                <button class="text-button remove-item">Eliminar</button>
-              </div>
-
-              <div class="item-meta">
-                <span class="stock-badge"><span class="dot"></span>En stock</span>
-                <div class="price-wrap">
-                  <span class="unit-price">$42.50</span>
-                  <div class="qty-control" aria-label="Cantidad del producto">
-                    <button class="qty-btn decrement" aria-label="Disminuir cantidad">−</button>
-                    <span class="qty-value">1</span>
-                    <button class="qty-btn increment" aria-label="Aumentar cantidad">+</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </article>
-
-          <article class="cart-item" data-price="68.9" data-qty="1">
-            <div class="product-thumb thumb-green" aria-hidden="true">
-              <span class="pill pill-large"></span>
-              <span class="pill pill-small"></span>
-            </div>
-
-            <div class="product-info">
-              <div class="item-head">
-                <div>
-                  <h2>Paracetamol Forte</h2>
-                  <p>Analgésico y antipirético · 24 tabletas</p>
-                </div>
-                <button class="text-button remove-item">Eliminar</button>
-              </div>
-
-              <div class="item-meta">
-                <span class="stock-badge"><span class="dot"></span>En stock</span>
-                <div class="price-wrap">
-                  <span class="unit-price">$68.90</span>
-                  <div class="qty-control" aria-label="Cantidad del producto">
-                    <button class="qty-btn decrement" aria-label="Disminuir cantidad">−</button>
-                    <span class="qty-value">1</span>
-                    <button class="qty-btn increment" aria-label="Aumentar cantidad">+</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </article>
-
-          <article class="cart-item" data-price="31.2" data-qty="2">
-            <div class="product-thumb thumb-mint" aria-hidden="true">
-              <span class="pill pill-large"></span>
-              <span class="pill pill-small"></span>
-            </div>
-
-            <div class="product-info">
-              <div class="item-head">
-                <div>
-                  <h2>Omega 3 Kids</h2>
-                  <p>Complemento nutricional · 2 frascos</p>
-                </div>
-                <button class="text-button remove-item">Eliminar</button>
-              </div>
-
-              <div class="item-meta">
-                <span class="stock-badge"><span class="dot"></span>En stock</span>
-                <div class="price-wrap">
-                  <span class="unit-price">$31.20</span>
-                  <div class="qty-control" aria-label="Cantidad del producto">
-                    <button class="qty-btn decrement" aria-label="Disminuir cantidad">−</button>
-                    <span class="qty-value">2</span>
-                    <button class="qty-btn increment" aria-label="Aumentar cantidad">+</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </article>
+          <div id="listaCarrito" aria-live="polite"></div>
         </section>
 
         <aside class="summary-panel" aria-label="Resumen del pedido">
@@ -132,33 +46,26 @@
 
             <div class="summary-row">
               <span>Subtotal</span>
-              <strong id="subtotal">$142.60</strong>
+              <strong id="subtotal">$0.00</strong>
             </div>
             <div class="summary-row">
               <span>Envío</span>
-              <strong id="shipping">$12.00</strong>
+              <strong id="shipping">$0.00</strong>
             </div>
             <div class="summary-row discount">
               <span>Descuento</span>
-              <strong id="discount">-$14.00</strong>
-            </div>
-
-            <div class="coupon-box">
-              <label for="coupon">Cupón</label>
-              <div class="coupon-input">
-                <input id="coupon" type="text" value="PHAR10" aria-label="Código de cupón" />
-                <button type="button">Aplicar</button>
-              </div>
+              <strong id="discount">-$0.00</strong>
             </div>
 
             <div class="summary-total">
               <span>Total</span>
-              <strong id="total">$140.60</strong>
+              <strong id="total">$0.00</strong>
             </div>
 
-            <p class="items-count"><span id="item-count">4</span> artículos</p>
+            <p class="items-count"><span id="item-count">0</span> artículos</p>
 
-            <button type="button" class="primary-button">Proceder al pago</button>
+            <button type="button" id="checkoutButton" class="primary-button">Proceder al pago</button>
+            <p id="cartLoginWarning" class="cart-login-warning" hidden>Debes iniciar sesión para continuar con el pago.</p>
             <button type="button" class="secondary-button">Guardar carrito</button>
           </div>
         </aside>
@@ -166,6 +73,83 @@
     </div>
 
     <script src="farmacia-hu01/js/navegacion.js"></script>
-    <script src="src/app.js"></script>
+    <script src="farmacia-hu01/js/productos.js"></script>
+    <script src="farmacia-hu01/js/carrito.js"></script>
+    <script>
+      const moneda = new Intl.NumberFormat("es-CO", {
+        style: "currency",
+        currency: "COP",
+        maximumFractionDigits: 0
+      });
+
+      function actualizarResumenCarrito() {
+        const carrito = leerCarrito();
+        const items = carrito
+          .map(item => {
+            const producto = productos.find(p => p.id === item.id);
+            if (!producto) return null;
+            return { ...producto, cantidad: item.cantidad };
+          })
+          .filter(Boolean);
+
+        const subtotal = items.reduce((total, item) => total + Number(item.precio || 0) * item.cantidad, 0);
+        const shipping = items.length ? 12000 : 0;
+        const descuento = items.length ? (subtotal > 200000 ? subtotal * 0.1 : 0) : 0;
+        const total = subtotal + shipping - descuento;
+        const cantidadTotal = items.reduce((totalCantidad, item) => totalCantidad + item.cantidad, 0);
+
+        document.getElementById("subtotal").textContent = moneda.format(subtotal);
+        document.getElementById("shipping").textContent = moneda.format(shipping);
+        document.getElementById("discount").textContent = `-${moneda.format(descuento)}`;
+        document.getElementById("total").textContent = moneda.format(total);
+        document.getElementById("item-count").textContent = cantidadTotal;
+        document.querySelector(".cart-count").textContent = cantidadTotal;
+
+        const aviso = document.getElementById("cartLoginWarning");
+        if (aviso) {
+          try {
+            const sesion = JSON.parse(localStorage.getItem("pharsysSesion") || "null");
+            aviso.hidden = Boolean(sesion);
+          } catch (error) {
+            aviso.hidden = false;
+          }
+        }
+      }
+
+      function requiereSesionParaPago() {
+        const loginRedirect = window.location.pathname.includes("/farmacia-hu01/")
+          ? "../login/index.html"
+          : "farmacia-hu01/login/index.html";
+
+        try {
+          const sesion = JSON.parse(localStorage.getItem("pharsysSesion") || "null");
+          if (!sesion) {
+            window.location.replace(loginRedirect);
+            return false;
+          }
+          return true;
+        } catch (error) {
+          window.location.replace(loginRedirect);
+          return false;
+        }
+      }
+
+      document.getElementById("checkoutButton").addEventListener("click", () => {
+        if (!requiereSesionParaPago()) return;
+        window.location.href = "checkout.html";
+      });
+
+      window.addEventListener("pharsys:cart-updated", () => {
+        if (typeof pintarCarrito === "function") {
+          pintarCarrito();
+        }
+        actualizarResumenCarrito();
+      });
+
+      if (typeof pintarCarrito === "function") {
+        pintarCarrito();
+      }
+      actualizarResumenCarrito();
+    </script>
   </body>
 </html>

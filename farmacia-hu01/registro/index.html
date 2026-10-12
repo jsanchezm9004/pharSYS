@@ -16,12 +16,10 @@
   </header>
 
   <main>
-    
     <section aria-labelledby="titulo-form">
       <h2 id="titulo-form">Nuevo cliente</h2>
 
       <form id="formCliente" novalidate>
-
         <fieldset>
           <legend>Datos personales</legend>
           <div class="grid">
@@ -36,28 +34,33 @@
               </select>
               <span class="msg" id="e-tipoDoc"></span>
             </div>
+
             <div class="campo">
               <label for="numDoc">Número de documento <span class="req">*</span></label>
               <input type="text" id="numDoc" name="numDoc" inputmode="numeric" required>
               <span class="msg" id="e-numDoc"></span>
             </div>
+
             <div class="campo">
               <label for="nombres">Nombres <span class="req">*</span></label>
               <input type="text" id="nombres" name="nombres" required>
               <span class="msg" id="e-nombres"></span>
             </div>
+
             <div class="campo">
               <label for="apellidos">Apellidos <span class="req">*</span></label>
               <input type="text" id="apellidos" name="apellidos" required>
               <span class="msg" id="e-apellidos"></span>
             </div>
+
             <div class="campo">
               <label for="fechaNac">Fecha de nacimiento <span class="req">*</span></label>
               <input type="date" id="fechaNac" name="fechaNac" required>
               <span class="msg" id="e-fechaNac"></span>
             </div>
+
             <div class="campo">
-                      <label>Género <span class="req">*</span></label>
+              <label>Género <span class="req">*</span></label>
               <div class="radios" role="radiogroup">
                 <label><input type="radio" name="genero" value="Femenino"> Femenino</label>
                 <label><input type="radio" name="genero" value="Masculino"> Masculino</label>
@@ -76,16 +79,19 @@
               <input type="email" id="correo" name="correo" placeholder="nombre@correo.com" required>
               <span class="msg" id="e-correo"></span>
             </div>
+
             <div class="campo">
               <label for="telefono">Teléfono celular <span class="req">*</span></label>
-              <input type="tel" id="telefono" name="telefono" placeholder="3001234567" inputmode="numeric" required>
+              <input type="tel" id="telefono" name="telefono" placeholder="3003003000" inputmode="numeric" required>
               <span class="msg" id="e-telefono"></span>
             </div>
+
             <div class="campo">
               <label for="direccion">Dirección <span class="req">*</span></label>
               <input type="text" id="direccion" name="direccion" required>
               <span class="msg" id="e-direccion"></span>
             </div>
+
             <div class="campo">
               <label for="ciudad">Ciudad <span class="req">*</span></label>
               <input type="text" id="ciudad" name="ciudad" required>
@@ -106,191 +112,203 @@
               </select>
               <span class="msg" id="e-tipoCliente"></span>
             </div>
+
             <div class="campo">
               <label for="observaciones">Observaciones</label>
               <textarea id="observaciones" name="observaciones" rows="3"></textarea>
             </div>
           </div>
+
           <div class="campo check">
-            <label><input type="checkbox" id="terminos" name="terminos">
-              Acepto el tratamiento de mis datos personales (Ley 1581 de 2012) <span class="req">*</span></label>
+            <label>
+              <input type="checkbox" id="terminos" name="terminos">
+              Acepto el tratamiento de mis datos personales (Ley 1581 de 2012) <span class="req">*</span>
+            </label>
             <span class="msg" id="e-terminos"></span>
           </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Contraseña</legend>
+            <div class="campo">
+              <label for="clave">Contraseña <span class="req">*</span></label>
+              <div class="entrada">
+                <input type="password" id="clave" name="clave" minlength="8" required>
+                <button type="button" class="ver" id="btnVerClave" aria-label="Mostrar contraseña">Mostrar contraseña</button>
+              </div>
+              <span class="msg" id="e-clave"></span>
+            </div>
+
+            <div class="campo">
+              <label for="confirmarClave">Confirmar contraseña <span class="req">*</span></label>
+              <div class="entrada">
+                <input type="password" id="confirmarClave" name="confirmarClave" minlength="8" required>
+                <button type="button" class="ver" id="btnVerConfirmarClave" aria-label="Mostrar contraseña">Mostrar contraseña</button>
+              </div>
+              <span class="msg" id="e-confirmarClave"></span>
+            </div>
         </fieldset>
 
         <div class="acciones">
           <button type="submit" class="primario">Registrar cliente</button>
           <button type="reset" class="secundario" id="btnLimpiar">Limpiar formulario</button>
         </div>
+
         <p id="aviso" role="status" aria-live="polite"></p>
       </form>
-    </section>
-
-
-    <section aria-labelledby="titulo-lista">
-      <h2 id="titulo-lista">Clientes registrados (<span id="contador">0</span>)</h2>
-      <div class="tabla-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Documento</th>
-              <th>Nombre completo</th>
-              <th>Correo</th>
-              <th>Teléfono</th>
-              <th>Ciudad</th>
-              <th>Tipo</th>
-              <th>Acción</th>
-            </tr>
-          </thead>
-          <tbody id="tbodyClientes">
-            <tr><td colspan="7" class="vacio">Aún no hay clientes registrados.</td></tr>
-          </tbody>
-        </table>
-      </div>
     </section>
   </main>
 
   <footer>© 2026 Todos los derechos reservados.</footer>
-       
+
+  <script src="../../src/auth.js"></script>
   <script src="../js/navegacion.js"></script>
   <script>
-  let clientes = [];
+    const form = document.getElementById("formCliente");
+    const aviso = document.getElementById("aviso");
+    const btnVerClave = document.getElementById("btnVerClave");
+    const btnVerConfirmarClave = document.getElementById("btnVerConfirmarClave");
 
-    const form = document.getElementById('formCliente');
-    const tbody = document.getElementById('tbodyClientes');
-    const aviso = document.getElementById('aviso');
-
-    // ===== Utilidades =====
     const val = id => document.getElementById(id).value.trim();
+
+    function togglePasswordVisibility(button, inputId) {
+      const input = document.getElementById(inputId);
+      const mostrar = input.type === "password";
+      input.type = mostrar ? "text" : "password";
+      button.textContent = mostrar ? "ocultar contraseña" : "mostrar contraseña";
+      button.setAttribute("aria-label", mostrar ? "Ocultar contraseña" : "Mostrar contraseña");
+    }
+
+    if (btnVerClave) {
+      btnVerClave.addEventListener("click", () => togglePasswordVisibility(btnVerClave, "clave"));
+    }
+
+    if (btnVerConfirmarClave) {
+      btnVerConfirmarClave.addEventListener("click", () => togglePasswordVisibility(btnVerConfirmarClave, "confirmarClave"));
+    }
 
     function setError(id, mensaje) {
       const campo = document.getElementById(id);
-      const msg = document.getElementById('e-' + id);
+      const msg = document.getElementById("e-" + id);
       if (msg) msg.textContent = mensaje;
-      if (campo) campo.classList.toggle('invalido', !!mensaje);
+      if (campo) campo.classList.toggle("invalido", !!mensaje);
     }
 
     function esMayorDeEdad(fecha) {
       const hoy = new Date();
       const nac = new Date(fecha);
       let edad = hoy.getFullYear() - nac.getFullYear();
-      const m = hoy.getMonth() - nac.getMonth();
-      if (m < 0 || (m === 0 && hoy.getDate() < nac.getDate())) edad--;
+      const mesDiferencia = hoy.getMonth() - nac.getMonth();
+
+      if (mesDiferencia < 0 || (mesDiferencia === 0 && hoy.getDate() < nac.getDate())) {
+        edad--;
+      }
+
       return edad >= 18;
     }
 
-    // ===== Validación =====
     function validar() {
       let ok = true;
+
       const regla = (id, condicion, mensaje) => {
-        setError(id, condicion ? '' : mensaje);
+        setError(id, condicion ? "" : mensaje);
         if (!condicion) ok = false;
       };
 
-      regla('tipoDoc', val('tipoDoc') !== '', 'Seleccione el tipo de documento.');
-      regla('numDoc', /^[0-9]{5,12}$/.test(val('numDoc')), 'Use solo números (5 a 12 dígitos).');
-      regla('nombres', val('nombres').length >= 2, 'Ingrese los nombres.');
-      regla('apellidos', val('apellidos').length >= 2, 'Ingrese los apellidos.');
+      regla("tipoDoc", val("tipoDoc") !== "", "Seleccione el tipo de documento.");
+      regla("numDoc", /^[0-9]{5,12}$/.test(val("numDoc")), "Use solo números (5 a 12 dígitos).");
+      regla("nombres", val("nombres").length >= 2, "Ingrese los nombres.");
+      regla("apellidos", val("apellidos").length >= 2, "Ingrese los apellidos.");
 
-      const fecha = val('fechaNac');
-      regla('fechaNac', fecha !== '' && esMayorDeEdad(fecha), 'El cliente debe ser mayor de 18 años.');
+      const fecha = val("fechaNac");
+      regla("fechaNac", fecha !== "" && esMayorDeEdad(fecha), "El cliente debe ser mayor de 18 años.");
 
       const genero = form.querySelector('input[name="genero"]:checked');
-      document.getElementById('e-genero').textContent = genero ? '' : 'Seleccione una opción.';
+      document.getElementById("e-genero").textContent = genero ? "" : "Seleccione una opción.";
       if (!genero) ok = false;
 
-      regla('correo', /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val('correo')), 'Ingrese un correo válido.');
-      regla('telefono', /^3[0-9]{9}$/.test(val('telefono')), 'Celular de 10 dígitos que empiece por 3.');
-      regla('direccion', val('direccion').length >= 5, 'Ingrese la dirección.');
-      regla('ciudad', val('ciudad').length >= 2, 'Ingrese la ciudad.');
-      regla('tipoCliente', val('tipoCliente') !== '', 'Seleccione el tipo de cliente.');
+      regla("correo", /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val("correo")), "Ingrese un correo válido.");
+      regla("telefono", /^3[0-9]{9}$/.test(val("telefono")), "Celular de 10 dígitos que empiece por 3.");
+      regla("clave", val("clave").length >= 8, "La contraseña debe tener al menos 8 caracteres.");
+      regla("confirmarClave", val("confirmarClave") !== "" && val("confirmarClave") === val("clave"), "Las contraseñas no coinciden.");
+      regla("direccion", val("direccion").length >= 5, "Ingrese la dirección.");
+      regla("ciudad", val("ciudad").length >= 2, "Ingrese la ciudad.");
+      regla("tipoCliente", val("tipoCliente") !== "", "Seleccione el tipo de cliente.");
 
-      const term = document.getElementById('terminos').checked;
-      document.getElementById('e-terminos').textContent = term ? '' : 'Debe aceptar para continuar.';
+      const term = document.getElementById("terminos").checked;
+      document.getElementById("e-terminos").textContent = term ? "" : "Debe aceptar para continuar.";
       if (!term) ok = false;
 
       return ok;
     }
 
-    // ===== Mostrar tabla =====
-    function pintarTabla() {
-      document.getElementById('contador').textContent = clientes.length;
-      tbody.innerHTML = '';
-
-      if (clientes.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="vacio">Aún no hay clientes registrados.</td></tr>';
-        return;
-      }
-
-      clientes.forEach((c, i) => {
-        const fila = document.createElement('tr');
-        // textContent evita insertar HTML malicioso
-        [`${c.tipoDoc.split(' ')[0]} ${c.numDoc}`, `${c.nombres} ${c.apellidos}`,
-         c.correo, c.telefono, c.ciudad, c.tipoCliente].forEach(texto => {
-          const td = document.createElement('td');
-          td.textContent = texto;
-          fila.appendChild(td);
-        });
-        const tdAccion = document.createElement('td');
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'borrar';
-        btn.textContent = 'Eliminar';
-        btn.addEventListener('click', () => { clientes.splice(i, 1); pintarTabla(); });
-        tdAccion.appendChild(btn);
-        fila.appendChild(tdAccion);
-        tbody.appendChild(fila);
-      });
-    }
-
-    // ===== Envío del formulario =====
-    form.addEventListener('submit', e => {
-      e.preventDefault();
-      aviso.style.color = '';
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      aviso.style.color = "";
 
       if (!validar()) {
-        aviso.style.color = 'var(--error)';
-        aviso.textContent = 'Revise los campos marcados en rojo.';
+        aviso.style.color = "var(--error)";
+        aviso.textContent = "Revise los campos marcados en rojo.";
         return;
       }
 
-      // Evitar documentos duplicados
-      if (clientes.some(c => c.numDoc === val('numDoc'))) {
-        setError('numDoc', 'Ya existe un cliente con este documento.');
-        aviso.style.color = 'var(--error)';
-        aviso.textContent = 'No se registró: documento duplicado.';
-        return;
-      }
+      const email = val("correo");
+      const documento = val("numDoc");
+      const clave = val("clave");
 
-      clientes.push({
-        tipoDoc: val('tipoDoc'),
-        numDoc: val('numDoc'),
-        nombres: val('nombres'),
-        apellidos: val('apellidos'),
-        fechaNac: val('fechaNac'),
-        genero: form.querySelector('input[name="genero"]:checked').value,
-        correo: val('correo'),
-        telefono: val('telefono'),
-        direccion: val('direccion'),
-        ciudad: val('ciudad'),
-        tipoCliente: val('tipoCliente'),
-        observaciones: val('observaciones'),
-        fechaRegistro: new Date().toLocaleString('es-CO')
+      const usuarios = leerUsuarios();
+      const duplicado = usuarios.some(usuario => {
+        const documentoGuardado = String(usuario.numDoc || usuario.documento || "");
+        return usuario.email === email || documentoGuardado === documento;
       });
 
-      pintarTabla();
+      if (duplicado) {
+        setError("correo", "Ya existe un cliente con este correo o documento.");
+        aviso.style.color = "var(--error)";
+        aviso.textContent = "No se registró: usuario duplicado.";
+        return;
+      }
+
+      const nuevoUsuario = {
+        usuario: email,
+        email,
+        nombre: val("nombres"),
+        apellido: val("apellidos"),
+        documento: documento,
+        numDoc: documento,
+        tipoDoc: val("tipoDoc"),
+        telefono: val("telefono"),
+        direccion: val("direccion"),
+        ciudad: val("ciudad"),
+        tipoCliente: val("tipoCliente"),
+        clave: clave,
+        perfil: "Cliente",
+        fechaRegistro: new Date().toISOString()
+      };
+
+      const resultado = registrarUsuario(nuevoUsuario);
+
+      if (!resultado.ok) {
+        aviso.style.color = "var(--error)";
+        aviso.textContent = resultado.mensaje;
+        return;
+      }
+
+      guardarSesion(resultado.usuario);
+      aviso.style.color = "var(--ok)";
+      aviso.textContent = "Registro exitoso. Redirigiendo...";
       form.reset();
-      aviso.style.color = 'var(--ok)';
-      aviso.textContent = 'Cliente registrado correctamente.';
+
+      setTimeout(() => {
+        window.location.href = "../index.html";
+      }, 800);
     });
 
-    // Limpiar mensajes de error al reiniciar
-    form.addEventListener('reset', () => {
-      form.querySelectorAll('.msg').forEach(m => m.textContent = '');
-      form.querySelectorAll('.invalido').forEach(c => c.classList.remove('invalido'));
-      aviso.textContent = '';
+    form.addEventListener("reset", () => {
+      form.querySelectorAll(".msg").forEach(item => item.textContent = "");
+      form.querySelectorAll(".invalido").forEach(item => item.classList.remove("invalido"));
+      aviso.textContent = "";
     });
   </script>
-
 </body>
 </html>
