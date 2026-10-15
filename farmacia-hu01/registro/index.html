@@ -154,6 +154,15 @@
           <button type="reset" class="secundario" id="btnLimpiar">Limpiar formulario</button>
         </div>
 
+        <div id="resumenRegistro" hidden>
+          <h3>Resumen del registro</h3>
+          <ul id="listaResumenRegistro"></ul>
+          <div class="acciones">
+            <button type="button" class="secundario" id="btnEditarRegistro">Editar información</button>
+            <button type="button" class="primario" id="btnConfirmarRegistro">Confirmar registro</button>
+          </div>
+        </div>
+
         <p id="aviso" role="status" aria-live="polite"></p>
       </form>
     </section>
@@ -168,6 +177,10 @@
     const aviso = document.getElementById("aviso");
     const btnVerClave = document.getElementById("btnVerClave");
     const btnVerConfirmarClave = document.getElementById("btnVerConfirmarClave");
+    const resumenRegistro = document.getElementById("resumenRegistro");
+    const listaResumenRegistro = document.getElementById("listaResumenRegistro");
+    const btnConfirmarRegistro = document.getElementById("btnConfirmarRegistro");
+    const btnEditarRegistro = document.getElementById("btnEditarRegistro");
 
     const val = id => document.getElementById(id).value.trim();
 
@@ -205,6 +218,44 @@
       }
 
       return edad >= 18;
+    }
+
+    function construirResumen() {
+      const genero = form.querySelector('input[name="genero"]:checked');
+      const datos = [
+        ["Tipo de documento", val("tipoDoc")],
+        ["Número de documento", val("numDoc")],
+        ["Nombres", val("nombres")],
+        ["Apellidos", val("apellidos")],
+        ["Fecha de nacimiento", val("fechaNac")],
+        ["Género", genero ? genero.value : ""],
+        ["Correo", val("correo")],
+        ["Teléfono", val("telefono")],
+        ["Dirección", val("direccion")],
+        ["Ciudad", val("ciudad")],
+        ["Tipo de cliente", val("tipoCliente")],
+        ["Observaciones", val("observaciones") || "Sin observaciones"]
+      ];
+
+      listaResumenRegistro.innerHTML = datos
+        .filter(([, valor]) => valor)
+        .map(([label, valor]) => `<li><strong>${label}:</strong> ${valor}</li>`)
+        .join("");
+    }
+
+    function mostrarResumenRegistro() {
+      construirResumen();
+      form.querySelector(".acciones").style.display = "none";
+      resumenRegistro.hidden = false;
+      aviso.textContent = "Revisa la información antes de confirmar el registro.";
+      aviso.style.color = "var(--ok)";
+    }
+
+    function ocultarResumenRegistro() {
+      resumenRegistro.hidden = true;
+      form.querySelector(".acciones").style.display = "flex";
+      aviso.textContent = "";
+      aviso.style.color = "";
     }
 
     function validar() {
@@ -254,6 +305,14 @@
         return;
       }
 
+      mostrarResumenRegistro();
+    });
+
+    btnEditarRegistro.addEventListener("click", () => {
+      ocultarResumenRegistro();
+    });
+
+    btnConfirmarRegistro.addEventListener("click", () => {
       const email = val("correo");
       const documento = val("numDoc");
       const clave = val("clave");
@@ -268,6 +327,7 @@
         setError("correo", "Ya existe un cliente con este correo o documento.");
         aviso.style.color = "var(--error)";
         aviso.textContent = "No se registró: usuario duplicado.";
+        ocultarResumenRegistro();
         return;
       }
 
@@ -293,6 +353,7 @@
       if (!resultado.ok) {
         aviso.style.color = "var(--error)";
         aviso.textContent = resultado.mensaje;
+        ocultarResumenRegistro();
         return;
       }
 
@@ -300,6 +361,7 @@
       aviso.textContent = "Registro exitoso. Ahora puedes iniciar sesión.";
       window.alert("¡Registro exitoso! El usuario ha sido registrado correctamente. Ahora debes iniciar sesión.");
       form.reset();
+      ocultarResumenRegistro();
 
       setTimeout(() => {
         window.location.href = "../login/index.html";
