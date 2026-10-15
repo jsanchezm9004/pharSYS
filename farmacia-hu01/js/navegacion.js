@@ -2,6 +2,7 @@ document.querySelectorAll(".pharsys-menu-root").forEach((root, index) => {
   const base = root.dataset.base || "";
   const current = root.dataset.current;
   const panelId = `pharsys-menu-panel-${index + 1}`;
+  const haySesion = typeof haySesionActiva === "function" && haySesionActiva();
   const sections = [
     {
       label: "Tienda",
@@ -12,10 +13,14 @@ document.querySelectorAll(".pharsys-menu-root").forEach((root, index) => {
     },
     {
       label: "Cuenta",
-      links: [
-        { page: "register", label: "Registrar clientes", icon: "＋", href: `${base}registro/index.html` },
-        { page: "login", label: "Iniciar sesión", icon: "↪", href: `${base}login/index.html` },
-      ],
+      links: haySesion
+        ? [
+            { page: "logout", label: "Cerrar sesión", icon: "↩", href: `${base}login/index.html` },
+          ]
+        : [
+            { page: "register", label: "Registrar clientes", icon: "＋", href: `${base}registro/index.html` },
+            { page: "login", label: "Iniciar sesión", icon: "↪", href: `${base}login/index.html` },
+          ]
     }
   ];
 
@@ -41,6 +46,19 @@ document.querySelectorAll(".pharsys-menu-root").forEach((root, index) => {
 
   const toggle = root.querySelector(".pharsys-menu-toggle");
   const panel = root.querySelector(".pharsys-menu-panel");
+
+  panel.querySelectorAll(".pharsys-menu-link").forEach(link => {
+    if (link.textContent.includes("Cerrar sesión")) {
+      link.addEventListener("click", event => {
+        event.preventDefault();
+        if (typeof cerrarSesion === "function") {
+          cerrarSesion();
+        }
+        localStorage.removeItem("usuarioRecordado");
+        window.location.href = `${base}login/index.html`;
+      });
+    }
+  });
 
   function setMenuOpen(open) {
     toggle.setAttribute("aria-expanded", String(open));

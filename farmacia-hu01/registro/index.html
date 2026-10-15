@@ -55,7 +55,7 @@
 
             <div class="campo">
               <label for="fechaNac">Fecha de nacimiento <span class="req">*</span></label>
-              <input type="date" id="fechaNac" name="fechaNac" required>
+              <input type="date" id="fechaNac" name="fechaNac" max="2026-12-31" required>
               <span class="msg" id="e-fechaNac"></span>
             </div>
 
@@ -221,7 +221,9 @@
       regla("apellidos", val("apellidos").length >= 2, "Ingrese los apellidos.");
 
       const fecha = val("fechaNac");
-      regla("fechaNac", fecha !== "" && esMayorDeEdad(fecha), "El cliente debe ser mayor de 18 años.");
+      const fechaMaxima = new Date("2026-12-31T23:59:59");
+      const fechaNac = fecha ? new Date(fecha + "T00:00:00") : null;
+      regla("fechaNac", fecha !== "" && fechaNac <= fechaMaxima && esMayorDeEdad(fecha), "La fecha de nacimiento debe ser menor o igual al 31/12/2026 y el cliente debe ser mayor de 18 años.");
 
       const genero = form.querySelector('input[name="genero"]:checked');
       document.getElementById("e-genero").textContent = genero ? "" : "Seleccione una opción.";
@@ -294,13 +296,13 @@
         return;
       }
 
-      guardarSesion(resultado.usuario);
       aviso.style.color = "var(--ok)";
-      aviso.textContent = "Registro exitoso. Redirigiendo...";
+      aviso.textContent = "Registro exitoso. Ahora puedes iniciar sesión.";
+      window.alert("¡Registro exitoso! El usuario ha sido registrado correctamente. Ahora debes iniciar sesión.");
       form.reset();
 
       setTimeout(() => {
-        window.location.href = "../index.html";
+        window.location.href = "../login/index.html";
       }, 800);
     });
 

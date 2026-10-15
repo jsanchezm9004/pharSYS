@@ -77,6 +77,35 @@ function guardarPedidoConfirmado(items, total) {
   return numeroPedido;
 }
 
+function descontarInventario(items) {
+  const stockActualizado = (Array.isArray(inventario) ? inventario : []).map(itemInventario => ({
+    nombreProducto: itemInventario.nombreProducto,
+    nombreProveedor: itemInventario.nombreProveedor,
+    cantidad: Number(itemInventario.cantidad || 0)
+  }));
+
+  items.forEach(item => {
+    const stock = stockActualizado.find(producto => producto.nombreProducto === item.nombre);
+    if (!stock) return;
+    stock.cantidad = Math.max(0, stock.cantidad - Number(item.cantidad || 1));
+  });
+
+  const inventarioPersistido = stockActualizado.map(item => ({
+    nombreProducto: item.nombreProducto,
+    nombreProveedor: item.nombreProveedor || "",
+    cantidad: String(item.cantidad)
+  }));
+
+  if (Array.isArray(inventario)) {
+    inventario.length = 0;
+    inventarioPersistido.forEach(item => {
+      inventario.push(new Inventario(item.nombreProducto, item.nombreProveedor, item.cantidad));
+    });
+  }
+
+  localStorage.setItem("pharsysInventario", JSON.stringify(inventarioPersistido));
+}
+
 function renderCheckout() {
   const carrito = leerCarrito();
   const items = carrito
@@ -144,11 +173,12 @@ document.getElementById("confirmarCompra").addEventListener("click", () => {
   const total = subtotal + envio - descuento;
 
   const numeroPedido = guardarPedidoConfirmado(items, total);
+  descontarInventario(items);
   localStorage.removeItem("carritoPharSYS");
   window.dispatchEvent(new CustomEvent("pharsys:cart-updated"));
 
   estado.hidden = false;
-  estado.textContent = `¡Pedido confirmado! Número de pedido PH-${String(numeroPedido).padStart(5, "0")}. Gracias por comprar en PharSYS. \n Procede a realizar el pago a la cuenta AHORROS BANCOLOMBIA 12312300444. \nUna vez realizado el pago, envía el comprobante al correo electronico: tu-email@pharsys.com`;
+  estado.textContent = `¡Pedido confirmado! Número de pedido PH-${String(numeroPedido).padStart(5, "0")}. Gracias por comprar en PharSYS. REALIZA el pago a la cuenta AHORROS BANCOLOMBIA 12312300444 y envía el comprobante al correo electronico: tu-email@pharsys.com`;
 
   renderCheckout();
 });

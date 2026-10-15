@@ -124,10 +124,15 @@
     function mostrarBienvenida(usuario) {
       form.style.display = "none";
       document.getElementById("registro").style.display = "none";
-      saludo.textContent = "Hola, " + (usuario.nombre || usuario.usuario);
-      perfilTxt.textContent = "Perfil: " + usuario.perfil;
+      saludo.textContent = "SESIÓN INICIADA";
+      perfilTxt.textContent = "Hola, " + (usuario.nombre || usuario.usuario) + " • Perfil: " + usuario.perfil;
       listaPermisos.innerHTML = (PERMISOS[usuario.perfil] || []).map(p => "<li>" + p + "</li>").join("");
       vistaBienvenida.hidden = false;
+    }
+
+    const sesionActual = haySesionActiva ? haySesionActiva() : false;
+    if (sesionActual) {
+      mostrarBienvenida(leerSesion());
     }
 
     form.addEventListener("submit", (event) => {
@@ -167,7 +172,7 @@
         guardarSesion(resultado.usuario);
       } catch (error) {}
 
-      mostrarBienvenida(resultado.usuario);
+      window.location.href = "../index.html";
     });
 
     document.getElementById("btnSalir").addEventListener("click", () => {

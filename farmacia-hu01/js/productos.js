@@ -102,3 +102,26 @@ const MED = "Medicamentos", VIT = "Vitaminas", CUI = "Cuidado personal", PA = "P
   }).registroProducto();
   inventario.push(new Inventario(d[1], d[7], d[13]));
 });
+
+function sincronizarInventarioLocal() {
+  try {
+    const inventarioGuardado = JSON.parse(localStorage.getItem("pharsysInventario") || "null");
+    if (Array.isArray(inventarioGuardado) && inventarioGuardado.length) {
+      inventario.length = 0;
+      inventarioGuardado.forEach(item => {
+        inventario.push(new Inventario(item.nombreProducto, item.nombreProveedor, item.cantidad));
+      });
+      return;
+    }
+  } catch (error) {}
+
+  localStorage.setItem("pharsysInventario", JSON.stringify(
+    inventario.map(item => ({
+      nombreProducto: item.nombreProducto,
+      nombreProveedor: item.nombreProveedor,
+      cantidad: String(item.cantidad)
+    }))
+  ));
+}
+
+sincronizarInventarioLocal();

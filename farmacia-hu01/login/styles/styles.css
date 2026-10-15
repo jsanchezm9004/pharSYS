@@ -96,7 +96,8 @@ a:focus-visible { outline: 2px solid var(--azul); outline-offset: 2px; border-ra
 .registro { margin-top: 24px; text-align: center; font-size: .92rem; color: var(--gris); }
 
 /* ---------- Vista después de iniciar sesión ---------- */
-#vistaBienvenida { display: none; }
+#vistaBienvenida[hidden] { display: none; }
+#vistaBienvenida:not([hidden]) { display: block; }
 #saludo { font-size: 1.5rem; font-weight: 800; }
 .perfil { display: inline-block; background: var(--azul-claro); color: var(--azul-oscuro); font-weight: 700; padding: 4px 12px; border-radius: 99px; font-size: .9rem; margin-top: 10px; }
 .permisos { margin: 18px 0 24px; padding-left: 20px; line-height: 1.8; }
