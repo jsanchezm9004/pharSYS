@@ -65,5 +65,15 @@ document.getElementById("listaProductos").addEventListener("click", e => {
   if (!boton) return;
   const id = Number(boton.dataset.agregar);
   const p = productos.find(x => x.id === id);
-  mostrarMensaje(agregarAlCarrito(id) ? p.nombre + " se agregó al carrito." : p.nombre + " ya está en el carrito.");
+  const stockDisponible = obtenerStockDisponible(id);
+  const agregado = agregarAlCarrito(id);
+
+  if (agregado) {
+    mostrarMensaje(p.nombre + " se agregó al carrito.");
+    return;
+  }
+
+  mostrarMensaje(stockDisponible <= 0
+    ? p.nombre + " no tiene stock disponible en este momento."
+    : p.nombre + " supera el stock disponible (máximo " + stockDisponible + ").");
 });

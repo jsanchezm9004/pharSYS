@@ -40,11 +40,42 @@ function actualizarContadorCarrito() {
 window.addEventListener("pharsys:cart-updated", actualizarContadorCarrito);
 window.addEventListener("DOMContentLoaded", actualizarContadorCarrito);
 
+function obtenerStockDisponible(id) {
+  const producto = productos.find(p => p.id === Number(id));
+  if (!producto) return 0;
+
+  const stock = inventario.find(item => item.nombreProducto === producto.nombre);
+  const cantidad = Number(stock ? stock.cantidad : 0);
+  return Number.isFinite(cantidad) ? cantidad : 0;
+}
+
 function agregarAlCarrito(id, cantidad = 1) {
   const lista = leerCarrito();
   const idNumero = Number(id);
   const cantidadNumero = Math.max(1, Number(cantidad) || 1);
   const itemExistente = lista.find(item => item.id === idNumero);
+  const stockDisponible = obtenerStockDisponible(idNumero);
+
+  if (stockDisponible <= 0) {
+    return false;
+  }
+
+  const totalSolicitado = (itemExistente ? itemExistente.cantidad : 0) + cantidadNumero;
+  if (totalSolicitado > stockDisponible) {
+    const cantidadPermitida = Math.max(0, stockDisponible - (itemExistente ? itemExistente.cantidad : 0));
+    if (cantidadPermitida <= 0) {
+      return false;
+    }
+
+    if (itemExistente) {
+      itemExistente.cantidad = stockDisponible;
+    } else {
+      lista.push({ id: idNumero, cantidad: cantidadPermitida });
+    }
+
+    guardarCarrito(lista);
+    return true;
+  }
 
   if (itemExistente) {
     itemExistente.cantidad += cantidadNumero;
@@ -61,7 +92,17 @@ function cambiarCantidad(id, delta) {
   const item = lista.find(producto => producto.id === Number(id));
   if (!item) return false;
 
-  item.cantidad = Math.max(1, item.cantidad + Number(delta));
+  const stockDisponible = obtenerStockDisponible(id);
+  const nuevaCantidad = item.cantidad + Number(delta);
+
+  if (nuevaCantidad < 1) {
+    item.cantidad = 1;
+  } else if (nuevaCantidad > stockDisponible) {
+    item.cantidad = stockDisponible;
+  } else {
+    item.cantidad = nuevaCantidad;
+  }
+
   guardarCarrito(lista);
   return item.cantidad;
 }

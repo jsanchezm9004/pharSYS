@@ -384,6 +384,32 @@ img {
   display: flex;
 }
 
+.cart-empty {
+  display: grid;
+  gap: 12px;
+  padding: 32px 24px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  border: 1px solid var(--soft-border);
+  border-radius: 22px;
+  box-shadow: 0 12px 24px rgba(8, 35, 67, 0.04);
+  text-align: center;
+}
+
+.cart-empty p {
+  margin: 0;
+  color: var(--navy-900);
+  font-size: clamp(1.25rem, 1vw + 0.8rem, 1.75rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.cart-empty a {
+  color: var(--navy-700);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .summary-card {
   width: 100%;
   padding: 24px 22px;
