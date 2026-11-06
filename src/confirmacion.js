@@ -58,11 +58,12 @@ function mostrarNumeroPedido(numeroPedido) {
 function guardarPedidoConfirmado(items, total) {
   const historial = leerPedidos();
   const numeroPedido = obtenerConsecutivoPedido();
+  const sesion = JSON.parse(localStorage.getItem("pharsysSesion") || "null");
   const pedido = {
     numeroPedido,
     valor: Number(total),
     fechaConfirmacion: new Date().toISOString(),
-    usuario: localStorage.getItem("usuarioRecordado") || "Cliente invitado",
+    usuario: (sesion && (sesion.email || sesion.usuario)) || localStorage.getItem("usuarioRecordado") || "Cliente invitado",
     items: items.map(item => ({
       id: item.id,
       nombre: item.nombre,

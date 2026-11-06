@@ -60,8 +60,40 @@
       <div id="vistaBienvenida" hidden>
         <h2 id="saludo"></h2>
         <span class="perfil" id="perfilTxt"></span>
-        <ul class="permisos" id="listaPermisos"></ul>
-        <button type="button" class="boton" id="btnSalir" style="width:100%">Cerrar sesión</button>
+
+        <div class="acciones-cuenta">
+          <button type="button" class="boton-secundario boton-enlace" id="btnCatalogo">Ver catálogo de medicamentos</button>
+          <button type="button" class="boton-secundario" id="btnPedidos">Consultar pedidos</button>
+          <button type="button" class="boton-secundario" id="btnEditarDatos">Editar datos</button>
+          <button type="button" class="boton" id="btnSalir">Cerrar sesión</button>
+        </div>
+
+        <div id="panelPedidos" class="panel-cuenta" hidden>
+          <h3>Pedidos realizados</h3>
+          <div id="listaPedidos" class="lista-pedidos"></div>
+        </div>
+
+        <div id="formPerfil" class="form-perfil" hidden>
+          <h3>Editar datos</h3>
+          <label for="perfilTelefono">Celular</label>
+          <input type="tel" id="perfilTelefono" inputmode="numeric" placeholder="3001234567">
+
+          <label for="perfilDireccion">Dirección</label>
+          <input type="text" id="perfilDireccion" placeholder="Calle 123 #45-67">
+
+          <label for="perfilCiudad">Ciudad</label>
+          <input type="text" id="perfilCiudad" placeholder="Bogotá">
+
+          <label for="perfilClave">Nueva contraseña</label>
+          <input type="password" id="perfilClave" placeholder="Mínimo 8 caracteres">
+
+          <div id="avisoPerfil" class="aviso-perfil" aria-live="polite"></div>
+
+          <div class="acciones-formulario">
+            <button type="button" class="boton" id="btnGuardarPerfil">Guardar cambios</button>
+            <button type="button" class="boton-secundario" id="btnCancelarPerfil">Cancelar</button>
+          </div>
+        </div>
       </div>
     </section>
   </main>
@@ -80,7 +112,14 @@
     const vistaBienvenida = document.getElementById("vistaBienvenida");
     const saludo = document.getElementById("saludo");
     const perfilTxt = document.getElementById("perfilTxt");
-    const listaPermisos = document.getElementById("listaPermisos");
+    const panelPedidos = document.getElementById("panelPedidos");
+    const formPerfil = document.getElementById("formPerfil");
+    const listaPedidos = document.getElementById("listaPedidos");
+    const perfilTelefono = document.getElementById("perfilTelefono");
+    const perfilDireccion = document.getElementById("perfilDireccion");
+    const perfilCiudad = document.getElementById("perfilCiudad");
+    const perfilClave = document.getElementById("perfilClave");
+    const avisoPerfil = document.getElementById("avisoPerfil");
 
     function mostrarAviso(tipo, texto) {
       aviso.className = "aviso " + tipo;
@@ -126,8 +165,127 @@
       document.getElementById("registro").style.display = "none";
       saludo.textContent = "SESIÓN INICIADA";
       perfilTxt.textContent = "Hola, " + (usuario.nombre || usuario.usuario) + " • Perfil: " + usuario.perfil;
-      listaPermisos.innerHTML = (PERMISOS[usuario.perfil] || []).map(p => "<li>" + p + "</li>").join("");
       vistaBienvenida.hidden = false;
+      cargarPerfilUsuario();
+    }
+
+    function obtenerUsuarioActual() {
+      const sesion = leerSesion();
+      const emailBuscado = (sesion && (sesion.email || sesion.usuario)) || localStorage.getItem("usuarioRecordado");
+      const usuarios = leerUsuarios();
+      return usuarios.find(usuario => usuario.email === emailBuscado || usuario.usuario === emailBuscado) || null;
+    }
+
+    function cargarPerfilUsuario() {
+      const usuario = obtenerUsuarioActual();
+      if (!usuario) return;
+
+      perfilTelefono.value = usuario.telefono || "";
+      perfilDireccion.value = usuario.direccion || "";
+      perfilCiudad.value = usuario.ciudad || "";
+      perfilClave.value = "";
+      avisoPerfil.textContent = "";
+    }
+
+    function renderPedidos() {
+      const sesion = leerSesion();
+      const emailBuscado = (sesion && (sesion.email || sesion.usuario)) || localStorage.getItem("usuarioRecordado");
+      const historial = JSON.parse(localStorage.getItem("pharsysHistorialPedidos") || "[]");
+      const pedidos = historial.filter(pedido => {
+        const usuarioPedido = String(pedido.usuario || "").toLowerCase();
+        return usuarioPedido === String(emailBuscado || "").toLowerCase();
+      });
+
+      if (!pedidos.length) {
+        listaPedidos.innerHTML = "<p>No tienes pedidos realizados aún.</p>";
+        return;
+      }
+
+      const moneda = new Intl.NumberFormat("es-CO", {
+        style: "currency",
+        currency: "COP",
+        maximumFractionDigits: 0
+      });
+
+      listaPedidos.innerHTML = pedidos.map(pedido => {
+        const items = Array.isArray(pedido.items) ? pedido.items : [];
+        const totalItems = items.reduce((total, item) => total + (Number(item.cantidad) || 0), 0);
+        return `
+          <div class="pedido-item">
+            <h4>Pedido PH-${String(pedido.numeroPedido || 0).padStart(5, "0")}</h4>
+            <p>${new Date(pedido.fechaConfirmacion).toLocaleDateString("es-CO")} • ${moneda.format(Number(pedido.valor || 0))}</p>
+            <p>${totalItems} productos</p>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function mostrarPanelPedidos() {
+      panelPedidos.hidden = false;
+      formPerfil.hidden = true;
+      renderPedidos();
+    }
+
+    function mostrarEditarPerfil() {
+      panelPedidos.hidden = true;
+      formPerfil.hidden = false;
+      cargarPerfilUsuario();
+    }
+
+    function ocultarPanelesPerfil() {
+      panelPedidos.hidden = true;
+      formPerfil.hidden = true;
+      avisoPerfil.textContent = "";
+    }
+
+    function guardarPerfilUsuario() {
+      const usuario = obtenerUsuarioActual();
+      if (!usuario) {
+        avisoPerfil.textContent = "No se encontró la sesión activa.";
+        return;
+      }
+
+      const telefono = perfilTelefono.value.trim();
+      const direccion = perfilDireccion.value.trim();
+      const ciudad = perfilCiudad.value.trim();
+      const clave = perfilClave.value.trim();
+
+      if (!/^3[0-9]{9}$/.test(telefono)) {
+        avisoPerfil.textContent = "El celular debe tener 10 dígitos y empezar en 3.";
+        return;
+      }
+
+      if (direccion.length < 5) {
+        avisoPerfil.textContent = "La dirección debe tener al menos 5 caracteres.";
+        return;
+      }
+
+      if (ciudad.length < 2) {
+        avisoPerfil.textContent = "La ciudad es obligatoria.";
+        return;
+      }
+
+      if (clave && clave.length < 8) {
+        avisoPerfil.textContent = "La contraseña debe tener al menos 8 caracteres.";
+        return;
+      }
+
+      const usuarios = leerUsuarios();
+      const indice = usuarios.findIndex(item => item.email === usuario.email || item.usuario === usuario.usuario);
+
+      if (indice >= 0) {
+        usuarios[indice].telefono = telefono;
+        usuarios[indice].direccion = direccion;
+        usuarios[indice].ciudad = ciudad;
+        if (clave) {
+          usuarios[indice].clave = clave;
+        }
+        guardarUsuarios(usuarios);
+      }
+
+      avisoPerfil.textContent = "Datos actualizados correctamente.";
+      perfilClave.value = "";
+      cargarPerfilUsuario();
     }
 
     const sesionActual = haySesionActiva ? haySesionActiva() : false;
@@ -173,6 +331,27 @@
       } catch (error) {}
 
       window.location.href = "../index.html";
+    });
+
+    document.getElementById("btnCatalogo").addEventListener("click", () => {
+      window.location.href = "../index.html";
+    });
+
+    document.getElementById("btnPedidos").addEventListener("click", () => {
+      mostrarPanelPedidos();
+    });
+
+    document.getElementById("btnEditarDatos").addEventListener("click", () => {
+      mostrarEditarPerfil();
+    });
+
+    document.getElementById("btnGuardarPerfil").addEventListener("click", () => {
+      guardarPerfilUsuario();
+    });
+
+    document.getElementById("btnCancelarPerfil").addEventListener("click", () => {
+      ocultarPanelesPerfil();
+      cargarPerfilUsuario();
     });
 
     document.getElementById("btnSalir").addEventListener("click", () => {

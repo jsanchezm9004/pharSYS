@@ -20,7 +20,7 @@
         <input id="buscarProducto" type="search" placeholder="¿Qué producto estás buscando?" aria-label="Buscar productos">
       </label>
       <div class="acciones-tienda">
-        <a class="acceso-tienda" href="login/index.html"><span aria-hidden="true">♙</span><span>Mi cuenta</span></a>
+        <a class="acceso-tienda" href="login/index.html"><span aria-hidden="true">♙</span><span id="nombreCuenta">Mi cuenta</span></a>
         <a class="acceso-tienda" href="../carritoCompras.html">
           <span aria-hidden="true">🛒</span>
           <span>Carrito</span>
@@ -104,6 +104,16 @@
   <script src="js/productos.js"></script>
   <script src="js/carrito.js"></script>
   <script>
+    function actualizarNombreCuenta() {
+      const etiquetaCuenta = document.getElementById("nombreCuenta");
+      const sesion = typeof leerSesion === "function" ? leerSesion() : null;
+      const nombre = sesion && [sesion.nombre, sesion.apellido].filter(Boolean).join(" ").trim();
+      etiquetaCuenta.textContent = nombre || (sesion && sesion.usuario) || "Mi cuenta";
+    }
+
+    actualizarNombreCuenta();
+    window.addEventListener("storage", actualizarNombreCuenta);
+
     function actualizarContadorCatalogo() {
       const total = JSON.parse(localStorage.getItem("carritoPharSYS") || "[]").length;
       document.querySelectorAll(".cart-count-badge").forEach(el => {

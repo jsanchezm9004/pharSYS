@@ -83,6 +83,7 @@ function leerSesion() {
 function guardarSesion(usuario) {
   localStorage.setItem(CLAVE_SESION, JSON.stringify({
     usuario: usuario.usuario || usuario.email,
+    email: usuario.email || "",
     nombre: usuario.nombre || "",
     apellido: usuario.apellido || "",
     perfil: usuario.perfil || "Cliente"
