@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pharSYS | Checkout</title>
+    <link rel="stylesheet" href="farmacia-hu01/css/navegacion.css" />
+    <link rel="stylesheet" href="estiloCarrito.css" />
+  </head>
+  <body>
+    <div class="page-shell checkout-shell">
+      <header class="topbar">
+        <div class="brand" aria-label="pharSYS">
+          <img src="imagenes/logo-sin-fondo.png" alt="Logo de pharSYS" />
+          <div class="brand-copy">
+            <span class="brand-phar">phar</span><span class="brand-sys">SYS</span>
+          </div>
+        </div>
+
+        <div class="pharsys-menu-root" data-base="farmacia-hu01/" data-current="cart" data-layout="inline"></div>
+
+        <div class="topbar-actions">
+          <button class="icon-button" aria-label="Buscar">⌕</button>
+          <button class="icon-button cart-button" aria-label="Carrito">
+            🛒
+            <span class="cart-count">0</span>
+          </button>
+        </div>
+      </header>
+
+      <main class="checkout-page">
+        <section class="checkout-card" aria-labelledby="tituloCheckout">
+          <p class="eyebrow">Finalizar compra</p>
+          <h1 id="tituloCheckout">Confirmación del pedido</h1>
+
+          <div class="checkout-grid">
+            <div class="checkout-products">
+              <h3>Productos</h3>
+              <div id="checkoutProductos"></div>
+            </div>
+
+            <aside class="checkout-summary">
+              <h3>Resumen</h3>
+              <div class="checkout-row">
+                <span>Subtotal</span>
+                <strong id="checkoutSubtotal">$0</strong>
+              </div>
+              <div class="checkout-row">
+                <span>Envío</span>
+                <strong id="checkoutEnvio">$0</strong>
+              </div>
+              <div class="checkout-row">
+                <span>Descuento</span>
+                <strong id="checkoutDescuento">-$0</strong>
+              </div>
+              <div class="checkout-row checkout-total">
+                <span>Total</span>
+                <strong id="checkoutTotal">$0</strong>
+              </div>
+            </aside>
+          </div>
+
+          <div id="checkoutStatus" class="checkout-confirmation" hidden></div>
+          <div class="checkout-order-box" aria-live="polite">
+            <span class="checkout-order-label">Número de pedido</span>
+            <strong id="numeroPedido">—</strong>
+          </div>
+
+          <div class="checkout-actions">
+            <a href="farmacia-hu01/index.html" class="secondary-button" style="display:inline-flex; align-items:center; justify-content:center; text-decoration:none;">Seguir comprando</a>
+            <button id="confirmarCompra" type="button" class="primary-button">Confirmar compra</button>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="farmacia-hu01/js/navegacion.js"></script>
+    <script src="farmacia-hu01/js/productos.js"></script>
+    <script src="src/confirmacion.js"></script>
+  </body>
+</html>

@@ -11,8 +11,7 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { min-height: 100%; }
-body { min-width: 320px; }
+html, body { height: 100%; }
 
 body {
   font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
@@ -21,13 +20,12 @@ body {
   display: grid;
   place-items: center;
   min-height: 100vh;
-  min-height: 100svh;
 }
 
 /* ---------- Formulario ---------- */
 .contenedor { width: 100%; display: grid; place-items: center; padding: 32px 24px; }
 .tarjeta {
-  width: 100%; max-width: 420px;
+  width: 100%; max-width: 460px;
   background: var(--blanco);
   border-radius: 20px;
   padding: 40px 36px;
@@ -59,7 +57,7 @@ form { display: grid; gap: 18px; }
 .mensaje-error { color: var(--error); font-size: .82rem; margin-top: 6px; min-height: 1em; }
 
 .ver {
-  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
   background: none; border: 0; cursor: pointer;
   color: var(--azul); font: inherit; font-size: .85rem; font-weight: 600;
   padding: 6px 8px; border-radius: 6px;
@@ -79,6 +77,7 @@ a:focus-visible { outline: 2px solid var(--azul); outline-offset: 2px; border-ra
   padding: 14px; border: 0; border-radius: 10px; cursor: pointer;
   background: var(--azul); color: var(--blanco);
   transition: background .15s, transform .1s;
+  margin-top: 8px;
 }
 .boton:hover { background: var(--azul-oscuro); }
 .boton:active { transform: scale(.98); }
@@ -97,35 +96,34 @@ a:focus-visible { outline: 2px solid var(--azul); outline-offset: 2px; border-ra
 .registro { margin-top: 24px; text-align: center; font-size: .92rem; color: var(--gris); }
 
 /* ---------- Vista después de iniciar sesión ---------- */
-#vistaBienvenida { display: none; }
+#vistaBienvenida[hidden] { display: none; }
+#vistaBienvenida:not([hidden]) { display: block; }
 #saludo { font-size: 1.5rem; font-weight: 800; }
 .perfil { display: inline-block; background: var(--azul-claro); color: var(--azul-oscuro); font-weight: 700; padding: 4px 12px; border-radius: 99px; font-size: .9rem; margin-top: 10px; }
 .permisos { margin: 18px 0 24px; padding-left: 20px; line-height: 1.8; }
+.acciones-cuenta { display: grid; gap: 10px; margin: 20px 0; }
+.boton-enlace { display: block; text-align: center; text-decoration: none; }
+.boton-secundario {
+  width: 100%; padding: 12px 14px; border: 1px solid var(--borde); border-radius: 10px;
+  background: var(--blanco); color: var(--azul-oscuro); font: inherit; font-weight: 700; cursor: pointer;
+}
+.boton-secundario:hover { background: var(--azul-claro); }
+.panel-cuenta, .form-perfil { margin: 20px 0; padding: 18px; border: 1px solid var(--borde); border-radius: 10px; }
+#panelPedidos[hidden], #formPerfil[hidden] { display: none; }
+.panel-cuenta h3, .form-perfil h3 { margin-bottom: 14px; font-size: 1.05rem; }
+.lista-pedidos { display: grid; gap: 10px; }
+.pedido-item { padding: 12px; border: 1px solid var(--borde); border-radius: 8px; }
+.pedido-item h4 { margin-bottom: 4px; }
+.pedido-item p { margin-top: 4px; color: var(--gris); font-size: .88rem; }
+.form-perfil { display: grid; gap: 9px; }
+.form-perfil label { font-size: .88rem; font-weight: 600; }
+.form-perfil input { width: 100%; padding: 11px 12px; border: 1px solid var(--borde); border-radius: 8px; font: inherit; color: var(--texto); }
+.form-perfil input:focus { outline: 2px solid rgba(21, 101, 192, .25); border-color: var(--azul); }
+.aviso-perfil { min-height: 1.2em; color: var(--azul-oscuro); font-size: .88rem; }
+.acciones-formulario { display: grid; gap: 8px; }
 
 /* ---------- Responsive ---------- */
-@media (min-width: 1024px) {
-  .contenedor { max-width: 1200px; margin-inline: auto; padding: 48px; }
-  .tarjeta { max-width: 460px; padding: 42px 40px; }
-}
-
-@media (min-width: 601px) and (max-width: 1023px) {
-  .contenedor { padding: 36px 28px; }
-  .tarjeta { max-width: 480px; padding: 36px 32px; }
-}
-
-@media (max-width: 600px) {
-  .contenedor { padding: 24px 16px; }
-  .tarjeta { max-width: 440px; padding: 28px 22px; border-radius: 16px; }
-  .titulo { font-size: 1.5rem; margin-bottom: 20px; }
-  form { gap: 16px; }
-  .opciones { flex-wrap: wrap; gap: 12px; font-size: .84rem; }
-  .registro { margin-top: 20px; font-size: .88rem; }
-}
-
-@media (max-width: 360px) {
-  .contenedor { padding: 16px 12px; }
-  .tarjeta { padding: 24px 18px; }
-  #clave { padding-right: 112px; }
-  .ver { right: 4px; padding: 6px 4px; font-size: .75rem; }
+@media (max-width: 860px) {
+  .tarjeta { padding: 32px 24px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
