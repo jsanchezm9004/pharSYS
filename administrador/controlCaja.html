@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Caja | PharSYS Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="administrador.css" />
+  </head>
+  <body>
+    <div class="app-layout">
+      <button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Abrir menú del administrador" aria-expanded="false">☰</button>
+
+      <aside class="sidebar" id="adminSidebar" aria-label="Menú principal del administrador">
+        <div class="sidebar__brand">
+          <div class="sidebar__logo">P</div>
+          <div>
+            <h1>PharSYS</h1>
+            <span>Administrador</span>
+          </div>
+        </div>
+
+        <div class="sidebar__group">
+          <p class="sidebar__label">Menú Admin</p>
+          <nav class="sidebar__nav">
+            <a href="administrador.html"><span class="sidebar__icon">⌂</span><span>Resumen</span></a>
+            <a href="pedidos.html"><span class="sidebar__icon">✓</span><span>Pedidos</span></a>
+            <a href="inventario.html"><span class="sidebar__icon">▣</span><span>Inventario</span></a>
+            <a href="productos.html"><span class="sidebar__icon">＋</span><span>Productos</span></a>
+            <a href="proveedores.html"><span class="sidebar__icon">◌</span><span>Proveedores</span></a>
+            <a href="empleados.html"><span class="sidebar__icon">👥</span><span>Empleados</span></a>
+            <a href="controlCaja.html" class="is-active"><span class="sidebar__icon">₡</span><span>Pagos y caja</span></a>
+            <a href="compras.html"><span class="sidebar__icon">↗</span><span>Órdenes de compra</span></a>
+            <a href="perfil.html"><span class="sidebar__icon">⚙</span><span>Mi perfil</span></a>
+          </nav>
+        </div>
+
+        <div class="sidebar__meta">
+          <strong>Caja</strong>
+          <p id="sidebar-status">Balance general del negocio.</p>
+        </div>
+      </aside>
+
+      <main class="main-panel">
+        <header class="topbar" aria-label="Herramientas del panel">
+          <div class="topbar__actions" style="margin-left: auto;">
+            <a class="secondary-btn" href="../farmacia-hu01/index.html" target="_blank" rel="noopener noreferrer">Plataforma del usuario</a>
+            <button id="logout-admin" class="secondary-btn" type="button">Cerrar sesión</button>
+            <div class="user-chip">
+              <span class="user-chip__avatar">AS</span>
+              <span id="admin-name">Admin</span>
+            </div>
+          </div>
+        </header>
+
+        <section class="page-header">
+          <div>
+            <h2>Pagos y caja</h2>
+            <p>Ingresos, egresos y saldo final del negocio.</p>
+          </div>
+        </section>
+
+        <section class="content-grid">
+          <article class="panel" id="pagos">
+            <div class="panel__header">
+              <div>
+                <h3 class="panel__title">Resumen financiero</h3>
+                <span class="panel__subtitle">Control del flujo de dinero</span>
+              </div>
+            </div>
+
+            <div class="metric-list">
+              <div class="metric-item">
+                <strong id="cash-in">Sin datos</strong>
+                <small>Ingresos en efectivo</small>
+              </div>
+              <div class="metric-item">
+                <strong id="cash-out">Sin datos</strong>
+                <small>Pagos a proveedores</small>
+              </div>
+              <div class="metric-item">
+                <strong id="cash-balance">Sin datos</strong>
+                <small>Saldo real disponible</small>
+              </div>
+            </div>
+
+            <ul class="transaction-list" style="margin-top: 18px;" id="cash-transactions">
+              <li><div><strong>Sin información historica</strong><br /><small>Por el momento no hay movimientos registrados.</small></div></li>
+            </ul>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite">Acción realizada</div>
+
+    <script src="../src/auth.js"></script>
+    <script src="administrador.js"></script>
+    <script>
+      (function () {
+        const sesion = leerSesion();
+        const adminNameEl = document.getElementById('admin-name');
+        if (!sesion || sesion.perfil !== 'Administrador') {
+          window.location.replace('../farmacia-hu01/login/index.html');
+          return;
+        }
+        if (adminNameEl) {
+          adminNameEl.textContent = sesion.nombre || sesion.usuario || 'Admin';
+        }
+      })();
+    </script>
+  </body>
+</html>

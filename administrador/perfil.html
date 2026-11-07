@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mi perfil | PharSYS Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="administrador.css" />
+  </head>
+  <body>
+    <div class="app-layout">
+      <button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Abrir menú del administrador" aria-expanded="false">☰</button>
+
+      <aside class="sidebar" id="adminSidebar" aria-label="Menú principal del administrador">
+        <div class="sidebar__brand">
+          <div class="sidebar__logo">P</div>
+          <div>
+            <h1>PharSYS</h1>
+            <span>Administrador</span>
+          </div>
+        </div>
+
+        <div class="sidebar__group">
+          <p class="sidebar__label">Menú Admin</p>
+          <nav class="sidebar__nav">
+            <a href="administrador.html"><span class="sidebar__icon">⌂</span><span>Resumen</span></a>
+            <a href="pedidos.html"><span class="sidebar__icon">✓</span><span>Pedidos</span></a>
+            <a href="inventario.html"><span class="sidebar__icon">▣</span><span>Inventario</span></a>
+            <a href="productos.html"><span class="sidebar__icon">＋</span><span>Productos</span></a>
+            <a href="proveedores.html"><span class="sidebar__icon">◌</span><span>Proveedores</span></a>
+            <a href="empleados.html"><span class="sidebar__icon">👥</span><span>Empleados</span></a>
+            <a href="controlCaja.html"><span class="sidebar__icon">₡</span><span>Pagos y caja</span></a>
+            <a href="compras.html"><span class="sidebar__icon">↗</span><span>Órdenes de compra</span></a>
+            <a href="perfil.html" class="is-active"><span class="sidebar__icon">⚙</span><span>Mi perfil</span></a>
+          </nav>
+        </div>
+
+        <div class="sidebar__meta">
+          <strong>Perfil</strong>
+          <p id="sidebar-status">Gestiona tus datos personales.</p>
+        </div>
+      </aside>
+
+      <main class="main-panel">
+        <header class="topbar" aria-label="Herramientas del panel">
+          <div class="topbar__actions" style="margin-left: auto;">
+            <a class="secondary-btn" href="../farmacia-hu01/index.html" target="_blank" rel="noopener noreferrer">Plataforma del usuario</a>
+            <button id="logout-admin" class="secondary-btn" type="button">Cerrar sesión</button>
+            <div class="user-chip">
+              <span class="user-chip__avatar">AS</span>
+              <span id="admin-name">Admin</span>
+            </div>
+          </div>
+        </header>
+
+        <section class="page-header">
+          <div>
+            <h2>Mi perfil</h2>
+            <p>Revisa y actualiza tu información personal de contacto y tu contraseña.</p>
+          </div>
+        </section>
+
+        <section class="content-grid">
+          <article class="panel form-panel">
+            <div class="panel__header">
+              <div>
+                <h3 class="panel__title">Datos personales</h3>
+                <span class="panel__subtitle">Información de contacto del administrador</span>
+              </div>
+            </div>
+
+            <form id="formPerfilAdmin" class="form-grid" novalidate>
+              <div class="field">
+                <label for="nombreAdmin">Nombre</label>
+                <input id="nombreAdmin" type="text" readonly />
+              </div>
+
+              <div class="field">
+                <label for="emailAdmin">Correo</label>
+                <input id="emailAdmin" type="email" readonly />
+              </div>
+
+              <div class="field">
+                <label for="telefonoAdmin">Celular</label>
+                <input id="telefonoAdmin" name="telefono" type="tel" placeholder="Ej: 3001234567" />
+              </div>
+
+              <div class="field">
+                <label for="direccionAdmin">Dirección</label>
+                <input id="direccionAdmin" name="direccion" type="text" placeholder="Ej: Calle 10 #20-30" />
+              </div>
+
+              <div class="field">
+                <label for="ciudadAdmin">Ciudad</label>
+                <input id="ciudadAdmin" name="ciudad" type="text" placeholder="Ej: Bogotá" />
+              </div>
+
+              <div class="field">
+                <label for="claveAdmin">Nueva contraseña</label>
+                <input id="claveAdmin" name="clave" type="password" placeholder="Deja en blanco para conservar la actual" />
+              </div>
+
+              <div class="field">
+                <label for="confirmarClaveAdmin">Confirmar nueva contraseña</label>
+                <input id="confirmarClaveAdmin" name="confirmarClave" type="password" placeholder="Repite la contraseña" />
+              </div>
+
+              <div class="field field--full">
+                <div id="mensajePerfil" class="mensaje" aria-live="polite"></div>
+              </div>
+
+              <div class="field field--full" style="display:flex; justify-content:flex-end; gap:12px; margin-top:12px;">
+                <button type="submit" class="primary-btn">Guardar cambios</button>
+              </div>
+            </form>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite">Acción realizada</div>
+
+    <script src="../src/auth.js"></script>
+    <script src="administrador.js"></script>
+    <script>
+      (function () {
+        const sesion = leerSesion();
+        const adminNameEl = document.getElementById('admin-name');
+        if (!sesion || sesion.perfil !== 'Administrador') {
+          window.location.replace('../farmacia-hu01/login/index.html');
+          return;
+        }
+        if (adminNameEl) {
+          adminNameEl.textContent = sesion.nombre || sesion.usuario || 'Admin';
+        }
+
+        const mensaje = document.getElementById('mensajePerfil');
+        const form = document.getElementById('formPerfilAdmin');
+        const usuarios = leerUsuarios();
+        const usuarioActual = usuarios.find((usuario) => usuario.email === (sesion.email || sesion.usuario) || usuario.usuario === (sesion.usuario || sesion.email));
+
+        const cargarDatos = () => {
+          const nombreCompleto = [usuarioActual?.nombre || sesion.nombre || '', usuarioActual?.apellido || sesion.apellido || ''].filter(Boolean).join(' ').trim();
+          document.getElementById('nombreAdmin').value = nombreCompleto || sesion.usuario || 'Administrador';
+          document.getElementById('emailAdmin').value = usuarioActual?.email || sesion.email || sesion.usuario || '';
+          document.getElementById('telefonoAdmin').value = usuarioActual?.telefono || sesion.telefono || '';
+          document.getElementById('direccionAdmin').value = usuarioActual?.direccion || sesion.direccion || '';
+          document.getElementById('ciudadAdmin').value = usuarioActual?.ciudad || sesion.ciudad || '';
+        };
+
+        const mostrarMensaje = (texto, tipo = 'ok') => {
+          if (!mensaje) return;
+          mensaje.textContent = texto;
+          mensaje.className = 'mensaje' + (tipo === 'error' ? ' error' : ' ok');
+        };
+
+        form.addEventListener('submit', (event) => {
+          event.preventDefault();
+          const clave = document.getElementById('claveAdmin').value.trim();
+          const claveConfirm = document.getElementById('confirmarClaveAdmin').value.trim();
+
+          if (clave && clave !== claveConfirm) {
+            mostrarMensaje('Las contraseñas no coinciden.', 'error');
+            return;
+          }
+
+          if (!usuarioActual) {
+            mostrarMensaje('No se encontró el usuario activo para actualizar.', 'error');
+            return;
+          }
+
+          usuarioActual.telefono = document.getElementById('telefonoAdmin').value.trim();
+          usuarioActual.direccion = document.getElementById('direccionAdmin').value.trim();
+          usuarioActual.ciudad = document.getElementById('ciudadAdmin').value.trim();
+
+          if (clave) {
+            usuarioActual.clave = clave;
+          }
+
+          const usuariosActualizados = leerUsuarios();
+          const indice = usuariosActualizados.findIndex((usuario) => usuario.email === (sesion.email || sesion.usuario) || usuario.usuario === (sesion.usuario || sesion.email));
+
+          if (indice !== -1) {
+            usuariosActualizados[indice] = { ...usuariosActualizados[indice], ...usuarioActual };
+            guardarUsuarios(usuariosActualizados);
+          }
+
+          guardarSesion({
+            ...sesion,
+            ...usuarioActual,
+            usuario: usuarioActual.usuario || sesion.usuario,
+            email: usuarioActual.email || sesion.email,
+            nombre: usuarioActual.nombre || sesion.nombre,
+            apellido: usuarioActual.apellido || sesion.apellido,
+            telefono: usuarioActual.telefono || '',
+            direccion: usuarioActual.direccion || '',
+            ciudad: usuarioActual.ciudad || ''
+          });
+
+          mostrarMensaje('Los datos personales se actualizaron correctamente.');
+          document.getElementById('claveAdmin').value = '';
+          document.getElementById('confirmarClaveAdmin').value = '';
+        });
+
+        cargarDatos();
+      })();
+    </script>
+  </body>
+</html>

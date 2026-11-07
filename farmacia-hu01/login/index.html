@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Iniciar sesión | PharSYS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/navegacion.css">
+  <link rel="stylesheet" href="styles/styles.css">
+</head>
+<body>
+  <div class="pharsys-menu-root" data-base="../" data-current="login"></div>
+
+  <main class="contenedor">
+    <section class="tarjeta" aria-label="Iniciar sesión">
+      <h2 class="titulo">Iniciar sesión</h2>
+
+      <form id="formLogin" novalidate>
+        <div id="aviso" class="aviso" role="alert"></div>
+
+        <div class="campo" id="campoUsuario">
+          <label for="usuario">Usuario</label>
+          <div class="entrada">
+            <input type="text" id="usuario" name="usuario" placeholder="correo electronico" autocomplete="username" required>
+          </div>
+          <p class="mensaje-error" id="errorUsuario"></p>
+        </div>
+
+        <div class="campo" id="campoClave">
+          <label for="clave">Contraseña</label>
+          <div class="entrada">
+            <input type="password" id="clave" name="clave" placeholder="contraseña" autocomplete="current-password" required>
+            <button type="button" class="ver" id="btnVer" aria-label="Ver contraseña">mostrar contraseña</button>
+          </div>
+          <p class="mensaje-error" id="errorClave"></p>
+        </div>
+
+        <div class="opciones">
+          <label class="recordar">
+            <input type="checkbox" id="recordar"> Recordarme
+          </label>
+          <a href="#">¿Olvidaste tu contraseña?</a>
+        </div>
+
+        <div id="ayuda" class="ayuda" role="status">
+          <strong>¿No puedes ingresar? Prueba esto:</strong>
+          <ul>
+            <li>Revisa que tu usuario y contraseña estén bien escritos (cuida las mayúsculas).</li>
+            <li><a href="#">Recupera tu contraseña</a> si no la recuerdas.</li>
+            <li>Escríbenos a <a href="mailto:soporte@PharSYS.com">soporte@PharSYS.com</a> para que restablezcamos tu acceso.</li>
+          </ul>
+        </div>
+
+        <button type="submit" class="boton" id="btnEntrar">Iniciar sesión</button>
+      </form>
+
+      <p class="registro" id="registro">¿Aún no tienes cuenta? <a href="../registro/index.html">Crear cuenta</a></p>
+
+      <div id="vistaBienvenida" hidden>
+        <h2 id="saludo"></h2>
+        <span class="perfil" id="perfilTxt"></span>
+        <ul class="permisos" id="listaPermisos"></ul>
+        <button type="button" class="boton" id="btnSalir" style="width:100%">Cerrar sesión</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="../../src/auth.js"></script>
+  <script src="../js/navegacion.js"></script>
+  <script>
+    const form = document.getElementById("formLogin");
+    const tituloLogin = document.querySelector(".titulo");
+    const usuarioInput = document.getElementById("usuario");
+    const claveInput = document.getElementById("clave");
+    const aviso = document.getElementById("aviso");
+    const ayuda = document.getElementById("ayuda");
+    const btnEntrar = document.getElementById("btnEntrar");
+    const btnVer = document.getElementById("btnVer");
+    const recordar = document.getElementById("recordar");
+    const vistaBienvenida = document.getElementById("vistaBienvenida");
+    const saludo = document.getElementById("saludo");
+    const perfilTxt = document.getElementById("perfilTxt");
+    const listaPermisos = document.getElementById("listaPermisos");
+    const CLAVE_CREDENCIALES_RECORDADAS = "pharsysCredencialesRecordadas";
+
+    function guardarCredencialesRecordadas(email, clave) {
+      const payload = { email: String(email || "").trim(), clave: String(clave || "") };
+      localStorage.setItem(CLAVE_CREDENCIALES_RECORDADAS, JSON.stringify(payload));
+      if (payload.email) {
+        localStorage.setItem("usuarioRecordado", payload.email);
+      }
+    }
+
+    function leerCredencialesRecordadas() {
+      try {
+        const guardado = JSON.parse(localStorage.getItem(CLAVE_CREDENCIALES_RECORDADAS) || "null");
+        if (guardado && guardado.email) {
+          return {
+            email: String(guardado.email),
+            clave: String(guardado.clave || "")
+          };
+        }
+      } catch (error) {}
+
+      const emailLegacy = localStorage.getItem("usuarioRecordado");
+      if (emailLegacy) {
+        return { email: String(emailLegacy), clave: "" };
+      }
+
+      return null;
+    }
+
+    function limpiarCredencialesRecordadas() {
+      localStorage.removeItem(CLAVE_CREDENCIALES_RECORDADAS);
+      localStorage.removeItem("usuarioRecordado");
+    }
+
+    function mostrarAviso(tipo, texto) {
+      aviso.className = "aviso " + tipo;
+      aviso.textContent = texto;
+    }
+
+    function marcarError(campoId, errorId, texto) {
+      const campo = document.getElementById(campoId);
+      const error = document.getElementById(errorId);
+      if (campo) campo.classList.toggle("invalido", Boolean(texto));
+      if (error) error.textContent = texto || "";
+      return !texto;
+    }
+
+    function validarUsuario() {
+      return marcarError("campoUsuario", "errorUsuario", usuarioInput.value.trim() ? "" : "Escribe tu usuario.");
+    }
+
+    function validarClave() {
+      return marcarError("campoClave", "errorClave", claveInput.value ? "" : "Escribe tu contraseña.");
+    }
+
+    usuarioInput.addEventListener("blur", validarUsuario);
+    claveInput.addEventListener("blur", validarClave);
+
+    try {
+      const credenciales = leerCredencialesRecordadas();
+      if (credenciales) {
+        usuarioInput.value = credenciales.email || "";
+        claveInput.value = credenciales.clave || "";
+        recordar.checked = true;
+      }
+    } catch (error) {}
+
+    btnVer.addEventListener("click", () => {
+      const oculta = claveInput.type === "password";
+      claveInput.type = oculta ? "text" : "password";
+      btnVer.textContent = oculta ? "Ocultar contraseña" : "Ver contraseña";
+      btnVer.setAttribute("aria-label", btnVer.textContent);
+    });
+
+    function mostrarBienvenida(usuario) {
+      if (usuario.perfil === "Administrador") {
+        window.location.replace("../../administrador/administrador.html");
+        return;
+      }
+
+      if (tituloLogin) {
+        tituloLogin.style.display = "none";
+      }
+      form.style.display = "none";
+      document.getElementById("registro").style.display = "none";
+      saludo.textContent = "SESIÓN INICIADA";
+      perfilTxt.textContent = "Hola, " + (usuario.nombre || usuario.usuario) + " • Perfil: " + usuario.perfil;
+
+      const permisos = {
+        Cliente: [
+          { texto: "Ver catálogo de medicamentos", href: "../index.html#catalogo" },
+          { texto: "Consultar sus pedidos", href: "../mis-pedidos.html" },
+          { texto: "Editar datos", href: "../editar-datos.html" }
+        ],
+        Empleado: PERMISOS.Empleado || [],
+        Administrador: PERMISOS.Administrador || []
+      };
+
+      const lista = permisos[usuario.perfil] || [];
+      listaPermisos.innerHTML = lista.map(item => {
+        if (typeof item === "string") {
+          return "<li>" + item + "</li>";
+        }
+        return "<li><a href=\"" + item.href + "\">" + item.texto + "</a></li>";
+      }).join("");
+      vistaBienvenida.hidden = false;
+    }
+
+    const sesionActual = haySesionActiva ? haySesionActiva() : false;
+    if (sesionActual) {
+      const sesion = leerSesion();
+      if (sesion && sesion.perfil === "Administrador") {
+        window.location.replace("../../administrador/administrador.html");
+      } else {
+        mostrarBienvenida(sesion);
+      }
+    }
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      aviso.className = "aviso";
+      ayuda.classList.remove("visible");
+
+      const usuarioOk = validarUsuario();
+      const claveOk = validarClave();
+
+      if (!usuarioOk || !claveOk) return;
+
+      btnEntrar.disabled = true;
+      btnEntrar.textContent = "Verificando...";
+
+      const email = usuarioInput.value.trim();
+      const clave = claveInput.value;
+
+      const resultado = validarCredenciales(email, clave);
+
+      btnEntrar.disabled = false;
+      btnEntrar.textContent = "Iniciar sesión";
+
+      if (!resultado.ok) {
+        mostrarAviso("error", resultado.mensaje);
+        ayuda.classList.add("visible");
+        return;
+      }
+
+      try {
+        if (recordar.checked) {
+          guardarCredencialesRecordadas(email, clave);
+        } else {
+          limpiarCredencialesRecordadas();
+        }
+
+        guardarSesion(resultado.usuario);
+      } catch (error) {}
+
+      if (resultado.usuario.perfil === "Administrador") {
+        window.location.replace("../../administrador/administrador.html");
+        return;
+      }
+
+      mostrarBienvenida(resultado.usuario);
+    });
+
+    document.getElementById("btnSalir").addEventListener("click", () => {
+      cerrarSesion();
+      limpiarCredencialesRecordadas();
+      location.reload();
+    });
+  </script>
+</body>
+</html>

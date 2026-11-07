@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Productos | PharSYS Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="administrador.css" />
+  </head>
+  <body>
+    <div class="app-layout">
+      <button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Abrir menú del administrador" aria-expanded="false">☰</button>
+
+      <aside class="sidebar" id="adminSidebar" aria-label="Menú principal del administrador">
+        <div class="sidebar__brand">
+          <div class="sidebar__logo">P</div>
+          <div>
+            <h1>PharSYS</h1>
+            <span>Administrador</span>
+          </div>
+        </div>
+
+        <div class="sidebar__group">
+          <p class="sidebar__label">Menú Admin</p>
+          <nav class="sidebar__nav">
+            <a href="administrador.html"><span class="sidebar__icon">⌂</span><span>Resumen</span></a>
+            <a href="pedidos.html"><span class="sidebar__icon">✓</span><span>Pedidos</span></a>
+            <a href="inventario.html"><span class="sidebar__icon">▣</span><span>Inventario</span></a>
+            <a href="productos.html" class="is-active"><span class="sidebar__icon">＋</span><span>Productos</span></a>
+            <a href="proveedores.html"><span class="sidebar__icon">◌</span><span>Proveedores</span></a>
+            <a href="empleados.html"><span class="sidebar__icon">👥</span><span>Empleados</span></a>
+            <a href="controlCaja.html"><span class="sidebar__icon">₡</span><span>Pagos y caja</span></a>
+            <a href="compras.html"><span class="sidebar__icon">↗</span><span>Órdenes de compra</span></a>
+            <a href="perfil.html"><span class="sidebar__icon">⚙</span><span>Mi perfil</span></a>
+          </nav>
+        </div>
+
+        <div class="sidebar__meta">
+          <strong>Productos</strong>
+          <p id="sidebar-status">Gestiona el catálogo del negocio.</p>
+        </div>
+      </aside>
+
+      <main class="main-panel">
+        <header class="topbar" aria-label="Herramientas del panel">
+          <div class="topbar__actions" style="margin-left: auto;">
+            <a class="secondary-btn" href="../farmacia-hu01/index.html" target="_blank" rel="noopener noreferrer">Plataforma del usuario</a>
+            <button id="logout-admin" class="secondary-btn" type="button">Cerrar sesión</button>
+            <div class="user-chip">
+              <span class="user-chip__avatar">AS</span>
+              <span id="admin-name">Admin</span>
+            </div>
+          </div>
+        </header>
+
+        <section class="page-header">
+          <div>
+            <h2>Productos</h2>
+            <p>Alta y clasificación del catálogo disponible para clientes.</p>
+          </div>
+        </section>
+
+        <section class="content-grid">
+          <article class="panel form-panel" id="productos">
+            <div class="panel__header">
+              <div>
+                <h3 class="panel__title">Crear producto nuevo</h3>
+                <span class="panel__subtitle">Registrar artículo con toda la información del catálogo</span>
+              </div>
+            </div>
+
+            <form id="product-form">
+              <div class="form-grid">
+                <div class="field">
+                  <label for="product-id">ID</label>
+                  <input id="product-id" name="product-id" type="text" placeholder="Ej. P-1045" />
+                </div>
+
+                <div class="field">
+                  <label for="product-name">Nombre</label>
+                  <input id="product-name" name="product-name" type="text" placeholder="Ej. Antigripal Plus" />
+                </div>
+
+                <div class="field">
+                  <label for="product-category">Categoría</label>
+                  <select id="product-category" name="product-category">
+                    <option>Medicamentos</option>
+                    <option>Vitaminas</option>
+                    <option>Dermocosmética</option>
+                    <option>Higiene</option>
+                    <option>Suplementos</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="product-principio-activo">Principio activo</label>
+                  <input id="product-principio-activo" name="product-principio-activo" type="text" placeholder="Ej. Paracetamol" />
+                </div>
+
+                <div class="field">
+                  <label for="product-concentracion">Concentración</label>
+                  <input id="product-concentracion" name="product-concentracion" type="text" placeholder="Ej. 500 mg" />
+                </div>
+
+                <div class="field">
+                  <label for="product-forma-farmaceutica">Forma farmacéutica</label>
+                  <input id="product-forma-farmaceutica" name="product-forma-farmaceutica" type="text" placeholder="Ej. Tableta" />
+                </div>
+
+                <div class="field">
+                  <label for="product-presentacion">Presentación</label>
+                  <input id="product-presentacion" name="product-presentacion" type="text" placeholder="Ej. Caja x 20 tabletas" />
+                </div>
+
+                <div class="field">
+                  <label for="product-laboratorio">Laboratorio</label>
+                  <input id="product-laboratorio" name="product-laboratorio" type="text" placeholder="Ej. Genfar" />
+                </div>
+
+                <div class="field">
+                  <label for="product-supplier">Proveedor</label>
+                  <select id="product-supplier" name="product-supplier">
+                    <option value="">Selecciona un proveedor</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="product-lote">Lote</label>
+                  <input id="product-lote" name="product-lote" type="text" placeholder="Ej. L-3024" />
+                </div>
+
+                <div class="field">
+                  <label for="product-fecha-vencimiento">Fecha de vencimiento</label>
+                  <input id="product-fecha-vencimiento" name="product-fecha-vencimiento" type="date" />
+                </div>
+
+                <div class="field">
+                  <label for="product-registro-invima">Registro INVIMA</label>
+                  <input id="product-registro-invima" name="product-registro-invima" type="text" placeholder="Ej. INVIMA-12345" />
+                </div>
+
+                <div class="field">
+                  <label for="product-price">Precio de venta</label>
+                  <input id="product-price" name="product-price" type="number" min="0" step="0.01" value="420" />
+                </div>
+
+                <div class="field">
+                  <label for="product-etiqueta">Etiqueta</label>
+                  <select id="product-etiqueta" name="product-etiqueta">
+                    <option>Nuevo</option>
+                    <option>Más vendido</option>
+                    <option>Oferta</option>
+                    <option>Recomendado</option>
+                    <option>Sin etiqueta</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="product-stock">Stock inicial</label>
+                  <input id="product-stock" name="product-stock" type="number" value="120" min="0" />
+                </div>
+
+                <div class="field field--full">
+                  <label for="product-notes">Descripción</label>
+                  <textarea id="product-notes" name="product-notes" rows="3" placeholder="Describa las indicaciones, uso y observaciones del producto..."></textarea>
+                </div>
+              </div>
+
+              <div class="pill-group" aria-label="Acciones de producto">
+                <button type="button" class="is-selected">Activo</button>
+                <button type="button">Inactivo</button>
+                <button type="button">Oferta</button>
+              </div>
+
+              <div class="product-preview" id="product-preview" aria-live="polite" style="margin-top: 22px; border: 1px solid rgba(96, 109, 169, 0.2); border-radius: 18px; background: linear-gradient(135deg, rgba(113, 87, 255, 0.08), rgba(24, 183, 143, 0.06)); padding: 18px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px;">
+                  <strong style="font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; color: #4563c6;">Vista previa</strong>
+                  <span id="preview-category" style="font-size: 0.72rem; padding: 6px 10px; border-radius: 999px; background: rgba(52, 86, 203, 0.1); color: #1c2a5e;">Medicamentos</span>
+                </div>
+
+                <h4 id="preview-name" style="margin: 0 0 10px; font-size: 1.25rem; color: #101a2e;">Nombre del producto</h4>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px 12px; color: #4f5b79; font-size: 0.82rem; margin-bottom: 10px;">
+                  <span id="preview-supplier">Proveedor</span>
+                  <span>•</span>
+                  <span id="preview-stock">Stock: 120</span>
+                </div>
+                <p id="preview-description" style="margin: 0 0 12px; color: #36405f; line-height: 1.5;">La descripción del producto aparecerá aquí.</p>
+                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(96, 109, 169, 0.18); padding-top: 12px;">
+                  <span style="color: #5d6d90; font-size: 0.8rem;">Precio</span>
+                  <strong id="preview-price" style="font-size: 1.1rem; color: #101a2e;">$420</strong>
+                </div>
+              </div>
+
+              <div style="margin-top: 18px; display: flex; justify-content: flex-end;">
+                <button class="primary-btn" type="submit">Guardar producto</button>
+              </div>
+            </form>
+          </article>
+
+          <article class="panel form-panel" id="actualizar-precio">
+            <div class="panel__header">
+              <div>
+                <h3 class="panel__title">Actualizar precio</h3>
+                <span class="panel__subtitle">Ajustar el valor del producto en el catálogo</span>
+              </div>
+            </div>
+
+            <form id="update-price-form">
+              <div class="form-grid">
+                <div class="field">
+                  <label for="price-product-select">Producto</label>
+                  <select id="price-product-select" name="price-product-select">
+                    <option value="">Selecciona un producto</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="current-product-price">Precio actual</label>
+                  <input id="current-product-price" name="current-product-price" type="text" readonly value="$0" />
+                </div>
+
+                <div class="field">
+                  <label for="new-product-price">Nuevo precio</label>
+                  <input id="new-product-price" name="new-product-price" type="number" min="0" step="0.01" placeholder="Ej. 55000" />
+                </div>
+              </div>
+
+              <div style="margin-top: 18px; display: flex; justify-content: flex-end;">
+                <button class="primary-btn" type="submit">Actualizar precio</button>
+              </div>
+            </form>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite">Acción realizada</div>
+
+    <script src="../src/auth.js"></script>
+    <script src="administrador.js"></script>
+    <script>
+      (function () {
+        const sesion = leerSesion();
+        const adminNameEl = document.getElementById('admin-name');
+        if (!sesion || sesion.perfil !== 'Administrador') {
+          window.location.replace('../farmacia-hu01/login/index.html');
+          return;
+        }
+        if (adminNameEl) {
+          adminNameEl.textContent = sesion.nombre || sesion.usuario || 'Admin';
+        }
+      })();
+    </script>
+  </body>
+</html>

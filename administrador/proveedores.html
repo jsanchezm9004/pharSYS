@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Proveedores | PharSYS Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="administrador.css" />
+  </head>
+  <body>
+    <div class="app-layout">
+      <button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Abrir menú del administrador" aria-expanded="false">☰</button>
+
+      <aside class="sidebar" id="adminSidebar" aria-label="Menú principal del administrador">
+        <div class="sidebar__brand">
+          <div class="sidebar__logo">P</div>
+          <div>
+            <h1>PharSYS</h1>
+            <span>Administrador</span>
+          </div>
+        </div>
+
+        <div class="sidebar__group">
+          <p class="sidebar__label">Menú Admin</p>
+          <nav class="sidebar__nav">
+            <a href="administrador.html"><span class="sidebar__icon">⌂</span><span>Resumen</span></a>
+            <a href="pedidos.html"><span class="sidebar__icon">✓</span><span>Pedidos</span></a>
+            <a href="inventario.html"><span class="sidebar__icon">▣</span><span>Inventario</span></a>
+            <a href="productos.html"><span class="sidebar__icon">＋</span><span>Productos</span></a>
+            <a href="proveedores.html" class="is-active"><span class="sidebar__icon">◌</span><span>Proveedores</span></a>
+            <a href="empleados.html"><span class="sidebar__icon">👥</span><span>Empleados</span></a>
+            <a href="controlCaja.html"><span class="sidebar__icon">₡</span><span>Pagos y caja</span></a>
+            <a href="compras.html"><span class="sidebar__icon">↗</span><span>Órdenes de compra</span></a>
+            <a href="perfil.html"><span class="sidebar__icon">⚙</span><span>Mi perfil</span></a>
+          </nav>
+        </div>
+
+        <div class="sidebar__meta">
+          <strong>Proveedores</strong>
+          <p id="sidebar-status">Revisa socios comerciales y contactos.</p>
+        </div>
+      </aside>
+
+      <main class="main-panel">
+        <header class="topbar" aria-label="Herramientas del panel">
+          <div class="topbar__actions" style="margin-left: auto;">
+            <a class="secondary-btn" href="../farmacia-hu01/index.html" target="_blank" rel="noopener noreferrer">Plataforma del usuario</a>
+            <button id="logout-admin" class="secondary-btn" type="button">Cerrar sesión</button>
+            <div class="user-chip">
+              <span class="user-chip__avatar">AS</span>
+              <span id="admin-name">Admin</span>
+            </div>
+          </div>
+        </header>
+
+        <section class="page-header">
+          <div>
+            <h2>Proveedores</h2>
+            <p>Registro y contacto de socios comerciales y distribuidores.</p>
+          </div>
+        </section>
+
+        <section class="content-grid">
+          <article class="panel form-panel" id="proveedores">
+            <div class="panel__header">
+              <div>
+                <h3 class="panel__title">Crear proveedor</h3>
+                <span class="panel__subtitle">Registrar nuevo socio comercial</span>
+              </div>
+            </div>
+
+            <form id="supplier-form">
+              <div class="form-grid">
+                <div class="field field--full">
+                  <label for="supplier-name">Nombre del proveedor</label>
+                  <input id="supplier-name" name="supplier-name" type="text" placeholder="Ej. Distribuidora León" />
+                </div>
+
+                <div class="field">
+                  <label for="supplier-nit">NIT</label>
+                  <input id="supplier-nit" name="supplier-nit" type="text" placeholder="900123456-7" />
+                </div>
+
+                <div class="field">
+                  <label for="supplier-manager">Encargado</label>
+                  <input id="supplier-manager" name="supplier-manager" type="text" placeholder="María López" />
+                </div>
+
+                <div class="field">
+                  <label for="supplier-phone">Teléfono / celular</label>
+                  <input id="supplier-phone" name="supplier-phone" type="tel" placeholder="300 123 4567" />
+                </div>
+
+                <div class="field field--full">
+                  <label for="supplier-email">Correo electrónico</label>
+                  <input id="supplier-email" name="supplier-email" type="email" placeholder="contacto@proveedor.com" />
+                </div>
+              </div>
+
+              <div style="margin-top: 18px; display: flex; justify-content: flex-end;">
+                <button class="primary-btn" type="submit">Registrar proveedor</button>
+              </div>
+            </form>
+          </article>
+
+          <article class="panel">
+            <div class="panel__header">
+              <div>
+                <h3 class="panel__title">Proveedores registrados</h3>
+                <span class="panel__subtitle">Solo el administrador puede modificar o eliminar proveedores y cambiar su estado.</span>
+              </div>
+              <div class="table-actions supplier-summary-actions">
+                <span id="supplier-summary-count" class="status-badge status-badge--info">0 proveedores</span>
+                <button id="delete-selected-suppliers" class="table-btn table-btn--danger" type="button" disabled>Eliminar seleccionados</button>
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table class="suppliers-table">
+                <thead>
+                  <tr>
+                    <th scope="col" aria-label="Seleccionar proveedores">
+                      <input id="supplier-select-all" type="checkbox" aria-label="Seleccionar todos los proveedores" />
+                    </th>
+                    <th scope="col">Nombre del proveedor</th>
+                    <th scope="col">NIT</th>
+                    <th scope="col">Encargado</th>
+                    <th scope="col">Teléfono / celular</th>
+                    <th scope="col">Correo electrónico</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="supplier-summary-body"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite">Acción realizada</div>
+
+    <script src="../src/auth.js"></script>
+    <script src="administrador.js"></script>
+    <script>
+      (function () {
+        const sesion = leerSesion();
+        const adminNameEl = document.getElementById('admin-name');
+        if (!sesion || sesion.perfil !== 'Administrador') {
+          window.location.replace('../farmacia-hu01/login/index.html');
+          return;
+        }
+        if (adminNameEl) {
+          adminNameEl.textContent = sesion.nombre || sesion.usuario || 'Admin';
+        }
+      })();
+    </script>
+  </body>
+</html>

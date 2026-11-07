@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Registro de clientes</title>
+  <link rel="stylesheet" href="../css/navegacion.css">
+  <link rel="stylesheet" href="styles/styles.css">
+</head>
+<body>
+  <div class="pharsys-menu-root" data-base="../" data-current="register"></div>
+
+  <header>
+    <h1>Registro de clientes</h1>
+    <p>Complete los datos para registrar un nuevo cliente. Los campos con * son obligatorios.</p>
+  </header>
+
+  <main>
+    <section aria-labelledby="titulo-form">
+      <h2 id="titulo-form">Nuevo cliente</h2>
+
+      <form id="formCliente" novalidate>
+        <fieldset>
+          <legend>Datos personales</legend>
+          <div class="grid">
+            <div class="campo">
+              <label for="tipoDoc">Tipo de documento <span class="req">*</span></label>
+              <select id="tipoDoc" name="tipoDoc" required>
+                <option value="">Seleccione...</option>
+                <option>Cédula de ciudadanía</option>
+                <option>Cédula de extranjería</option>
+                <option>Pasaporte</option>
+                <option>NIT</option>
+              </select>
+              <span class="msg" id="e-tipoDoc"></span>
+            </div>
+
+            <div class="campo">
+              <label for="numDoc">Número de documento <span class="req">*</span></label>
+              <input type="text" id="numDoc" name="numDoc" inputmode="numeric" required>
+              <span class="msg" id="e-numDoc"></span>
+            </div>
+
+            <div class="campo">
+              <label for="nombres">Nombres <span class="req">*</span></label>
+              <input type="text" id="nombres" name="nombres" required>
+              <span class="msg" id="e-nombres"></span>
+            </div>
+
+            <div class="campo">
+              <label for="apellidos">Apellidos <span class="req">*</span></label>
+              <input type="text" id="apellidos" name="apellidos" required>
+              <span class="msg" id="e-apellidos"></span>
+            </div>
+
+            <div class="campo">
+              <label for="fechaNac">Fecha de nacimiento <span class="req">*</span></label>
+              <input type="date" id="fechaNac" name="fechaNac" max="2026-12-31" required>
+              <span class="msg" id="e-fechaNac"></span>
+            </div>
+
+            <div class="campo">
+              <label>Género <span class="req">*</span></label>
+              <div class="radios" role="radiogroup">
+                <label><input type="radio" name="genero" value="Femenino"> Femenino</label>
+                <label><input type="radio" name="genero" value="Masculino"> Masculino</label>
+                <label><input type="radio" name="genero" value="Otro"> Otro</label>
+              </div>
+              <span class="msg" id="e-genero"></span>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Contacto</legend>
+          <div class="grid">
+            <div class="campo">
+              <label for="correo">Correo electrónico <span class="req">*</span></label>
+              <input type="email" id="correo" name="correo" placeholder="nombre@correo.com" required>
+              <span class="msg" id="e-correo"></span>
+            </div>
+
+            <div class="campo">
+              <label for="telefono">Teléfono celular <span class="req">*</span></label>
+              <input type="tel" id="telefono" name="telefono" placeholder="3003003000" inputmode="numeric" required>
+              <span class="msg" id="e-telefono"></span>
+            </div>
+
+            <div class="campo">
+              <label for="direccion">Dirección <span class="req">*</span></label>
+              <input type="text" id="direccion" name="direccion" required>
+              <span class="msg" id="e-direccion"></span>
+            </div>
+
+            <div class="campo">
+              <label for="ciudad">Ciudad <span class="req">*</span></label>
+              <input type="text" id="ciudad" name="ciudad" required>
+              <span class="msg" id="e-ciudad"></span>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Información comercial</legend>
+          <div class="grid">
+            <div class="campo">
+              <label for="tipoCliente">Tipo de cliente <span class="req">*</span></label>
+              <select id="tipoCliente" name="tipoCliente" required>
+                <option value="">Seleccione...</option>
+                <option>Persona natural</option>
+                <option>Empresa</option>
+              </select>
+              <span class="msg" id="e-tipoCliente"></span>
+            </div>
+
+            <div class="campo">
+              <label for="observaciones">Observaciones</label>
+              <textarea id="observaciones" name="observaciones" rows="3"></textarea>
+            </div>
+          </div>
+
+          <div class="campo check">
+            <label>
+              <input type="checkbox" id="terminos" name="terminos">
+              Acepto el tratamiento de mis datos personales (Ley 1581 de 2012) <span class="req">*</span>
+            </label>
+            <span class="msg" id="e-terminos"></span>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Contraseña</legend>
+            <div class="campo">
+              <label for="clave">Contraseña <span class="req">*</span></label>
+              <div class="entrada">
+                <input type="password" id="clave" name="clave" minlength="8" required>
+                <button type="button" class="ver" id="btnVerClave" aria-label="Mostrar contraseña">Mostrar contraseña</button>
+              </div>
+              <span class="msg" id="e-clave"></span>
+            </div>
+
+            <div class="campo">
+              <label for="confirmarClave">Confirmar contraseña <span class="req">*</span></label>
+              <div class="entrada">
+                <input type="password" id="confirmarClave" name="confirmarClave" minlength="8" required>
+                <button type="button" class="ver" id="btnVerConfirmarClave" aria-label="Mostrar contraseña">Mostrar contraseña</button>
+              </div>
+              <span class="msg" id="e-confirmarClave"></span>
+            </div>
+        </fieldset>
+
+        <div class="acciones">
+          <button type="submit" class="primario">Registrar cliente</button>
+          <button type="reset" class="secundario" id="btnLimpiar">Limpiar formulario</button>
+        </div>
+
+        <div id="resumenRegistro" hidden>
+          <h3>Resumen del registro</h3>
+          <ul id="listaResumenRegistro"></ul>
+          <div class="acciones">
+            <button type="button" class="secundario" id="btnEditarRegistro">Editar información</button>
+            <button type="button" class="primario" id="btnConfirmarRegistro">Confirmar registro</button>
+          </div>
+        </div>
+
+        <p id="aviso" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+  </main>
+
+  <footer>© 2026 Todos los derechos reservados.</footer>
+
+  <script src="../../src/auth.js"></script>
+  <script src="../js/navegacion.js"></script>
+  <script>
+    const form = document.getElementById("formCliente");
+    const aviso = document.getElementById("aviso");
+    const btnVerClave = document.getElementById("btnVerClave");
+    const btnVerConfirmarClave = document.getElementById("btnVerConfirmarClave");
+    const resumenRegistro = document.getElementById("resumenRegistro");
+    const listaResumenRegistro = document.getElementById("listaResumenRegistro");
+    const btnConfirmarRegistro = document.getElementById("btnConfirmarRegistro");
+    const btnEditarRegistro = document.getElementById("btnEditarRegistro");
+
+    const val = id => document.getElementById(id).value.trim();
+
+    function togglePasswordVisibility(button, inputId) {
+      const input = document.getElementById(inputId);
+      const mostrar = input.type === "password";
+      input.type = mostrar ? "text" : "password";
+      button.textContent = mostrar ? "ocultar contraseña" : "mostrar contraseña";
+      button.setAttribute("aria-label", mostrar ? "Ocultar contraseña" : "Mostrar contraseña");
+    }
+
+    if (btnVerClave) {
+      btnVerClave.addEventListener("click", () => togglePasswordVisibility(btnVerClave, "clave"));
+    }
+
+    if (btnVerConfirmarClave) {
+      btnVerConfirmarClave.addEventListener("click", () => togglePasswordVisibility(btnVerConfirmarClave, "confirmarClave"));
+    }
+
+    function setError(id, mensaje) {
+      const campo = document.getElementById(id);
+      const msg = document.getElementById("e-" + id);
+      if (msg) msg.textContent = mensaje;
+      if (campo) campo.classList.toggle("invalido", !!mensaje);
+    }
+
+    function esMayorDeEdad(fecha) {
+      const hoy = new Date();
+      const nac = new Date(fecha);
+      let edad = hoy.getFullYear() - nac.getFullYear();
+      const mesDiferencia = hoy.getMonth() - nac.getMonth();
+
+      if (mesDiferencia < 0 || (mesDiferencia === 0 && hoy.getDate() < nac.getDate())) {
+        edad--;
+      }
+
+      return edad >= 18;
+    }
+
+    function construirResumen() {
+      const genero = form.querySelector('input[name="genero"]:checked');
+      const datos = [
+        ["Tipo de documento", val("tipoDoc")],
+        ["Número de documento", val("numDoc")],
+        ["Nombres", val("nombres")],
+        ["Apellidos", val("apellidos")],
+        ["Fecha de nacimiento", val("fechaNac")],
+        ["Género", genero ? genero.value : ""],
+        ["Correo", val("correo")],
+        ["Teléfono", val("telefono")],
+        ["Dirección", val("direccion")],
+        ["Ciudad", val("ciudad")],
+        ["Tipo de cliente", val("tipoCliente")],
+        ["Observaciones", val("observaciones") || "Sin observaciones"]
+      ];
+
+      listaResumenRegistro.innerHTML = datos
+        .filter(([, valor]) => valor)
+        .map(([label, valor]) => `<li><strong>${label}:</strong> ${valor}</li>`)
+        .join("");
+    }
+
+    function mostrarResumenRegistro() {
+      construirResumen();
+      form.querySelector(".acciones").style.display = "none";
+      resumenRegistro.hidden = false;
+      aviso.textContent = "Revisa la información antes de confirmar el registro.";
+      aviso.style.color = "var(--ok)";
+    }
+
+    function ocultarResumenRegistro() {
+      resumenRegistro.hidden = true;
+      form.querySelector(".acciones").style.display = "flex";
+      aviso.textContent = "";
+      aviso.style.color = "";
+    }
+
+    function validar() {
+      let ok = true;
+
+      const regla = (id, condicion, mensaje) => {
+        setError(id, condicion ? "" : mensaje);
+        if (!condicion) ok = false;
+      };
+
+      regla("tipoDoc", val("tipoDoc") !== "", "Seleccione el tipo de documento.");
+      regla("numDoc", /^[0-9]{5,12}$/.test(val("numDoc")), "Use solo números (5 a 12 dígitos).");
+      regla("nombres", val("nombres").length >= 2, "Ingrese los nombres.");
+      regla("apellidos", val("apellidos").length >= 2, "Ingrese los apellidos.");
+
+      const fecha = val("fechaNac");
+      const fechaMaxima = new Date("2026-12-31T23:59:59");
+      const fechaNac = fecha ? new Date(fecha + "T00:00:00") : null;
+      regla("fechaNac", fecha !== "" && fechaNac <= fechaMaxima && esMayorDeEdad(fecha), "La fecha de nacimiento debe ser menor o igual al 31/12/2026 y el cliente debe ser mayor de 18 años.");
+
+      const genero = form.querySelector('input[name="genero"]:checked');
+      document.getElementById("e-genero").textContent = genero ? "" : "Seleccione una opción.";
+      if (!genero) ok = false;
+
+      regla("correo", /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val("correo")), "Ingrese un correo válido.");
+      regla("telefono", /^3[0-9]{9}$/.test(val("telefono")), "Celular de 10 dígitos que empiece por 3.");
+      regla("clave", val("clave").length >= 8, "La contraseña debe tener al menos 8 caracteres.");
+      regla("confirmarClave", val("confirmarClave") !== "" && val("confirmarClave") === val("clave"), "Las contraseñas no coinciden.");
+      regla("direccion", val("direccion").length >= 5, "Ingrese la dirección.");
+      regla("ciudad", val("ciudad").length >= 2, "Ingrese la ciudad.");
+      regla("tipoCliente", val("tipoCliente") !== "", "Seleccione el tipo de cliente.");
+
+      const term = document.getElementById("terminos").checked;
+      document.getElementById("e-terminos").textContent = term ? "" : "Debe aceptar para continuar.";
+      if (!term) ok = false;
+
+      return ok;
+    }
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      aviso.style.color = "";
+
+      if (!validar()) {
+        aviso.style.color = "var(--error)";
+        aviso.textContent = "Revise los campos marcados en rojo.";
+        return;
+      }
+
+      mostrarResumenRegistro();
+    });
+
+    btnEditarRegistro.addEventListener("click", () => {
+      ocultarResumenRegistro();
+    });
+
+    btnConfirmarRegistro.addEventListener("click", () => {
+      const email = val("correo");
+      const documento = val("numDoc");
+      const clave = val("clave");
+
+      const usuarios = leerUsuarios();
+      const duplicado = usuarios.some(usuario => {
+        const documentoGuardado = String(usuario.numDoc || usuario.documento || "");
+        return usuario.email === email || documentoGuardado === documento;
+      });
+
+      if (duplicado) {
+        setError("correo", "Ya existe un cliente con este correo o documento.");
+        aviso.style.color = "var(--error)";
+        aviso.textContent = "No se registró: usuario duplicado.";
+        ocultarResumenRegistro();
+        return;
+      }
+
+      const nuevoUsuario = {
+        usuario: email,
+        email,
+        nombre: val("nombres"),
+        apellido: val("apellidos"),
+        documento: documento,
+        numDoc: documento,
+        tipoDoc: val("tipoDoc"),
+        telefono: val("telefono"),
+        direccion: val("direccion"),
+        ciudad: val("ciudad"),
+        tipoCliente: val("tipoCliente"),
+        clave: clave,
+        perfil: "Cliente",
+        fechaRegistro: new Date().toISOString()
+      };
+
+      const resultado = registrarUsuario(nuevoUsuario);
+
+      if (!resultado.ok) {
+        aviso.style.color = "var(--error)";
+        aviso.textContent = resultado.mensaje;
+        ocultarResumenRegistro();
+        return;
+      }
+
+      aviso.style.color = "var(--ok)";
+      aviso.textContent = "Registro exitoso. Ahora puedes iniciar sesión.";
+      window.alert("¡Registro exitoso! El usuario ha sido registrado correctamente. Ahora debes iniciar sesión.");
+      form.reset();
+      ocultarResumenRegistro();
+
+      setTimeout(() => {
+        window.location.href = "../login/index.html";
+      }, 800);
+    });
+
+    form.addEventListener("reset", () => {
+      form.querySelectorAll(".msg").forEach(item => item.textContent = "");
+      form.querySelectorAll(".invalido").forEach(item => item.classList.remove("invalido"));
+      aviso.textContent = "";
+    });
+  </script>
+</body>
+</html>
