@@ -124,4 +124,97 @@ function sincronizarInventarioLocal() {
   ));
 }
 
+function serializarProductosCatalogo() {
+  return productos.map(producto => ({
+    id: Number(producto.id),
+    nombre: producto.nombre,
+    categoria: producto.categoria,
+    descripcion: producto.descripcion,
+    presentacion: producto.presentacion,
+    laboratorio: producto.laboratorio,
+    proveedor: producto.proveedor,
+    precio: Number(producto.precio || 0),
+    precioAnterior: producto.precioAnterior ? Number(producto.precioAnterior) : null,
+    etiqueta: producto.etiqueta || "",
+    principioActivo: producto.principioActivo || "",
+    concentracion: producto.concentracion || "",
+    formaFarmaceutica: producto.formaFarmaceutica || "",
+    registroInvima: producto.registroInvima || "",
+    lote: producto.lote || "",
+    fechaVencimiento: producto.fechaVencimiento && producto.fechaVencimiento.toISOString ? producto.fechaVencimiento.toISOString() : null,
+    imagen: producto.imagen || ""
+  }));
+}
+
+function guardarCatalogoActual() {
+  localStorage.setItem("pharsysProductos", JSON.stringify(serializarProductosCatalogo()));
+}
+
+function sincronizarProductosDesdeStorage() {
+  try {
+    const persistidos = JSON.parse(localStorage.getItem("pharsysProductos") || "null");
+    if (Array.isArray(persistidos) && persistidos.length) {
+      productos.length = 0;
+      persistidos.forEach(item => {
+        const producto = new Producto({
+          id: Number(item.id),
+          nombre: item.nombre,
+          categoria: item.categoria,
+          descripcion: item.descripcion || "",
+          presentacion: item.presentacion || "",
+          laboratorio: item.laboratorio || "",
+          proveedor: item.proveedor || "",
+          precio: Number(item.precio || 0),
+          precioAnterior: item.precioAnterior ? Number(item.precioAnterior) : null,
+          etiqueta: item.etiqueta || "",
+          principioActivo: item.principioActivo || "",
+          concentracion: item.concentracion || "",
+          formaFarmaceutica: item.formaFarmaceutica || "",
+          registroInvima: item.registroInvima || "",
+          lote: item.lote || "",
+          fechaVencimiento: item.fechaVencimiento ? new Date(item.fechaVencimiento) : new Date(),
+          imagen: item.imagen || empaque("#003273", "Rx")
+        });
+        productos.push(producto);
+      });
+
+      const inventarioPersistido = JSON.parse(localStorage.getItem("pharsysInventario") || "[]");
+      inventario.length = 0;
+      if (Array.isArray(inventarioPersistido) && inventarioPersistido.length) {
+        inventarioPersistido.forEach(item => {
+          inventario.push(new Inventario(item.nombreProducto, item.nombreProveedor || "Proveedor", String(item.cantidad || 0)));
+        });
+      }
+    }
+  } catch (error) {}
+}
+
 sincronizarInventarioLocal();
+sincronizarProductosDesdeStorage();
+if (!localStorage.getItem("pharsysProductos") || !JSON.parse(localStorage.getItem("pharsysProductos") || "[]").length) {
+  guardarCatalogoActual();
+}
+
+window.addEventListener("storage", (event) => {
+  if (event.key === "pharsysProductos" || event.key === "pharsysInventario") {
+    sincronizarProductosDesdeStorage();
+    if (typeof pintarProductos === "function") {
+      pintarProductos();
+    }
+    const totalElement = document.getElementById("totalProductos");
+    if (totalElement) {
+      totalElement.textContent = String(productos.length);
+    }
+  }
+});
+
+window.addEventListener("pharsys:catalogo-updated", () => {
+  sincronizarProductosDesdeStorage();
+  if (typeof pintarProductos === "function") {
+    pintarProductos();
+  }
+  const totalElement = document.getElementById("totalProductos");
+  if (totalElement) {
+    totalElement.textContent = String(productos.length);
+  }
+});

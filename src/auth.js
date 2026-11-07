@@ -1,11 +1,13 @@
 const CLAVE_USUARIOS = "pharsysUsuarios";
 const CLAVE_SESION = "pharsysSesion";
+const CLAVE_PRODUCTOS = "pharsysProductos";
+const CLAVE_INVENTARIO = "pharsysInventario";
 
 const PERMISOS = {
   "Cliente": [
     "Ver el catálogo de medicamentos",
-    "Comprar productos",
-    "Consultar sus pedidos"
+    "Consultar sus pedidos",
+    "Editar datos"
   ],
   "Empleado": [
     "Registrar ventas",
@@ -32,6 +34,7 @@ function inicializarUsuariosDemo() {
       apellido: "García",
       clave: "Cliente123",
       perfil: "Cliente",
+      activo: true,
       fechaRegistro: new Date().toISOString()
     },
     {
@@ -41,6 +44,7 @@ function inicializarUsuariosDemo() {
       apellido: "López",
       clave: "Empleado123",
       perfil: "Empleado",
+      activo: true,
       fechaRegistro: new Date().toISOString()
     },
     {
@@ -50,6 +54,7 @@ function inicializarUsuariosDemo() {
       apellido: "Pérez",
       clave: "Admin123",
       perfil: "Administrador",
+      activo: true,
       fechaRegistro: new Date().toISOString()
     }
   ];
@@ -80,17 +85,60 @@ function leerSesion() {
   }
 }
 
+function leerProductosGuardados() {
+  try {
+    const productos = JSON.parse(localStorage.getItem(CLAVE_PRODUCTOS) || "[]");
+    return Array.isArray(productos) ? productos : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function guardarProductosGuardados(productos) {
+  localStorage.setItem(CLAVE_PRODUCTOS, JSON.stringify(productos));
+  window.dispatchEvent(new CustomEvent("pharsys:catalogo-updated"));
+}
+
+function leerInventarioPersistido() {
+  try {
+    const inventario = JSON.parse(localStorage.getItem(CLAVE_INVENTARIO) || "[]");
+    return Array.isArray(inventario) ? inventario : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function guardarInventarioPersistido(inventario) {
+  localStorage.setItem(CLAVE_INVENTARIO, JSON.stringify(inventario));
+  window.dispatchEvent(new CustomEvent("pharsys:catalogo-updated"));
+}
+
+function obtenerNombreUsuarioSesion() {
+  const sesion = leerSesion();
+  if (!sesion) return "Mi cuenta";
+
+  const nombreCompleto = [sesion.nombre, sesion.apellido].filter(Boolean).join(" ").trim();
+  return nombreCompleto || sesion.usuario || "Mi cuenta";
+}
+
 function guardarSesion(usuario) {
+  const identidad = usuario || {};
   localStorage.setItem(CLAVE_SESION, JSON.stringify({
-    usuario: usuario.usuario || usuario.email,
-    nombre: usuario.nombre || "",
-    apellido: usuario.apellido || "",
-    perfil: usuario.perfil || "Cliente"
+    usuario: identidad.usuario || identidad.email || "",
+    email: identidad.email || identidad.usuario || "",
+    nombre: identidad.nombre || "",
+    apellido: identidad.apellido || "",
+    perfil: identidad.perfil || "Cliente",
+    telefono: identidad.telefono || "",
+    direccion: identidad.direccion || "",
+    ciudad: identidad.ciudad || ""
   }));
+  window.dispatchEvent(new CustomEvent("pharsys:session-updated"));
 }
 
 function cerrarSesion() {
   localStorage.removeItem(CLAVE_SESION);
+  window.dispatchEvent(new CustomEvent("pharsys:session-updated"));
 }
 
 function haySesionActiva() {
@@ -107,6 +155,10 @@ function validarCredenciales(email, password) {
 
   if (!usuario) {
     return { ok: false, mensaje: "Este usuario no está registrado. Revisa el dato o crea una cuenta." };
+  }
+
+  if (usuario.activo === false || String(usuario.activo || '').toLowerCase() === 'inactivo') {
+    return { ok: false, mensaje: "Este usuario está inactivo. Contacta al administrador para reactivarlo." };
   }
 
   if (usuario.clave !== password) {
@@ -149,6 +201,7 @@ function registrarUsuario(datos) {
     tipoCliente: datos.tipoCliente || "",
     clave,
     perfil: "Cliente",
+    activo: true,
     fechaRegistro: new Date().toISOString()
   };
 

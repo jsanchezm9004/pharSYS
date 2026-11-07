@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editar datos | PharSYS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/navegacion.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: "Plus Jakarta Sans", "Segoe UI", sans-serif;
+      background: linear-gradient(180deg, #f4f9ff 0%, #ebf4ff 100%);
+      color: #16375d;
+    }
+    .contenedor {
+      max-width: 760px;
+      margin: 50px auto;
+      padding: 0 20px 40px;
+    }
+    .tarjeta {
+      background: #fff;
+      border-radius: 24px;
+      border: 1px solid #dfeaf5;
+      box-shadow: 0 20px 38px rgba(17, 49, 76, 0.08);
+      padding: 28px;
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(2rem, 2.8vw, 2.5rem);
+      letter-spacing: -0.05em;
+      color: #0f2a46;
+    }
+    .subtitulo {
+      color: #5b7187;
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+    form {
+      display: grid;
+      gap: 18px;
+    }
+    .campo {
+      display: grid;
+      gap: 8px;
+    }
+    label {
+      font-weight: 700;
+      color: #183a5a;
+    }
+    input {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid #d7e2ee;
+      border-radius: 12px;
+      padding: 13px 14px;
+      font-size: 1rem;
+      color: #173b5d;
+      background: #f9fbff;
+    }
+    input:focus {
+      outline: 2px solid rgba(74, 131, 246, 0.18);
+      border-color: #7daef2;
+    }
+    .acciones {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .boton {
+      border: none;
+      padding: 14px 20px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 800;
+      font-size: 0.98rem;
+      background: linear-gradient(135deg, #ff8d4d, #ff6a2d);
+      color: white;
+    }
+    .boton-secundario {
+      border: 1px solid #d6e4f5;
+      background: #edf5ff;
+      color: #123a5c;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-weight: 700;
+    }
+    .mensaje {
+      min-height: 22px;
+      font-weight: 700;
+      color: #226a46;
+    }
+    .mensaje.error {
+      color: #a52b2b;
+    }
+    @media (max-width: 600px) {
+      .tarjeta { padding: 20px; }
+      .acciones { flex-direction: column; }
+      .boton, .boton-secundario { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="pharsys-menu-root" data-base="" data-current="edit"></div>
+
+  <main class="contenedor">
+    <section class="tarjeta">
+      <h1>Editar datos</h1>
+      <p class="subtitulo">Actualiza únicamente tu información de contacto y tu contraseña.</p>
+
+      <form id="formEditarDatos" novalidate>
+        <div class="campo">
+          <label for="telefono">Teléfono celular</label>
+          <input id="telefono" name="telefono" type="tel" placeholder="Ej: 3001234567">
+        </div>
+
+        <div class="campo">
+          <label for="direccion">Dirección</label>
+          <input id="direccion" name="direccion" type="text" placeholder="Ej: Calle 10 #20-30">
+        </div>
+
+        <div class="campo">
+          <label for="ciudad">Ciudad</label>
+          <input id="ciudad" name="ciudad" type="text" placeholder="Ej: Bogotá">
+        </div>
+
+        <div class="campo">
+          <label for="clave">Nueva contraseña</label>
+          <input id="clave" name="clave" type="password" placeholder="Deja en blanco para conservar la actual">
+        </div>
+
+        <div class="campo">
+          <label for="confirmarClave">Confirmar nueva contraseña</label>
+          <input id="confirmarClave" name="confirmarClave" type="password" placeholder="Repite la contraseña">
+        </div>
+
+        <div id="mensaje" class="mensaje" aria-live="polite"></div>
+
+        <div class="acciones">
+          <button type="submit" class="boton">Guardar cambios</button>
+          <a href="index.html" class="boton-secundario">Volver al inicio</a>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <script src="../src/auth.js"></script>
+  <script src="js/navegacion.js"></script>
+  <script>
+    function mostrarMensaje(texto, tipo = "ok") {
+      const mensaje = document.getElementById("mensaje");
+      mensaje.textContent = texto;
+      mensaje.classList.toggle("error", tipo === "error");
+    }
+
+    function cargarDatosActuales() {
+      const sesion = leerSesion();
+      if (!sesion) {
+        window.location.replace("login/index.html");
+        return;
+      }
+
+      const usuarios = leerUsuarios();
+      const usuarioActual = usuarios.find(item => item.email === (sesion.email || sesion.usuario) || item.usuario === (sesion.usuario || sesion.email));
+
+      if (!usuarioActual) return;
+
+      document.getElementById("telefono").value = usuarioActual.telefono || "";
+      document.getElementById("direccion").value = usuarioActual.direccion || "";
+      document.getElementById("ciudad").value = usuarioActual.ciudad || "";
+    }
+
+    document.getElementById("formEditarDatos").addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const sesion = leerSesion();
+      if (!sesion) {
+        window.location.replace("login/index.html");
+        return;
+      }
+
+      const nuevaClave = document.getElementById("clave").value.trim();
+      const confirmarClave = document.getElementById("confirmarClave").value.trim();
+
+      if (nuevaClave && nuevaClave !== confirmarClave) {
+        mostrarMensaje("Las contraseñas no coinciden.", "error");
+        return;
+      }
+
+      const usuarios = leerUsuarios();
+      const indice = usuarios.findIndex(item => item.email === (sesion.email || sesion.usuario) || item.usuario === (sesion.usuario || sesion.email));
+
+      if (indice === -1) {
+        mostrarMensaje("No se encontró el usuario activo.", "error");
+        return;
+      }
+
+      const usuarioActual = usuarios[indice];
+      usuarioActual.telefono = document.getElementById("telefono").value.trim();
+      usuarioActual.direccion = document.getElementById("direccion").value.trim();
+      usuarioActual.ciudad = document.getElementById("ciudad").value.trim();
+
+      if (nuevaClave) {
+        usuarioActual.clave = nuevaClave;
+      }
+
+      guardarUsuarios(usuarios);
+      guardarSesion(usuarioActual);
+      mostrarMensaje("Tus datos se actualizaron correctamente.");
+      document.getElementById("clave").value = "";
+      document.getElementById("confirmarClave").value = "";
+    });
+
+    cargarDatosActuales();
+  </script>
+</body>
+</html>

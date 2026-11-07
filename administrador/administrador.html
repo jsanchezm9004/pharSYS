@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PharSYS | Panel de Administrador</title>
+    <meta
+      name="description"
+      content="Panel administrativo para farmacia con aprobaciones de pedidos, control de inventario, proveedores, empleados y caja."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="administrador.css" />
+  </head>
+  <body>
+    <div class="app-layout">
+      <button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Abrir menú del administrador" aria-expanded="false">☰</button>
+
+      <aside class="sidebar" id="adminSidebar" aria-label="Menú principal del administrador">
+        <div class="sidebar__brand">
+          <div class="sidebar__logo">P</div>
+          <div>
+            <h1>PharSYS</h1>
+            <span>Administrador</span>
+          </div>
+        </div>
+
+        <div class="sidebar__group">
+          <p class="sidebar__label">Menú Admin</p>
+          <nav class="sidebar__nav">
+            <a href="administrador.html" class="is-active">
+              <span class="sidebar__icon">⌂</span>
+              <span>Resumen</span>
+            </a>
+            <a href="pedidos.html">
+              <span class="sidebar__icon">✓</span>
+              <span>Pedidos</span>
+            </a>
+            <a href="inventario.html">
+              <span class="sidebar__icon">▣</span>
+              <span>Inventario</span>
+            </a>
+            <a href="productos.html">
+              <span class="sidebar__icon">＋</span>
+              <span>Productos</span>
+            </a>
+            <a href="proveedores.html">
+              <span class="sidebar__icon">◌</span>
+              <span>Proveedores</span>
+            </a>
+            <a href="empleados.html">
+              <span class="sidebar__icon">👥</span>
+              <span>Empleados</span>
+            </a>
+            <a href="controlCaja.html">
+              <span class="sidebar__icon">₡</span>
+              <span>Pagos y caja</span>
+            </a>
+            <a href="compras.html">
+              <span class="sidebar__icon">↗</span>
+              <span>Órdenes de compra</span>
+            </a>
+            <a href="perfil.html">
+              <span class="sidebar__icon">⚙</span>
+              <span>Mi perfil</span>
+            </a>
+          </nav>
+        </div>
+
+        <div class="sidebar__meta">
+          <strong>Indicador del día</strong>
+          <p id="sidebar-status">Sin historial para mostrar por el momento.</p>
+        </div>
+      </aside>
+
+      <main class="main-panel">
+        <header class="topbar" aria-label="Herramientas del panel">
+
+          <div class="topbar__actions" style="margin-left: auto;">
+            <a class="secondary-btn" href="../farmacia-hu01/index.html" target="_blank" rel="noopener noreferrer">Plataforma del usuario</a>
+            <button id="logout-admin" class="secondary-btn" type="button">Cerrar sesión</button>
+            <div class="user-chip">
+              <span class="user-chip__avatar">AS</span>
+              <span id="admin-name">Admin</span>
+            </div>
+          </div>
+        </header>
+
+        <section class="page-header" id="resumen">
+          <div>
+            <h2>Panel administrativo</h2>
+            <p>Resumen operativo de farmacia, compras, caja y proveedores.</p>
+          </div>
+        </section>
+
+        <section class="summary-grid" aria-label="Resumen de pedidos">
+          <article class="panel summary-card">
+            <div class="panel__header summary-card__header">
+              <div class="summary-card__title-wrap">
+                <span class="summary-card__icon summary-card__icon--order">✓</span>
+                <div>
+                  <h3 class="panel__title">Pedidos</h3>
+                  <span class="panel__subtitle">Resumen general del estado de las compras</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="summary-stats">
+              <div class="summary-stat">
+                <span class="summary-stat__label">Aprobados</span>
+                <strong id="pedidos-aprobados-total">0</strong>
+              </div>
+              <div class="summary-stat">
+                <span class="summary-stat__label">Pendientes</span>
+                <strong id="pedidos-pendientes-total">0</strong>
+              </div>
+            </div>
+
+            <a href="pedidos.html" class="primary-btn summary-card__button">Revisar</a>
+          </article>
+        </section>
+
+        <section class="summary-grid summary-grid--wide" aria-label="Resumen de secciones administrativas">
+          <article class="panel summary-card">
+            <div class="panel__header summary-card__header">
+              <div class="summary-card__title-wrap">
+                <span class="summary-card__icon summary-card__icon--inventory">▣</span>
+                <div>
+                  <h3 class="panel__title">Inventario</h3>
+                  <span class="panel__subtitle">Productos bajo stock y agotados</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="summary-stat summary-stat--inline">
+              <span class="summary-stat__label">Total</span>
+              <strong id="inventario-resumen-total">0</strong>
+            </div>
+
+            <a href="inventario.html" class="primary-btn summary-card__button">Revisar</a>
+          </article>
+
+          <article class="panel summary-card">
+            <div class="panel__header summary-card__header">
+              <div class="summary-card__title-wrap">
+                <span class="summary-card__icon summary-card__icon--employee">👥</span>
+                <div>
+                  <h3 class="panel__title">Empleados</h3>
+                  <span class="panel__subtitle">Personal registrado</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="summary-stat summary-stat--inline">
+              <span class="summary-stat__label">Total</span>
+              <strong id="empleados-resumen-total">0</strong>
+            </div>
+
+            <a href="empleados.html" class="primary-btn summary-card__button">Registro de Empleado</a>
+          </article>
+
+          <article class="panel summary-card">
+            <div class="panel__header summary-card__header">
+              <div class="summary-card__title-wrap">
+                <span class="summary-card__icon summary-card__icon--product">＋</span>
+                <div>
+                  <h3 class="panel__title">Productos</h3>
+                  <span class="panel__subtitle">Catálogo actual</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="summary-stat summary-stat--inline">
+              <span class="summary-stat__label">Total</span>
+              <strong id="productos-resumen-total">0</strong>
+            </div>
+
+            <a href="productos.html" class="primary-btn summary-card__button">Registro de Producto</a>
+          </article>
+
+          <article class="panel summary-card">
+            <div class="panel__header summary-card__header">
+              <div class="summary-card__title-wrap">
+                <span class="summary-card__icon summary-card__icon--supplier">◌</span>
+                <div>
+                  <h3 class="panel__title">Proveedores</h3>
+                  <span class="panel__subtitle">Socios comerciales</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="summary-stat summary-stat--inline">
+              <span class="summary-stat__label">Total</span>
+              <strong id="proveedores-resumen-total">0</strong>
+            </div>
+
+            <a href="productos.html" class="primary-btn summary-card__button">Registro de Proveedor</a>
+          </article>
+
+          <article class="panel summary-card summary-card--cash">
+            <div class="panel__header summary-card__header">
+              <div class="summary-card__title-wrap">
+                <span class="summary-card__icon summary-card__icon--cash">₡</span>
+                <div>
+                  <h3 class="panel__title">Pagos y caja</h3>
+                  <span class="panel__subtitle">Estados financieros por pedido</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="summary-stats summary-stats--stacked">
+              <div class="summary-stat">
+                <span class="summary-stat__label">Pendientes por aprobar</span>
+                <strong id="caja-pendiente-aprobar">$0</strong>
+              </div>
+              <div class="summary-stat">
+                <span class="summary-stat__label">Pendientes por despachar</span>
+                <strong id="caja-pendiente-despachar">$0</strong>
+              </div>
+              <div class="summary-stat">
+                <span class="summary-stat__label">Despachados</span>
+                <strong id="caja-despachados">$0</strong>
+              </div>
+            </div>
+
+            <a href="controlCaja.html" class="primary-btn summary-card__button">Revisar</a>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite">Acción realizada</div>
+
+    <script src="../src/auth.js"></script>
+    <script src="administrador.js"></script>
+    <script>
+      (function () {
+        const sesion = leerSesion();
+        const adminNameEl = document.getElementById('admin-name');
+
+        if (!sesion || sesion.perfil !== 'Administrador') {
+          window.location.replace('../farmacia-hu01/login/index.html');
+          return;
+        }
+
+        if (adminNameEl) {
+          adminNameEl.textContent = sesion.nombre || sesion.usuario || 'Admin';
+        }
+      })();
+    </script>
+  </body>
+</html>

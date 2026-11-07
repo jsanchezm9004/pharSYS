@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Empleados | PharSYS Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="administrador.css" />
+  </head>
+  <body>
+    <div class="app-layout">
+      <button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Abrir menú del administrador" aria-expanded="false">☰</button>
+
+      <aside class="sidebar" id="adminSidebar" aria-label="Menú principal del administrador">
+        <div class="sidebar__brand">
+          <div class="sidebar__logo">P</div>
+          <div>
+            <h1>PharSYS</h1>
+            <span>Administrador</span>
+          </div>
+        </div>
+
+        <div class="sidebar__group">
+          <p class="sidebar__label">Menú Admin</p>
+          <nav class="sidebar__nav">
+            <a href="administrador.html"><span class="sidebar__icon">⌂</span><span>Resumen</span></a>
+            <a href="pedidos.html"><span class="sidebar__icon">✓</span><span>Pedidos</span></a>
+            <a href="inventario.html"><span class="sidebar__icon">▣</span><span>Inventario</span></a>
+            <a href="productos.html"><span class="sidebar__icon">＋</span><span>Productos</span></a>
+            <a href="proveedores.html"><span class="sidebar__icon">◌</span><span>Proveedores</span></a>
+            <a href="empleados.html" class="is-active"><span class="sidebar__icon">👥</span><span>Empleados</span></a>
+            <a href="controlCaja.html"><span class="sidebar__icon">₡</span><span>Pagos y caja</span></a>
+            <a href="compras.html"><span class="sidebar__icon">↗</span><span>Órdenes de compra</span></a>
+            <a href="perfil.html"><span class="sidebar__icon">⚙</span><span>Mi perfil</span></a>
+          </nav>
+        </div>
+
+        <div class="sidebar__meta">
+          <strong>Empleados</strong>
+          <p id="sidebar-status">Administración del personal operativo.</p>
+        </div>
+      </aside>
+
+      <main class="main-panel">
+        <header class="topbar" aria-label="Herramientas del panel">
+          <div class="topbar__actions" style="margin-left: auto;">
+            <a class="secondary-btn" href="../farmacia-hu01/index.html" target="_blank" rel="noopener noreferrer">Plataforma del usuario</a>
+            <button id="logout-admin" class="secondary-btn" type="button">Cerrar sesión</button>
+            <div class="user-chip">
+              <span class="user-chip__avatar">AS</span>
+              <span id="admin-name">Admin</span>
+            </div>
+          </div>
+        </header>
+
+        <section class="page-header">
+          <div>
+            <h2>Empleados</h2>
+            <p>Registro de personal, cargos y turnos del equipo.</p>
+          </div>
+        </section>
+
+        <section class="content-grid">
+          <article class="panel form-panel" id="empleados">
+            <div class="panel__header">
+              <div>
+                <h3 class="panel__title">Registrar empleado</h3>
+                <span class="panel__subtitle">Agregar personal nuevo</span>
+              </div>
+            </div>
+
+            <form id="employee-form">
+              <div class="form-grid">
+                <div class="field">
+                  <label for="employee-name">Nombres</label>
+                  <input id="employee-name" name="employee-name" type="text" placeholder="Ej. Ana" />
+                </div>
+
+                <div class="field">
+                  <label for="employee-last-name">Apellidos</label>
+                  <input id="employee-last-name" name="employee-last-name" type="text" placeholder="Ej. Gómez Rojas" />
+                </div>
+
+                <div class="field">
+                  <label for="employee-document-type">Tipo de documento</label>
+                  <select id="employee-document-type" name="employee-document-type">
+                    <option value="">Seleccione</option>
+                    <option>Cédula de ciudadanía</option>
+                    <option>Cédula de extranjería</option>
+                    <option>Tarjeta de identidad</option>
+                    <option>Pasaporte</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="employee-document-number">Número de documento</label>
+                  <input id="employee-document-number" name="employee-document-number" type="text" placeholder="Ej. 1023456789" />
+                </div>
+
+                <div class="field">
+                  <label for="employee-phone">Celular</label>
+                  <input id="employee-phone" name="employee-phone" type="tel" placeholder="Ej. 3001234567" />
+                </div>
+
+                <div class="field">
+                  <label for="employee-address">Dirección</label>
+                  <input id="employee-address" name="employee-address" type="text" placeholder="Ej. Calle 12 # 45-67" />
+                </div>
+
+                <div class="field">
+                  <label for="employee-city">Ciudad</label>
+                  <input id="employee-city" name="employee-city" type="text" placeholder="Ej. Bogotá" />
+                </div>
+
+                <div class="field">
+                  <label for="employee-email">Correo</label>
+                  <input id="employee-email" name="employee-email" type="email" placeholder="empleado@pharsys.com" />
+                </div>
+
+                <div class="field">
+                  <label for="employee-password">Contraseña</label>
+                  <input id="employee-password" name="employee-password" type="password" placeholder="Mínimo 6 caracteres" />
+                </div>
+
+                <div class="field">
+                  <label for="employee-status">Estado</label>
+                  <select id="employee-status" name="employee-status">
+                    <option value="Activo">Activo</option>
+                    <option value="Inactivo">Inactivo</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style="margin-top: 18px; display: flex; justify-content: flex-end; gap: 12px; flex-wrap: wrap;">
+                <button class="secondary-btn" type="button" id="clear-employee-form">Limpiar</button>
+                <button class="primary-btn" type="button" id="employee-register-btn">Registrar Empleado</button>
+              </div>
+            </form>
+          </article>
+
+          <article class="panel summary-card" id="employee-summary-panel">
+            <div class="panel__header summary-card__header">
+              <div class="summary-card__title-wrap">
+                <span class="summary-card__icon summary-card__icon--employee">👥</span>
+                <div>
+                  <h3 class="panel__title">Resumen de empleados</h3>
+                  <span class="panel__subtitle">Personal registrado</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="summary-stats" style="margin-top: 10px;">
+              <div class="summary-stat summary-stat--inline">
+                <span class="summary-stat__label">Total</span>
+                <strong id="employee-total-summary">0</strong>
+              </div>
+              <div class="summary-stat summary-stat--inline">
+                <span class="summary-stat__label">Perfil</span>
+                <strong style="font-size:1.15rem;">Empleado</strong>
+              </div>
+            </div>
+
+            <div id="employee-summary-list" class="employee-summary-list"></div>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <div id="employee-summary-modal" class="modal hidden" aria-hidden="true" style="position: fixed; inset: 0; background: rgba(10, 16, 33, 0.5); display: none; align-items: center; justify-content: center; z-index: 1000;">
+      <div class="panel" style="width: min(720px, 92vw); padding: 24px;">
+        <div class="panel__header" style="margin-bottom: 16px;">
+          <div>
+            <h3 class="panel__title">Resumen del empleado</h3>
+            <span class="panel__subtitle">Revisa la información antes de registrar</span>
+          </div>
+        </div>
+        <div id="employee-summary-content" style="display: grid; gap: 10px; color: #1f2940; line-height: 1.6;"></div>
+        <div style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 12px;">
+          <button class="secondary-btn" type="button" id="close-employee-summary">Cancelar</button>
+          <button class="primary-btn" type="button" id="confirm-employee-register">Confirmar registro</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite">Acción realizada</div>
+
+    <script src="../src/auth.js"></script>
+    <script src="administrador.js"></script>
+    <script>
+      (function () {
+        const sesion = leerSesion();
+        const adminNameEl = document.getElementById('admin-name');
+        if (!sesion || sesion.perfil !== 'Administrador') {
+          window.location.replace('../farmacia-hu01/login/index.html');
+          return;
+        }
+        if (adminNameEl) {
+          adminNameEl.textContent = sesion.nombre || sesion.usuario || 'Admin';
+        }
+      })();
+    </script>
+  </body>
+</html>

@@ -110,8 +110,22 @@
         el.textContent = String(total);
       });
     }
+
+    function actualizarTextoCuenta() {
+      const enlaceCuenta = document.querySelector(".acceso-tienda");
+      if (!enlaceCuenta) return;
+
+      const nombre = obtenerNombreUsuarioSesion();
+      const icono = '<span aria-hidden="true">♙</span>';
+      const texto = nombre === "Mi cuenta" ? "Mi cuenta" : nombre;
+      enlaceCuenta.innerHTML = `${icono}<span>${texto}</span>`;
+      enlaceCuenta.style.display = haySesionActiva() ? "inline-flex" : "inline-flex";
+    }
+
     document.addEventListener("pharsys:cart-updated", actualizarContadorCatalogo);
+    document.addEventListener("pharsys:session-updated", actualizarTextoCuenta);
     actualizarContadorCatalogo();
+    actualizarTextoCuenta();
   </script>
   <script src="js/principal.js"></script>
 </body>

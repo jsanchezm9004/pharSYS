@@ -70,6 +70,7 @@
   <script src="../js/navegacion.js"></script>
   <script>
     const form = document.getElementById("formLogin");
+    const tituloLogin = document.querySelector(".titulo");
     const usuarioInput = document.getElementById("usuario");
     const claveInput = document.getElementById("clave");
     const aviso = document.getElementById("aviso");
@@ -81,6 +82,39 @@
     const saludo = document.getElementById("saludo");
     const perfilTxt = document.getElementById("perfilTxt");
     const listaPermisos = document.getElementById("listaPermisos");
+    const CLAVE_CREDENCIALES_RECORDADAS = "pharsysCredencialesRecordadas";
+
+    function guardarCredencialesRecordadas(email, clave) {
+      const payload = { email: String(email || "").trim(), clave: String(clave || "") };
+      localStorage.setItem(CLAVE_CREDENCIALES_RECORDADAS, JSON.stringify(payload));
+      if (payload.email) {
+        localStorage.setItem("usuarioRecordado", payload.email);
+      }
+    }
+
+    function leerCredencialesRecordadas() {
+      try {
+        const guardado = JSON.parse(localStorage.getItem(CLAVE_CREDENCIALES_RECORDADAS) || "null");
+        if (guardado && guardado.email) {
+          return {
+            email: String(guardado.email),
+            clave: String(guardado.clave || "")
+          };
+        }
+      } catch (error) {}
+
+      const emailLegacy = localStorage.getItem("usuarioRecordado");
+      if (emailLegacy) {
+        return { email: String(emailLegacy), clave: "" };
+      }
+
+      return null;
+    }
+
+    function limpiarCredencialesRecordadas() {
+      localStorage.removeItem(CLAVE_CREDENCIALES_RECORDADAS);
+      localStorage.removeItem("usuarioRecordado");
+    }
 
     function mostrarAviso(tipo, texto) {
       aviso.className = "aviso " + tipo;
@@ -107,9 +141,10 @@
     claveInput.addEventListener("blur", validarClave);
 
     try {
-      const guardado = localStorage.getItem("usuarioRecordado");
-      if (guardado) {
-        usuarioInput.value = guardado;
+      const credenciales = leerCredencialesRecordadas();
+      if (credenciales) {
+        usuarioInput.value = credenciales.email || "";
+        claveInput.value = credenciales.clave || "";
         recordar.checked = true;
       }
     } catch (error) {}
@@ -122,17 +157,47 @@
     });
 
     function mostrarBienvenida(usuario) {
+      if (usuario.perfil === "Administrador") {
+        window.location.replace("../../administrador/administrador.html");
+        return;
+      }
+
+      if (tituloLogin) {
+        tituloLogin.style.display = "none";
+      }
       form.style.display = "none";
       document.getElementById("registro").style.display = "none";
       saludo.textContent = "SESIÓN INICIADA";
       perfilTxt.textContent = "Hola, " + (usuario.nombre || usuario.usuario) + " • Perfil: " + usuario.perfil;
-      listaPermisos.innerHTML = (PERMISOS[usuario.perfil] || []).map(p => "<li>" + p + "</li>").join("");
+
+      const permisos = {
+        Cliente: [
+          { texto: "Ver catálogo de medicamentos", href: "../index.html#catalogo" },
+          { texto: "Consultar sus pedidos", href: "../mis-pedidos.html" },
+          { texto: "Editar datos", href: "../editar-datos.html" }
+        ],
+        Empleado: PERMISOS.Empleado || [],
+        Administrador: PERMISOS.Administrador || []
+      };
+
+      const lista = permisos[usuario.perfil] || [];
+      listaPermisos.innerHTML = lista.map(item => {
+        if (typeof item === "string") {
+          return "<li>" + item + "</li>";
+        }
+        return "<li><a href=\"" + item.href + "\">" + item.texto + "</a></li>";
+      }).join("");
       vistaBienvenida.hidden = false;
     }
 
     const sesionActual = haySesionActiva ? haySesionActiva() : false;
     if (sesionActual) {
-      mostrarBienvenida(leerSesion());
+      const sesion = leerSesion();
+      if (sesion && sesion.perfil === "Administrador") {
+        window.location.replace("../../administrador/administrador.html");
+      } else {
+        mostrarBienvenida(sesion);
+      }
     }
 
     form.addEventListener("submit", (event) => {
@@ -164,20 +229,25 @@
 
       try {
         if (recordar.checked) {
-          localStorage.setItem("usuarioRecordado", email);
+          guardarCredencialesRecordadas(email, clave);
         } else {
-          localStorage.removeItem("usuarioRecordado");
+          limpiarCredencialesRecordadas();
         }
 
         guardarSesion(resultado.usuario);
       } catch (error) {}
 
-      window.location.href = "../index.html";
+      if (resultado.usuario.perfil === "Administrador") {
+        window.location.replace("../../administrador/administrador.html");
+        return;
+      }
+
+      mostrarBienvenida(resultado.usuario);
     });
 
     document.getElementById("btnSalir").addEventListener("click", () => {
       cerrarSesion();
-      localStorage.removeItem("usuarioRecordado");
+      limpiarCredencialesRecordadas();
       location.reload();
     });
   </script>

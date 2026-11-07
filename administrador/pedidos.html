@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pedidos | PharSYS Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="administrador.css" />
+  </head>
+  <body data-page="pedidos">
+    <div class="app-layout">
+      <button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Abrir menú del administrador" aria-expanded="false">☰</button>
+
+      <aside class="sidebar" id="adminSidebar" aria-label="Menú principal del administrador">
+        <div class="sidebar__brand">
+          <div class="sidebar__logo">P</div>
+          <div>
+            <h1>PharSYS</h1>
+            <span>Administrador</span>
+          </div>
+        </div>
+
+        <div class="sidebar__group">
+          <p class="sidebar__label">Menú Admin</p>
+          <nav class="sidebar__nav">
+            <a href="administrador.html"><span class="sidebar__icon">⌂</span><span>Resumen</span></a>
+            <a href="pedidos.html" class="is-active"><span class="sidebar__icon">✓</span><span>Pedidos</span></a>
+            <a href="inventario.html"><span class="sidebar__icon">▣</span><span>Inventario</span></a>
+            <a href="productos.html"><span class="sidebar__icon">＋</span><span>Productos</span></a>
+            <a href="proveedores.html"><span class="sidebar__icon">◌</span><span>Proveedores</span></a>
+            <a href="empleados.html"><span class="sidebar__icon">👥</span><span>Empleados</span></a>
+            <a href="controlCaja.html"><span class="sidebar__icon">₡</span><span>Pagos y caja</span></a>
+            <a href="compras.html"><span class="sidebar__icon">↗</span><span>Órdenes de compra</span></a>
+            <a href="perfil.html"><span class="sidebar__icon">⚙</span><span>Mi perfil</span></a>
+          </nav>
+        </div>
+
+        <div class="sidebar__meta">
+          <strong>Indicador del día</strong>
+          <p id="sidebar-status">Sin historial para mostrar por el momento.</p>
+        </div>
+      </aside>
+
+      <main class="main-panel">
+        <header class="topbar" aria-label="Herramientas del panel">
+          <div class="topbar__actions" style="margin-left: auto;">
+            <a class="secondary-btn" href="../farmacia-hu01/index.html" target="_blank" rel="noopener noreferrer">Plataforma del usuario</a>
+            <button id="logout-admin" class="secondary-btn" type="button">Cerrar sesión</button>
+            <div class="user-chip">
+              <span class="user-chip__avatar">AS</span>
+              <span id="admin-name">Admin</span>
+            </div>
+          </div>
+        </header>
+
+        <section class="page-header">
+          <div>
+            <h2>Pedidos</h2>
+            <p>Revisión de solicitudes pendientes y aprobación de compras del cliente.</p>
+          </div>
+        </section>
+
+        <section class="content-grid">
+          <article class="panel" id="pedidos">
+            <div class="panel__header">
+              <div>
+                <h3 class="panel__title">Todos los pedidos</h3>
+                <span class="panel__subtitle">Historial completo con filtros por columna</span>
+              </div>
+              <span class="status-badge status-badge--warning" id="pending-total">Sin datos</span>
+            </div>
+
+            <div class="table-wrap">
+              <table class="orders-table">
+                <thead>
+                  <tr>
+                    <th>Pedido</th>
+                    <th>Fecha</th>
+                    <th>Cliente</th>
+                    <th>Total</th>
+                    <th>Estado</th>
+                    <th>Aprobado</th>
+                    <th>Despachado</th>
+                    <th>Eliminar</th>
+                  </tr>
+                  <tr class="table-filters">
+                    <th><input class="column-filter" type="text" data-filter-key="numero" placeholder="Filtrar" aria-label="Filtrar por pedido" /></th>
+                    <th><input class="column-filter" type="text" data-filter-key="fecha" placeholder="Filtrar" aria-label="Filtrar por fecha" /></th>
+                    <th><input class="column-filter" type="text" data-filter-key="cliente" placeholder="Filtrar" aria-label="Filtrar por cliente" /></th>
+                    <th><input class="column-filter" type="text" data-filter-key="total" placeholder="Filtrar" aria-label="Filtrar por total" /></th>
+                    <th><input class="column-filter" type="text" data-filter-key="estado" placeholder="Filtrar" aria-label="Filtrar por estado" /></th>
+                    <th><input class="column-filter" type="text" data-filter-key="aprobado" placeholder="Filtrar" aria-label="Filtrar por aprobación" /></th>
+                    <th><input class="column-filter" type="text" data-filter-key="despachado" placeholder="Filtrar" aria-label="Filtrar por despacho" /></th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td colspan="8">Sin datos por el momento.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite">Acción realizada</div>
+
+    <script src="../src/auth.js"></script>
+    <script src="administrador.js"></script>
+    <script>
+      (function () {
+        const sesion = leerSesion();
+        const adminNameEl = document.getElementById('admin-name');
+        if (!sesion || sesion.perfil !== 'Administrador') {
+          window.location.replace('../farmacia-hu01/login/index.html');
+          return;
+        }
+        if (adminNameEl) {
+          adminNameEl.textContent = sesion.nombre || sesion.usuario || 'Admin';
+        }
+      })();
+    </script>
+  </body>
+</html>

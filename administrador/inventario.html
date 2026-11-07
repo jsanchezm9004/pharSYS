@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inventario | PharSYS Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="administrador.css" />
+  </head>
+  <body data-page="inventario">
+    <div class="app-layout">
+      <button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Abrir menú del administrador" aria-expanded="false">☰</button>
+
+      <aside class="sidebar" id="adminSidebar" aria-label="Menú principal del administrador">
+        <div class="sidebar__brand">
+          <div class="sidebar__logo">P</div>
+          <div>
+            <h1>PharSYS</h1>
+            <span>Administrador</span>
+          </div>
+        </div>
+
+        <div class="sidebar__group">
+          <p class="sidebar__label">Menú Admin</p>
+          <nav class="sidebar__nav">
+            <a href="administrador.html"><span class="sidebar__icon">⌂</span><span>Resumen</span></a>
+            <a href="pedidos.html"><span class="sidebar__icon">✓</span><span>Pedidos</span></a>
+            <a href="inventario.html" class="is-active"><span class="sidebar__icon">▣</span><span>Inventario</span></a>
+            <a href="productos.html"><span class="sidebar__icon">＋</span><span>Productos</span></a>
+            <a href="proveedores.html"><span class="sidebar__icon">◌</span><span>Proveedores</span></a>
+            <a href="empleados.html"><span class="sidebar__icon">👥</span><span>Empleados</span></a>
+            <a href="controlCaja.html"><span class="sidebar__icon">₡</span><span>Pagos y caja</span></a>
+            <a href="compras.html"><span class="sidebar__icon">↗</span><span>Órdenes de compra</span></a>
+            <a href="perfil.html"><span class="sidebar__icon">⚙</span><span>Mi perfil</span></a>
+          </nav>
+        </div>
+
+        <div class="sidebar__meta">
+          <strong>Inventario</strong>
+          <p id="sidebar-status">Sin historial para mostrar por el momento.</p>
+        </div>
+      </aside>
+
+      <main class="main-panel">
+        <header class="topbar" aria-label="Herramientas del panel">
+          <div class="topbar__actions" style="margin-left: auto;">
+            <a class="secondary-btn" href="../farmacia-hu01/index.html" target="_blank" rel="noopener noreferrer">Plataforma del usuario</a>
+            <button id="logout-admin" class="secondary-btn" type="button">Cerrar sesión</button>
+            <div class="user-chip">
+              <span class="user-chip__avatar">AS</span>
+              <span id="admin-name">Admin</span>
+            </div>
+          </div>
+        </header>
+
+        <section class="page-header">
+          <div>
+            <h2>Inventario</h2>
+            <p>Control de productos con bajo stock y agotados para reabastecimiento.</p>
+          </div>
+        </section>
+
+        <section class="content-grid">
+          <article class="panel form-panel" id="inventario">
+            <div class="panel__header">
+              <div>
+                <h3 class="panel__title">Inventario total</h3>
+                <span class="panel__subtitle">Todo el stock actualizado de la plataforma</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                <button id="toggle-movimientos" class="secondary-btn" type="button">Mostrar movimientos</button>
+                <span class="status-badge status-badge--warning" id="inventory-alerts">Sin datos</span>
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table class="inventory-table">
+                <thead>
+                  <tr>
+                    <th>Producto</th>
+                    <th>Proveedor</th>
+                    <th>Cantidad</th>
+                    <th>Estado</th>
+                    <th>Acción</th>
+                  </tr>
+                  <tr class="table-filters">
+                    <th><input class="column-filter" type="text" data-filter-key="producto" placeholder="Filtrar" aria-label="Filtrar por producto" /></th>
+                    <th><input class="column-filter" type="text" data-filter-key="proveedor" placeholder="Filtrar" aria-label="Filtrar por proveedor" /></th>
+                    <th><input class="column-filter" type="text" data-filter-key="cantidad" placeholder="Filtrar" aria-label="Filtrar por cantidad" /></th>
+                    <th><input class="column-filter" type="text" data-filter-key="estado" placeholder="Filtrar" aria-label="Filtrar por estado" /></th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td colspan="5">Sin datos por el momento.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <div id="movimientosModal" class="modal-backdrop" hidden>
+          <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="movimientosTitle">
+            <button id="close-movimientos" class="modal-close" type="button" aria-label="Cerrar movimientos">×</button>
+            <div class="panel__header modal-header">
+              <div>
+                <h3 id="movimientosTitle" class="panel__title">Movimientos de inventario</h3>
+                <span class="panel__subtitle">Historial persistente por usuario, fecha, producto y cantidad</span>
+              </div>
+            </div>
+
+            <section id="movimientosInventario" class="modal-body">
+              <div class="table-wrap">
+                <table class="inventory-table">
+                  <thead>
+                    <tr>
+                      <th>Usuario</th>
+                      <th>Fecha</th>
+                      <th>Producto</th>
+                      <th>Cantidad</th>
+                      <th>Tipo</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td colspan="5">Sin movimientos registrados.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite">Acción realizada</div>
+
+    <script src="../src/auth.js"></script>
+    <script src="administrador.js"></script>
+    <script>
+      (function () {
+        const sesion = leerSesion();
+        const adminNameEl = document.getElementById('admin-name');
+        if (!sesion || sesion.perfil !== 'Administrador') {
+          window.location.replace('../farmacia-hu01/login/index.html');
+          return;
+        }
+        if (adminNameEl) {
+          adminNameEl.textContent = sesion.nombre || sesion.usuario || 'Admin';
+        }
+      })();
+    </script>
+  </body>
+</html>

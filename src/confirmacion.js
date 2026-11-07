@@ -55,14 +55,34 @@ function mostrarNumeroPedido(numeroPedido) {
   if (numeroEl) numeroEl.textContent = `PH-${String(numeroPedido).padStart(5, "0")}`;
 }
 
+function obtenerSesionActivaSegura() {
+  if (typeof leerSesion === "function") {
+    return leerSesion();
+  }
+
+  try {
+    return JSON.parse(localStorage.getItem("pharsysSesion") || "null");
+  } catch (error) {
+    return null;
+  }
+}
+
 function guardarPedidoConfirmado(items, total) {
   const historial = leerPedidos();
   const numeroPedido = obtenerConsecutivoPedido();
+  const sesionActual = obtenerSesionActivaSegura();
+  const usuarioPedido = sesionActual ? (sesionActual.email || sesionActual.usuario || "Cliente invitado") : (localStorage.getItem("usuarioRecordado") || "Cliente invitado");
+  const nombreCliente = sesionActual ? [sesionActual.nombre, sesionActual.apellido].filter(Boolean).join(" ").trim() || usuarioPedido : usuarioPedido;
   const pedido = {
     numeroPedido,
     valor: Number(total),
+    fechaPedido: new Date().toISOString(),
     fechaConfirmacion: new Date().toISOString(),
-    usuario: localStorage.getItem("usuarioRecordado") || "Cliente invitado",
+    usuario: usuarioPedido,
+    email: sesionActual ? (sesionActual.email || sesionActual.usuario || usuarioPedido) : usuarioPedido,
+    estado: "Pendiente",
+    despachado: false,
+    cliente: nombreCliente,
     items: items.map(item => ({
       id: item.id,
       nombre: item.nombre,
@@ -73,6 +93,7 @@ function guardarPedidoConfirmado(items, total) {
 
   historial.push(pedido);
   localStorage.setItem(CLAVE_HISTORIAL_PEDIDOS, JSON.stringify(historial));
+  window.dispatchEvent(new CustomEvent("pharsys:pedidos-updated", { detail: { numeroPedido } }));
   mostrarNumeroPedido(numeroPedido);
   return numeroPedido;
 }

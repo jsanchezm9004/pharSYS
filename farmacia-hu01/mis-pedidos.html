@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mis pedidos | PharSYS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/navegacion.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: "Plus Jakarta Sans", "Segoe UI", sans-serif;
+      background: #f4f9ff;
+      color: #12314a;
+    }
+    .contenedor {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 0 20px 40px;
+    }
+    .tarjeta {
+      background: #fff;
+      border: 1px solid #dfeaf5;
+      border-radius: 24px;
+      box-shadow: 0 18px 40px rgba(11, 46, 78, 0.06);
+      padding: 28px;
+    }
+    h1 {
+      margin: 0 0 16px;
+      font-size: clamp(2rem, 3vw, 2.6rem);
+      letter-spacing: -0.05em;
+      color: #102c4d;
+    }
+    .resumen {
+      color: #47617d;
+      margin-bottom: 22px;
+      line-height: 1.6;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 18px;
+    }
+    th, td {
+      padding: 14px 16px;
+      text-align: left;
+      border-bottom: 1px solid #e7edf5;
+      vertical-align: top;
+    }
+    th {
+      background: #edf5ff;
+      color: #12314a;
+      font-size: 0.8rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    td {
+      color: #234a6a;
+      font-size: 0.96rem;
+    }
+    ul {
+      margin: 0;
+      padding-left: 18px;
+      line-height: 1.6;
+    }
+    .vacio {
+      padding: 28px 16px;
+      text-align: center;
+      color: #3c5979;
+      background: #f7fbff;
+      border: 1px dashed #cfe0ef;
+      border-radius: 18px;
+    }
+    .boton {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 18px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ff8d4d, #ff6a2d);
+      color: #fff;
+      margin-top: 14px;
+    }
+    @media (max-width: 700px) {
+      .tarjeta {
+        padding: 18px;
+      }
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+      thead { display: none; }
+      tr { border-bottom: 1px solid #e7edf5; padding: 12px 0; }
+      td { border: none; padding: 8px 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="pharsys-menu-root" data-base="" data-current="orders"></div>
+
+  <main class="contenedor">
+    <section class="tarjeta">
+      <h1>Mis pedidos</h1>
+      <p class="resumen">Aquí puedes ver el historial de compras realizadas con tu cuenta.</p>
+      <div id="tablaPedidos"></div>
+    </section>
+  </main>
+
+  <script src="../src/auth.js"></script>
+  <script src="js/navegacion.js"></script>
+  <script src="../src/confirmacion.js"></script>
+  <script>
+    function obtenerPedidosUsuarioActual() {
+      const sesion = leerSesion();
+      const identidadUsuario = sesion ? [sesion.email, sesion.usuario, sesion.nombre, sesion.apellido].filter(Boolean) : [];
+      const historial = leerPedidos();
+
+      if (!identidadUsuario.length) {
+        return [];
+      }
+
+      const valoresComparables = identidadUsuario.map(valor => String(valor).trim().toLowerCase());
+
+      return historial.filter(pedido => {
+        const valoresPedido = [pedido.usuario, pedido.email, pedido.cliente].map(valor => String(valor || "").trim().toLowerCase());
+        return valoresPedido.some(valorPedido => valoresComparables.includes(valorPedido));
+      });
+    }
+
+    function formatearFecha(fechaIso) {
+      const fecha = new Date(fechaIso);
+      return Number.isNaN(fecha.getTime()) ? "Sin fecha" : fecha.toLocaleDateString("es-CO", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric"
+      });
+    }
+
+    function renderPedidos() {
+      if (!haySesionActiva()) {
+        window.location.replace("login/index.html");
+        return;
+      }
+
+      const pedidos = obtenerPedidosUsuarioActual();
+      const contenedor = document.getElementById("tablaPedidos");
+
+      if (!pedidos.length) {
+        contenedor.innerHTML = `
+          <div class="vacio">
+            <p>No tienes pedidos registrados todavía.</p>
+            <a href="index.html#catalogo" class="boton">Ir al catálogo</a>
+          </div>
+        `;
+        return;
+      }
+
+      contenedor.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Pedido</th>
+              <th>Fecha</th>
+              <th>Productos</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${pedidos.map(pedido => `
+              <tr>
+                <td>PH-${String(pedido.numeroPedido).padStart(5, "0")}</td>
+                <td>${formatearFecha(pedido.fechaConfirmacion)}</td>
+                <td>
+                  <ul>
+                    ${(pedido.items || []).map(item => `<li>${item.nombre} x ${item.cantidad}</li>`).join("") || "<li>Sin detalle</li>"}
+                  </ul>
+                </td>
+                <td>${new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(Number(pedido.valor || 0))}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function sincronizarPedidos() {
+      renderPedidos();
+    }
+
+    window.addEventListener("pharsys:pedidos-updated", sincronizarPedidos);
+    window.addEventListener("storage", (event) => {
+      if (event.key === "pharsysHistorialPedidos" || event.key === "pharsysSesion") {
+        sincronizarPedidos();
+      }
+    });
+    window.addEventListener("focus", sincronizarPedidos);
+
+    renderPedidos();
+  </script>
+</body>
+</html>
