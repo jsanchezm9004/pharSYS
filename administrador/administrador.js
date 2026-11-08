@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const sidebarLinks = document.querySelectorAll('.sidebar__nav a');
   const toast = document.getElementById('toast');
   const logoutBtn = document.getElementById('logout-admin');
+  const CLAVE_PRODUCTOS_COMPRA_TEMPORALES = 'pharsysSeleccionCompra';
+  const productosOrdenCompra = leerProductosCompraPendientes();
 
   if (sidebarToggle && sidebar) {
     sidebarToggle.addEventListener('click', () => {
@@ -48,6 +50,34 @@ document.addEventListener('DOMContentLoaded', () => {
       return fallback;
     }
   };
+
+  function leerProductosCompraPendientes() {
+    try {
+      const productos = JSON.parse(localStorage.getItem(CLAVE_PRODUCTOS_COMPRA_TEMPORALES) || '[]');
+      return Array.isArray(productos)
+        ? productos.filter((producto) =>
+          producto
+          && producto.id !== undefined
+          && typeof producto.nombre === 'string'
+          && Number.isFinite(Number(producto.precioUnitario))
+          && Number(producto.precioUnitario) >= 0
+          && Number.isInteger(Number(producto.cantidad))
+          && Number(producto.cantidad) > 0
+        ).map((producto) => ({
+          ...producto,
+          id: String(producto.id),
+          precioUnitario: Number(producto.precioUnitario),
+          cantidad: Number(producto.cantidad)
+        }))
+        : [];
+    } catch (error) {
+      return [];
+    }
+  }
+
+  function guardarProductosCompraPendientes() {
+    localStorage.setItem(CLAVE_PRODUCTOS_COMPRA_TEMPORALES, JSON.stringify(productosOrdenCompra));
+  }
 
   const obtenerEstadoProveedor = (proveedor) => {
     const estado = String(proveedor && proveedor.estado || 'Activo').trim().toLowerCase();
@@ -447,6 +477,16 @@ document.addEventListener('DOMContentLoaded', () => {
     return empleado?.email || empleado?.correo || 'Sin correo';
   }
 
+  function escaparHTML(valor) {
+    return String(valor ?? '').replace(/[&<>"']/g, (caracter) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    })[caracter]);
+  }
+
   function obtenerEstadoEmpleado(empleado) {
     const valor = String(empleado?.estado || '').trim();
     if (valor) {
@@ -491,11 +531,11 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="employee-summary-filters">
         <div class="employee-summary-filter">
           <label>Nombre</label>
-          <input id="employee-filter-name" class="column-filter" type="text" value="${filtroNombre || ''}" placeholder="Buscar nombre" />
+          <input id="employee-filter-name" class="column-filter" type="text" value="${escaparHTML(filtroNombre)}" placeholder="Buscar nombre" />
         </div>
         <div class="employee-summary-filter">
           <label>Documento</label>
-          <input id="employee-filter-document" class="column-filter" type="text" value="${filtroDocumento || ''}" placeholder="Buscar documento" />
+          <input id="employee-filter-document" class="column-filter" type="text" value="${escaparHTML(filtroDocumento)}" placeholder="Buscar documento" />
         </div>
         <div class="employee-summary-filter">
           <label>Estado</label>
@@ -512,6 +552,8 @@ document.addEventListener('DOMContentLoaded', () => {
           <thead>
             <tr>
               <th>Nombre</th>
+              <th>Cargo</th>
+              <th>Turno</th>
               <th>Documento</th>
               <th>Correo</th>
               <th>Estado</th>
@@ -520,26 +562,30 @@ document.addEventListener('DOMContentLoaded', () => {
           <tbody>
             ${empleadosFiltrados.length ? empleadosFiltrados.map((empleado) => {
               const nombre = obtenerNombreEmpleado(empleado);
+              const cargo = empleado.cargo || 'Sin cargo';
+              const turno = empleado.turno || 'Sin turno';
               const documento = obtenerDocumentoEmpleado(empleado);
               const email = obtenerCorreoEmpleado(empleado);
               const activo = obtenerEstadoEmpleado(empleado) === 'Activo';
               const estadoClass = activo ? 'status-badge--success' : 'status-badge--danger';
               return `
                 <tr>
-                  <td>${nombre}</td>
-                  <td>${documento}</td>
-                  <td>${email}</td>
+                  <td>${escaparHTML(nombre)}</td>
+                  <td>${escaparHTML(cargo)}</td>
+                  <td>${escaparHTML(turno)}</td>
+                  <td>${escaparHTML(documento)}</td>
+                  <td>${escaparHTML(email)}</td>
                   <td>
                     <div class="employee-status-cell">
                       <span class="status-badge ${estadoClass}">${activo ? 'Activo' : 'Inactivo'}</span>
-                      <button class="table-btn ${activo ? 'table-btn--danger' : 'table-btn--approve'}" type="button" data-toggle-employee-status data-email="${email}" data-document="${documento}" data-active="${String(activo)}">
+                      <button class="table-btn ${activo ? 'table-btn--danger' : 'table-btn--approve'}" type="button" data-toggle-employee-status data-email="${escaparHTML(email)}" data-document="${escaparHTML(documento)}" data-active="${String(activo)}">
                         ${activo ? 'Desactivar' : 'Activar'}
                       </button>
                     </div>
                   </td>
                 </tr>
               `;
-            }).join('') : '<tr><td colspan="4" class="employee-summary-empty-row">No hay empleados que coincidan con los filtros.</td></tr>'}
+            }).join('') : '<tr><td colspan="6" class="employee-summary-empty-row">No hay empleados que coincidan con los filtros.</td></tr>'}
           </tbody>
         </table>
       </div>
@@ -614,17 +660,88 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!body) return;
 
     if (!ordenes.length) {
-      body.innerHTML = '<tr><td colspan="3">Sin datos por el momento.</td></tr>';
+      body.innerHTML = '<tr><td colspan="5">Sin datos por el momento.</td></tr>';
       return;
     }
 
-    body.innerHTML = ordenes.map((orden) => `
-      <tr>
-        <td>${orden.proveedor || 'Proveedor'}</td>
-        <td>${formatearMoneda(orden.monto || 0)}</td>
-        <td><span class="status-badge status-badge--info">${orden.estado || 'Enviado'}</span></td>
-      </tr>
-    `).join('');
+    body.innerHTML = ordenes.slice().reverse().map((orden) => {
+      const productos = Array.isArray(orden.productos) ? orden.productos : [];
+      const detalle = productos.length
+        ? productos.map((producto) => `${escaparHTML(producto.nombre || 'Producto')} × ${Number(producto.cantidad || 0)}`).join('<br>')
+        : 'Sin detalle de productos';
+      const costo = orden.estado === 'Confirmada' || orden.estado === 'Recibida'
+        ? formatearMoneda(orden.monto || 0)
+        : Number(orden.montoEstimado || 0) > 0
+          ? `Estimado: ${formatearMoneda(orden.montoEstimado)}`
+          : 'Pendiente de confirmación';
+      const claseEstado = orden.estado === 'Recibida'
+        ? 'status-badge--success'
+        : orden.estado === 'Confirmada'
+          ? 'status-badge--warning'
+          : 'status-badge--info';
+
+      return `
+        <tr>
+          <td>#${escaparHTML(orden.id || '—')}</td>
+          <td>${escaparHTML(orden.proveedor || 'Proveedor')}</td>
+          <td>${detalle}</td>
+          <td>${costo}</td>
+          <td><span class="status-badge ${claseEstado}">${escaparHTML(orden.estado || 'Enviado')}</span></td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function renderOrdenesProveedor() {
+    const body = document.getElementById('supplier-orders-body');
+    if (!body) return;
+
+    const ordenes = leerJSON('pharsysOrdenesCompra');
+    if (!ordenes.length) {
+      body.innerHTML = '<tr><td colspan="5">Aún no hay órdenes recibidas.</td></tr>';
+      return;
+    }
+
+    body.innerHTML = ordenes.slice().reverse().map((orden) => {
+      const productos = Array.isArray(orden.productos) ? orden.productos : [];
+      const detalle = productos.length
+        ? productos.map((producto) => `
+          <div>${escaparHTML(producto.nombre || 'Producto')} × ${Number(producto.cantidad || 0)}
+            <small>(${formatearMoneda(producto.precioUnitario || 0)} c/u${orden.estado === 'Confirmada' || orden.estado === 'Recibida' ? ` · ${formatearMoneda(producto.subtotal || 0)}` : ''})</small>
+          </div>
+        `).join('')
+        : '<span>Orden anterior sin detalle de productos</span>';
+      const estadoActual = ['Enviado', 'Confirmada', 'Recibida'].includes(orden.estado) ? orden.estado : 'Enviado';
+      const claseEstado = estadoActual === 'Recibida'
+        ? 'purchase-order-action--received'
+        : estadoActual === 'Confirmada'
+          ? 'purchase-order-action--confirmed'
+          : 'purchase-order-action--sent';
+      const estaConfirmada = estadoActual === 'Confirmada';
+      const estaRecibida = estadoActual === 'Recibida';
+      const accion = `
+        <select class="purchase-order-state ${claseEstado}" data-purchase-order-state="${escaparHTML(orden.id)}" aria-label="Cambiar estado de la orden ${escaparHTML(orden.id)}">
+          <option value="Enviado" ${estadoActual === 'Enviado' ? 'selected' : ''}>Enviado</option>
+          <option value="Confirmada" ${estadoActual === 'Confirmada' ? 'selected' : ''}>Confirmada</option>
+          <option value="Recibida" ${estadoActual === 'Recibida' ? 'selected' : ''}>Recibida</option>
+        </select>
+      `;
+      const costo = estaConfirmada || estaRecibida
+        ? formatearMoneda(orden.monto || 0)
+        : Number(orden.montoEstimado || 0) > 0
+          ? `Estimado: ${formatearMoneda(orden.montoEstimado)}`
+          : 'Pendiente';
+
+      return `
+        <tr>
+          <td>#${escaparHTML(orden.id || '—')}</td>
+          <td>${escaparHTML(orden.proveedor || 'Proveedor')}</td>
+          <td>${detalle}</td>
+          <td>${costo}</td>
+          <td>${accion}</td>
+        </tr>
+      `;
+    }).join('');
   }
 
   function renderMovimientosInventario() {
@@ -1012,8 +1129,165 @@ document.addEventListener('DOMContentLoaded', () => {
     select.innerHTML = `<option value="">Selecciona un proveedor</option>${opciones}<option value="__crear_proveedor__">＋ Crear nuevo proveedor...</option>`;
   }
 
+  function poblarSelectorProveedoresCompra() {
+    const select = document.getElementById('purchase-provider');
+    if (!select) return;
+
+    const proveedores = leerJSON('pharsysProveedores').filter(proveedorEstaActivo);
+    select.replaceChildren();
+
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = proveedores.length ? 'Selecciona un proveedor' : 'No hay proveedores activos';
+    placeholder.selected = true;
+    select.appendChild(placeholder);
+
+    proveedores.forEach((proveedor) => {
+      const option = document.createElement('option');
+      option.value = String(proveedor.nombre || '').trim();
+      option.textContent = proveedor.nombre || 'Proveedor sin nombre';
+      select.appendChild(option);
+    });
+
+    select.disabled = proveedores.length === 0;
+  }
+
+  function obtenerClaveProducto(producto) {
+    return String(producto.id ?? producto.codigo ?? producto.nombre ?? '');
+  }
+
+  function renderProductosSeleccionablesCompra() {
+    const body = document.getElementById('purchase-product-selection-body');
+    if (!body) return;
+
+    const productos = leerJSON('pharsysProductos');
+
+    if (!productos.length) {
+      body.innerHTML = '<tr><td colspan="6">No hay productos en el catálogo.</td></tr>';
+      return;
+    }
+
+    body.innerHTML = productos.map((producto) => {
+      const id = obtenerClaveProducto(producto);
+      return `
+        <tr>
+          <td><input type="checkbox" data-order-product-check="${escaparHTML(id)}" aria-label="Seleccionar ${escaparHTML(producto.nombre || 'producto')}" /></td>
+          <td>${escaparHTML(producto.nombre || 'Producto sin nombre')}</td>
+          <td>${escaparHTML(producto.categoria || 'Sin categoría')}</td>
+          <td>${escaparHTML(producto.proveedor || 'Sin proveedor asignado')}</td>
+          <td>${formatearMoneda(producto.precio || 0)}</td>
+          <td><input class="column-filter" type="number" min="1" step="1" value="1" data-order-product-quantity="${escaparHTML(id)}" aria-label="Cantidad de ${escaparHTML(producto.nombre || 'producto')}" /></td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function renderProductosSeleccionadosCompra() {
+    const body = document.getElementById('purchase-selected-products');
+    const total = document.getElementById('purchase-total');
+    if (!body || !total) return;
+
+    if (!productosOrdenCompra.length) {
+      body.innerHTML = '<tr><td colspan="5">Selecciona productos del catálogo.</td></tr>';
+      total.value = formatearMoneda(0);
+      return;
+    }
+
+    let montoEstimado = 0;
+    body.innerHTML = productosOrdenCompra.map((producto) => {
+      const subtotal = producto.precioUnitario * producto.cantidad;
+      montoEstimado += subtotal;
+      return `
+        <tr>
+          <td>${escaparHTML(producto.nombre)}</td>
+          <td>${formatearMoneda(producto.precioUnitario)}</td>
+          <td><input class="column-filter" type="number" min="1" step="1" value="${producto.cantidad}" data-selected-purchase-quantity="${escaparHTML(producto.id)}" aria-label="Cantidad de ${escaparHTML(producto.nombre)}" /></td>
+          <td>${formatearMoneda(subtotal)}</td>
+          <td><button class="table-btn table-btn--danger" type="button" data-remove-purchase-product="${escaparHTML(producto.id)}">Quitar</button></td>
+        </tr>
+      `;
+    }).join('');
+    total.value = formatearMoneda(montoEstimado);
+  }
+
+  document.getElementById('add-selected-products-to-purchase')?.addEventListener('click', () => {
+    const seleccionados = Array.from(document.querySelectorAll('[data-order-product-check]:checked'));
+    if (!seleccionados.length) {
+      showToast('Selecciona al menos un producto para agregar a la orden.');
+      return;
+    }
+
+    const catalogo = leerJSON('pharsysProductos');
+    const productosParaAgregar = [];
+    for (const checkbox of seleccionados) {
+      const id = checkbox.dataset.orderProductCheck;
+      const producto = catalogo.find((item) => obtenerClaveProducto(item) === id);
+      const cantidadInput = Array.from(document.querySelectorAll('[data-order-product-quantity]'))
+        .find((input) => input.dataset.orderProductQuantity === id);
+      const cantidad = Number(cantidadInput?.value);
+      const precioUnitario = Number(producto?.precio);
+
+      if (!producto || !Number.isInteger(cantidad) || cantidad < 1 || !Number.isFinite(precioUnitario) || precioUnitario < 0) {
+        showToast('Revisa el producto seleccionado y asegúrate de que tenga precio y cantidad válidos.');
+        return;
+      }
+
+      productosParaAgregar.push({
+        id,
+        nombre: String(producto.nombre || 'Producto sin nombre'),
+        precioUnitario,
+        cantidad
+      });
+    }
+
+    for (const producto of productosParaAgregar) {
+      const existente = productosOrdenCompra.find((item) => String(item.id) === producto.id);
+      if (existente) {
+        existente.cantidad += producto.cantidad;
+        existente.precioUnitario = producto.precioUnitario;
+        existente.nombre = producto.nombre;
+      } else {
+        productosOrdenCompra.push(producto);
+      }
+    }
+
+    guardarProductosCompraPendientes();
+    document.querySelectorAll('[data-order-product-check]').forEach((checkbox) => {
+      checkbox.checked = false;
+    });
+    renderProductosSeleccionadosCompra();
+    showToast('Productos agregados a la orden. Vuelve a Órdenes de compra para enviarla.');
+  });
+
+  document.getElementById('purchase-selected-products')?.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-remove-purchase-product]');
+    if (!button) return;
+    const index = productosOrdenCompra.findIndex((producto) => producto.id === button.dataset.removePurchaseProduct);
+    if (index >= 0) productosOrdenCompra.splice(index, 1);
+    guardarProductosCompraPendientes();
+    renderProductosSeleccionadosCompra();
+  });
+
+  document.getElementById('purchase-selected-products')?.addEventListener('change', (event) => {
+    const input = event.target.closest('[data-selected-purchase-quantity]');
+    if (!input) return;
+
+    const cantidad = Number(input.value);
+    const producto = productosOrdenCompra.find((item) => item.id === input.dataset.selectedPurchaseQuantity);
+    if (!producto || !Number.isInteger(cantidad) || cantidad < 1) {
+      showToast('La cantidad debe ser un número entero mayor que cero.');
+      renderProductosSeleccionadosCompra();
+      return;
+    }
+
+    producto.cantidad = cantidad;
+    guardarProductosCompraPendientes();
+    renderProductosSeleccionadosCompra();
+  });
+
   function renderProveedores() {
     const tbody = document.getElementById('supplier-summary-body');
+    renderOrdenesProveedor();
     if (!tbody) return;
 
     const proveedores = leerJSON('pharsysProveedores');
@@ -1359,6 +1633,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const direccion = document.getElementById('employee-address')?.value.trim() || '';
     const ciudad = document.getElementById('employee-city')?.value.trim() || '';
     const correo = document.getElementById('employee-email')?.value.trim() || '';
+    const cargo = document.getElementById('employee-role')?.value.trim() || '';
+    const turno = document.getElementById('employee-shift')?.value || '';
     const password = document.getElementById('employee-password')?.value || '';
     const estadoEmpleado = document.getElementById('employee-status')?.value || 'Activo';
 
@@ -1372,6 +1648,8 @@ document.addEventListener('DOMContentLoaded', () => {
       direccion,
       ciudad,
       correo,
+      cargo,
+      turno,
       password,
       estadoEmpleado,
       activo: estadoEmpleado !== 'Inactivo'
@@ -1421,6 +1699,8 @@ document.addEventListener('DOMContentLoaded', () => {
       celular: datos.celular || '',
       direccion: datos.direccion || '',
       ciudad: datos.ciudad || '',
+      cargo: datos.cargo || '',
+      turno: datos.turno || '',
       email,
       password: datos.password || '',
       perfil: 'Empleado',
@@ -1436,9 +1716,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('clear-employee-form')?.addEventListener('click', limpiarFormularioEmpleado);
 
   document.getElementById('employee-register-btn')?.addEventListener('click', () => {
-    const { nombre, apellido, nombreCompleto, tipoDocumento, numeroDocumento, celular, direccion, ciudad, correo, password } = obtenerResumenEmpleado();
+    const { nombre, apellido, nombreCompleto, tipoDocumento, numeroDocumento, celular, direccion, ciudad, correo, cargo, turno, password } = obtenerResumenEmpleado();
 
-    if (!nombre || !apellido || !tipoDocumento || !numeroDocumento || !celular || !direccion || !ciudad || !correo || !password) {
+    if (!nombre || !apellido || !tipoDocumento || !numeroDocumento || !celular || !direccion || !ciudad || !correo || !cargo || !turno || !password) {
       showToast('Completa todos los campos para registrar el empleado.');
       return;
     }
@@ -1449,14 +1729,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const contenidoResumen = `
-      <div><strong>Nombres:</strong> ${nombre}</div>
-      <div><strong>Apellidos:</strong> ${apellido}</div>
-      <div><strong>Tipo de documento:</strong> ${tipoDocumento}</div>
-      <div><strong>Número de documento:</strong> ${numeroDocumento}</div>
-      <div><strong>Celular:</strong> ${celular}</div>
-      <div><strong>Dirección:</strong> ${direccion}</div>
-      <div><strong>Ciudad:</strong> ${ciudad}</div>
-      <div><strong>Correo:</strong> ${correo}</div>
+      <div><strong>Nombres:</strong> ${escaparHTML(nombre)}</div>
+      <div><strong>Apellidos:</strong> ${escaparHTML(apellido)}</div>
+      <div><strong>Tipo de documento:</strong> ${escaparHTML(tipoDocumento)}</div>
+      <div><strong>Número de documento:</strong> ${escaparHTML(numeroDocumento)}</div>
+      <div><strong>Celular:</strong> ${escaparHTML(celular)}</div>
+      <div><strong>Dirección:</strong> ${escaparHTML(direccion)}</div>
+      <div><strong>Ciudad:</strong> ${escaparHTML(ciudad)}</div>
+      <div><strong>Correo:</strong> ${escaparHTML(correo)}</div>
+      <div><strong>Cargo:</strong> ${escaparHTML(cargo)}</div>
+      <div><strong>Turno:</strong> ${escaparHTML(turno)}</div>
       <div><strong>Estado:</strong> ${document.getElementById('employee-status')?.value || 'Activo'}</div>
       <div><strong>Perfil:</strong> Empleado</div>
     `;
@@ -1481,6 +1763,8 @@ document.addEventListener('DOMContentLoaded', () => {
         direccion,
         ciudad,
         correo,
+        cargo,
+        turno,
         password
       });
 
@@ -1500,7 +1784,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('confirm-employee-register')?.addEventListener('click', () => {
-    const { nombre, apellido, nombreCompleto, tipoDocumento, numeroDocumento, celular, direccion, ciudad, correo, password } = obtenerResumenEmpleado();
+    const { nombre, apellido, nombreCompleto, tipoDocumento, numeroDocumento, celular, direccion, ciudad, correo, cargo, turno, password } = obtenerResumenEmpleado();
     const registrado = registrarEmpleadoEnSistema({
       nombre,
       apellido,
@@ -1511,6 +1795,8 @@ document.addEventListener('DOMContentLoaded', () => {
       direccion,
       ciudad,
       correo,
+      cargo,
+      turno,
       password
     });
 
@@ -1528,19 +1814,111 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('purchase-form')?.addEventListener('submit', (event) => {
     event.preventDefault();
     const proveedor = document.getElementById('purchase-provider').value;
-    const monto = Number(document.getElementById('purchase-total').value || 0);
+    if (!proveedor) {
+      showToast('Registra o selecciona un proveedor activo antes de enviar la orden.');
+      return;
+    }
+
+    if (!productosOrdenCompra.length) {
+      showToast('Agrega al menos un producto del catálogo a la orden.');
+      return;
+    }
+
+    const proveedorActivo = leerJSON('pharsysProveedores').some((item) =>
+      String(item.nombre || '').trim().toLowerCase() === proveedor.trim().toLowerCase() && proveedorEstaActivo(item)
+    );
+    if (!proveedorActivo) {
+      showToast('El proveedor seleccionado ya no está activo. Selecciona otro proveedor.');
+      poblarSelectorProveedoresCompra();
+      return;
+    }
+
+    const montoEstimado = productosOrdenCompra.reduce(
+      (total, producto) => total + producto.precioUnitario * producto.cantidad,
+      0
+    );
     const ordenes = leerJSON('pharsysOrdenesCompra');
+    let id = Date.now();
+    while (ordenes.some((orden) => String(orden.id) === String(id))) id += 1;
     ordenes.push({
-      id: Date.now(),
+      id,
       proveedor,
-      monto,
+      productos: productosOrdenCompra.map((producto) => ({
+        ...producto,
+        subtotal: 0
+      })),
+      monto: 0,
+      montoEstimado,
       fecha: new Date().toISOString(),
       estado: 'Enviado'
     });
     localStorage.setItem('pharsysOrdenesCompra', JSON.stringify(ordenes));
     renderOrdenesCompra();
-    showToast('Orden de compra enviada al proveedor.');
     event.currentTarget.reset();
+    productosOrdenCompra.splice(0, productosOrdenCompra.length);
+    guardarProductosCompraPendientes();
+    renderProductosSeleccionadosCompra();
+    showToast('Orden de compra enviada al proveedor.');
+  });
+
+  document.getElementById('supplier-orders-body')?.addEventListener('change', (event) => {
+    const select = event.target.closest('[data-purchase-order-state]');
+    if (!select) return;
+
+    const ordenes = leerJSON('pharsysOrdenesCompra');
+    const orden = ordenes.find((item) => String(item.id) === select.dataset.purchaseOrderState);
+    if (!orden) return;
+
+    const nuevoEstado = select.value;
+    if (nuevoEstado === 'Recibida' && orden.estado !== 'Confirmada') {
+      showToast('Primero confirma la orden para poder marcarla como recibida.');
+      renderOrdenesProveedor();
+      return;
+    }
+
+    if (nuevoEstado === 'Confirmada') {
+      if (!Array.isArray(orden.productos) || !orden.productos.length) {
+        showToast('Esta orden no tiene productos registrados y no se puede confirmar.');
+        renderOrdenesProveedor();
+        return;
+      }
+
+      let costoTotal = 0;
+      for (const producto of orden.productos) {
+        const precio = Number(producto.precioUnitario);
+        const cantidad = Number(producto.cantidad);
+        if (!Number.isFinite(precio) || precio < 0 || !Number.isInteger(cantidad) || cantidad < 1) {
+          showToast('La orden contiene un precio o cantidad inválidos y no se puede confirmar.');
+          renderOrdenesProveedor();
+          return;
+        }
+        producto.subtotal = precio * cantidad;
+        costoTotal += producto.subtotal;
+      }
+
+      orden.monto = costoTotal;
+      orden.fechaConfirmacion = new Date().toISOString();
+    } else if (nuevoEstado === 'Enviado') {
+      orden.monto = 0;
+      if (Array.isArray(orden.productos)) {
+        orden.productos.forEach((producto) => {
+          producto.subtotal = 0;
+        });
+      }
+      delete orden.fechaConfirmacion;
+      delete orden.fechaRecepcion;
+    } else if (nuevoEstado === 'Recibida') {
+      orden.fechaRecepcion = new Date().toISOString();
+    }
+
+    orden.estado = nuevoEstado;
+    localStorage.setItem('pharsysOrdenesCompra', JSON.stringify(ordenes));
+    renderOrdenesProveedor();
+    renderOrdenesCompra();
+    renderCashData();
+    showToast(nuevoEstado === 'Confirmada'
+      ? `Orden confirmada. Costo total: ${formatearMoneda(orden.monto)}.`
+      : `Estado de la orden actualizado a ${nuevoEstado}.`);
   });
 
   document.querySelectorAll('.pill-group button').forEach((button) => {
@@ -1611,6 +1989,8 @@ document.addEventListener('DOMContentLoaded', () => {
       actualizarCatalogoYInventario();
       poblarSelectorProductosPrecio();
       poblarSelectorProveedoresProducto();
+      poblarSelectorProveedoresCompra();
+      renderProductosSeleccionablesCompra();
       renderProveedores();
       actualizarVistaPreviaProducto();
     }
@@ -1618,6 +1998,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderProveedores();
   poblarSelectorProveedoresProducto();
+  poblarSelectorProveedoresCompra();
+  renderProductosSeleccionablesCompra();
+  renderProductosSeleccionadosCompra();
   poblarSelectorProductosPrecio();
   actualizarVistaPreviaProducto();
   actualizarCatalogoYInventario();

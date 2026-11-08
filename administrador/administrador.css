@@ -799,6 +799,30 @@ img {
   color: var(--danger);
 }
 
+.purchase-order-state {
+  border: 0;
+  border-radius: 10px;
+  padding: 9px 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.purchase-order-state--sent {
+  background: #edf5ff;
+  color: var(--azul);
+}
+
+.purchase-order-state--confirmed {
+  background: #fff3df;
+  color: #a86a00;
+}
+
+.purchase-order-state--received {
+  background: var(--verdoso-50);
+  color: var(--verde);
+}
+
 .supplier-status-button {
   border: 0;
   border-radius: 999px;
