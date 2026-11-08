@@ -120,6 +120,21 @@
                 </div>
 
                 <div class="field">
+                  <label for="employee-role">Cargo</label>
+                  <input id="employee-role" name="employee-role" type="text" placeholder="Ej. Auxiliar de farmacia" maxlength="80" required />
+                </div>
+
+                <div class="field">
+                  <label for="employee-shift">Franja de turno (8 horas)</label>
+                  <select id="employee-shift" name="employee-shift" required>
+                    <option value="">Seleccione un turno</option>
+                    <option value="Mañana | 06:00-14:00">Mañana (06:00 - 14:00)</option>
+                    <option value="Tarde | 14:00-22:00">Tarde (14:00 - 22:00)</option>
+                    <option value="Noche | 22:00-06:00">Noche (22:00 - 06:00)</option>
+                  </select>
+                </div>
+
+                <div class="field">
                   <label for="employee-password">Contraseña</label>
                   <input id="employee-password" name="employee-password" type="password" placeholder="Mínimo 6 caracteres" />
                 </div>

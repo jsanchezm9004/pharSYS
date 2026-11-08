@@ -73,13 +73,15 @@
               <table class="purchases-table">
                 <thead>
                   <tr>
+                    <th>Orden</th>
                     <th>Proveedor</th>
-                    <th>Monto</th>
+                    <th>Productos solicitados</th>
+                    <th>Costo confirmado</th>
                     <th>Estado</th>
                   </tr>
                 </thead>
                 <tbody id="orders-body">
-                  <tr><td colspan="3">Sin datos por el momento.</td></tr>
+                  <tr><td colspan="5">Sin datos por el momento.</td></tr>
                 </tbody>
               </table>
             </div>
@@ -97,21 +99,38 @@
               <div class="form-grid">
                 <div class="field">
                   <label for="purchase-provider">Proveedor</label>
-                  <select id="purchase-provider" name="purchase-provider">
-                    <option>Farmacéutica del Sur</option>
-                    <option>NutriVida</option>
-                    <option>PharmaGroup</option>
-                    <option>Distribuidora Salud</option>
+                  <select id="purchase-provider" name="purchase-provider" required>
+                    <option value="">Selecciona un proveedor</option>
                   </select>
                 </div>
 
                 <div class="field">
-                  <label for="purchase-total">Monto estimado</label>
-                  <input id="purchase-total" name="purchase-total" type="number" value="5000" />
+                  <label for="purchase-total">Costo estimado según catálogo</label>
+                  <input id="purchase-total" name="purchase-total" type="text" value="$0" readonly />
                 </div>
               </div>
 
-              <div style="margin-top: 18px; display: flex; justify-content: flex-end;">
+              <p class="panel__subtitle">El costo final se calculará cuando el proveedor confirme la orden.</p>
+
+              <div class="table-wrap">
+                <table class="purchases-table">
+                  <thead>
+                    <tr>
+                      <th>Producto</th>
+                      <th>Precio unitario</th>
+                      <th>Cantidad</th>
+                      <th>Subtotal estimado</th>
+                      <th>Acción</th>
+                    </tr>
+                  </thead>
+                  <tbody id="purchase-selected-products">
+                    <tr><td colspan="5">Selecciona productos del catálogo.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div style="margin-top: 18px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+                <a class="secondary-btn" href="productos.html#purchase-product-selection">Seleccionar productos</a>
                 <button class="primary-btn" type="submit">Enviar orden</button>
               </div>
             </form>
