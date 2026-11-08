@@ -1616,6 +1616,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  window.addEventListener('pharsys:pedidos-updated', actualizarCatalogoYInventario);
+
   renderProveedores();
   poblarSelectorProveedoresProducto();
   poblarSelectorProductosPrecio();

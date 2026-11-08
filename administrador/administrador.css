@@ -1036,6 +1036,251 @@ img {
   transform: translateY(0);
 }
 
+.orders-header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.order-modal-panel {
+  width: min(100%, 820px);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.order-modal-body {
+  max-height: calc(90vh - 170px);
+  padding: 0 4px 8px 0;
+}
+
+.order-modal-body h4 {
+  margin: 0 0 12px;
+  color: var(--azul-oscuro);
+}
+
+.order-client-section,
+.order-products-section,
+.order-summary-section {
+  margin-bottom: 22px;
+}
+
+.order-client-section label,
+.order-products-section label {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--gris-oscuro);
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.order-client-search {
+  display: flex;
+  gap: 10px;
+}
+
+.order-client-search input,
+.order-product-search {
+  width: 100%;
+  min-width: 0;
+  padding: 11px 13px;
+  border: 1px solid var(--borde);
+  border-radius: 11px;
+  color: var(--azul-oscuro);
+  background: var(--blanco);
+}
+
+.order-client-search input:focus,
+.order-product-search:focus {
+  outline: 3px solid rgba(2, 62, 115, 0.12);
+  border-color: var(--azul);
+}
+
+.order-client-search .secondary-btn {
+  flex: 0 0 auto;
+}
+
+.order-client-result,
+.order-form-message {
+  min-height: 1.4em;
+  margin: 8px 0 0;
+  color: var(--gris);
+  font-size: 0.9rem;
+}
+
+.order-client-result.is-found {
+  color: var(--verde);
+  font-weight: 700;
+}
+
+.order-client-result.is-error,
+.order-form-message {
+  color: var(--danger);
+}
+
+.order-register-link {
+  display: inline-flex;
+  margin-top: 4px;
+  color: var(--azul);
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.order-register-link[hidden] {
+  display: none;
+}
+
+.order-product-results,
+.order-summary {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.order-product-row,
+.order-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px;
+  border: 1px solid var(--borde);
+  border-radius: 13px;
+  background: #fbfdff;
+}
+
+.order-product-info,
+.order-summary-info {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.order-product-info strong,
+.order-summary-info strong {
+  overflow-wrap: anywhere;
+}
+
+.order-product-info small,
+.order-summary-info small {
+  color: var(--gris);
+}
+
+.order-add-btn,
+.order-quantity-btn {
+  flex: 0 0 auto;
+  min-width: 36px;
+  min-height: 36px;
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  background: var(--blanco);
+  color: var(--azul-oscuro);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.order-add-btn {
+  padding: 7px 12px;
+  border-color: var(--verde);
+  color: var(--verde);
+}
+
+.order-add-btn:disabled,
+.order-quantity-btn:disabled,
+.primary-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  transform: none;
+}
+
+.order-quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.order-quantity-value {
+  min-width: 24px;
+  text-align: center;
+  font-weight: 800;
+}
+
+.order-empty {
+  margin: 0;
+  padding: 14px;
+  border: 1px dashed var(--borde);
+  border-radius: 12px;
+  color: var(--gris);
+  text-align: center;
+}
+
+.order-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 0 4px;
+  border-top: 1px solid var(--borde);
+}
+
+.order-total strong {
+  color: var(--azul-oscuro);
+  font-size: 1.1rem;
+}
+
+.order-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--borde);
+}
+
+.order-cancel-btn {
+  border: 0;
+  border-radius: 12px;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, #ff8b45 0%, var(--naranja) 100%);
+  box-shadow: 0 10px 18px rgba(255, 104, 28, 0.18);
+  color: var(--blanco);
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.18s ease, opacity 0.18s ease;
+}
+
+.order-cancel-btn:hover {
+  transform: translateY(-1px);
+}
+
+@media (max-width: 600px) {
+  .orders-header-actions {
+    justify-content: flex-start;
+  }
+
+  .order-client-search,
+  .order-product-row,
+  .order-summary-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .order-client-search .secondary-btn,
+  .order-add-btn {
+    width: 100%;
+  }
+
+  .order-quantity-controls {
+    justify-content: flex-end;
+  }
+
+  .order-modal-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 @media (max-width: 1180px) {
   .app-layout {
     grid-template-columns: 220px minmax(0, 1fr);
