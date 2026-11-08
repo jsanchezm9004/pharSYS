@@ -69,7 +69,10 @@
                 <h3 class="panel__title">Todos los pedidos</h3>
                 <span class="panel__subtitle">Historial completo con filtros por columna</span>
               </div>
-              <span class="status-badge status-badge--warning" id="pending-total">Sin datos</span>
+              <div class="orders-header-actions">
+                <span class="status-badge status-badge--warning" id="pending-total">Sin datos</span>
+                <button id="open-order-modal" class="primary-btn" type="button">+ Registrar pedido</button>
+              </div>
             </div>
 
             <div class="table-wrap">
@@ -106,10 +109,61 @@
       </main>
     </div>
 
+    <div id="orderModal" class="modal-backdrop" hidden>
+      <section class="modal-panel order-modal-panel" role="dialog" aria-modal="true" aria-labelledby="orderModalTitle">
+        <button id="close-order-modal" class="modal-close" type="button" aria-label="Cerrar registro de pedido">×</button>
+        <div class="panel__header modal-header">
+          <div>
+            <h3 id="orderModalTitle" class="panel__title">Registrar pedido</h3>
+            <span class="panel__subtitle">Busca un cliente y agrega productos con existencias disponibles.</span>
+          </div>
+        </div>
+
+        <div class="modal-body order-modal-body">
+          <section class="order-client-section" aria-labelledby="orderClientTitle">
+            <h4 id="orderClientTitle">Cliente</h4>
+            <label for="order-client-id">Identificación del cliente</label>
+            <div class="order-client-search">
+              <input id="order-client-id" type="text" inputmode="numeric" autocomplete="off" placeholder="Número de identificación">
+              <button id="search-order-client" class="secondary-btn" type="button">Buscar cliente</button>
+            </div>
+            <p id="order-client-result" class="order-client-result" role="status" aria-live="polite"></p>
+            <a id="register-order-client" class="order-register-link" href="../farmacia-hu01/registro/index.html" hidden>Registrar cliente</a>
+          </section>
+
+          <section class="order-products-section" aria-labelledby="orderProductsTitle">
+            <h4 id="orderProductsTitle">Productos</h4>
+            <label for="order-product-search">Buscar artículo</label>
+            <input id="order-product-search" class="order-product-search" type="search" placeholder="Escribe el nombre del artículo">
+            <div id="order-product-results" class="order-product-results" aria-live="polite"></div>
+          </section>
+
+          <section class="order-summary-section" aria-labelledby="orderSummaryTitle">
+            <h4 id="orderSummaryTitle">Productos del pedido</h4>
+            <div id="order-summary" class="order-summary">
+              <p class="order-empty">Aún no has agregado productos.</p>
+            </div>
+            <div class="order-total">
+              <span><span id="order-unit-count">0</span> unidades</span>
+              <strong id="order-grand-total">$0</strong>
+            </div>
+          </section>
+          <p id="order-form-message" class="order-form-message" role="alert" aria-live="polite"></p>
+        </div>
+
+        <div class="order-modal-actions">
+          <button id="confirm-order" class="primary-btn" type="button" disabled>Confirmar</button>
+          <button id="cancel-order" class="order-cancel-btn" type="button">Cancelar</button>
+        </div>
+      </section>
+    </div>
+
     <div id="toast" class="toast" role="status" aria-live="polite">Acción realizada</div>
 
     <script src="../src/auth.js"></script>
+    <script src="../farmacia-hu01/js/productos.js"></script>
     <script src="administrador.js"></script>
+    <script src="pedidos.js"></script>
     <script>
       (function () {
         const sesion = leerSesion();

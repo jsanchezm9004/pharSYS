@@ -233,6 +233,38 @@
             </form>
           </article>
         </section>
+
+        <section class="content-grid" id="purchase-product-selection">
+          <article class="panel">
+            <div class="panel__header">
+              <div>
+                <h3 class="panel__title">Seleccionar productos para compra</h3>
+                <span class="panel__subtitle">Marca productos del catálogo e indica la cantidad que deseas solicitar.</span>
+              </div>
+              <a class="secondary-btn" href="compras.html#purchase-form-panel">Volver a la orden</a>
+            </div>
+            <div class="table-wrap">
+              <table class="purchases-table">
+                <thead>
+                  <tr>
+                    <th>Seleccionar</th>
+                    <th>Producto</th>
+                    <th>Categoría</th>
+                    <th>Proveedor asignado</th>
+                    <th>Precio unitario</th>
+                    <th>Cantidad</th>
+                  </tr>
+                </thead>
+                <tbody id="purchase-product-selection-body">
+                  <tr><td colspan="6">No hay productos en el catálogo.</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div style="margin-top: 18px; display: flex; justify-content: flex-end;">
+              <button id="add-selected-products-to-purchase" class="primary-btn" type="button">Agregar seleccionados a la orden</button>
+            </div>
+          </article>
+        </section>
       </main>
     </div>
 

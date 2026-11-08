@@ -142,7 +142,13 @@ function cerrarSesion() {
 }
 
 function haySesionActiva() {
-  return Boolean(leerSesion());
+  const sesion = leerSesion();
+  if (!sesion) return false;
+  if (proveedorEstaRestringido(sesion)) {
+    cerrarSesion();
+    return false;
+  }
+  return true;
 }
 
 function usuarioExiste(email) {
@@ -157,6 +163,10 @@ function validarCredenciales(email, password) {
     return { ok: false, mensaje: "Este usuario no está registrado. Revisa el dato o crea una cuenta." };
   }
 
+  if (proveedorEstaRestringido(usuario)) {
+    return { ok: false, mensaje: "Este proveedor está inactivo o desactivado. Contacta al administrador." };
+  }
+
   if (usuario.activo === false || String(usuario.activo || '').toLowerCase() === 'inactivo') {
     return { ok: false, mensaje: "Este usuario está inactivo. Contacta al administrador para reactivarlo." };
   }
@@ -166,6 +176,28 @@ function validarCredenciales(email, password) {
   }
 
   return { ok: true, usuario };
+}
+
+function leerProveedoresRegistrados() {
+  try {
+    const proveedores = JSON.parse(localStorage.getItem("pharsysProveedores") || "[]");
+    return Array.isArray(proveedores) ? proveedores : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function proveedorEstaRestringido(usuario) {
+  if (!usuario || usuario.perfil === "Administrador") return false;
+
+  const identidades = [usuario.email, usuario.usuario]
+    .map(identidad => String(identidad || "").trim().toLowerCase())
+    .filter(Boolean);
+  const proveedor = leerProveedoresRegistrados().find(item =>
+    item && identidades.includes(String(item.correo || "").trim().toLowerCase())
+  );
+  const estado = String(proveedor && proveedor.estado || "Activo").trim().toLowerCase();
+  return Boolean(proveedor && (estado === "inactivo" || estado === "desactivado"));
 }
 
 function registrarUsuario(datos) {

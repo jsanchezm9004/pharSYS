@@ -131,14 +131,20 @@
                 <span class="summary-card__icon summary-card__icon--inventory">▣</span>
                 <div>
                   <h3 class="panel__title">Inventario</h3>
-                  <span class="panel__subtitle">Productos bajo stock y agotados</span>
+                  <span class="panel__subtitle">Stock y fechas de vencimiento</span>
                 </div>
               </div>
             </div>
 
-            <div class="summary-stat summary-stat--inline">
-              <span class="summary-stat__label">Total</span>
-              <strong id="inventario-resumen-total">0</strong>
+            <div class="summary-stats">
+              <div class="summary-stat summary-stat--inline">
+                <span class="summary-stat__label">Bajo stock / agotados</span>
+                <strong id="inventario-resumen-total">0</strong>
+              </div>
+              <div class="summary-stat summary-stat--inline">
+                <span class="summary-stat__label">Próximos a vencer (30 días)</span>
+                <strong id="inventario-proximos-vencer-total">0</strong>
+              </div>
             </div>
 
             <a href="inventario.html" class="primary-btn summary-card__button">Revisar</a>

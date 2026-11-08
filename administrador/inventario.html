@@ -79,22 +79,24 @@
               <table class="inventory-table">
                 <thead>
                   <tr>
+                    <th>Estado</th>
                     <th>Producto</th>
                     <th>Proveedor</th>
                     <th>Cantidad</th>
-                    <th>Estado</th>
                     <th>Acción</th>
+                    <th>Fecha de vencimiento</th>
                   </tr>
                   <tr class="table-filters">
+                    <th><input class="column-filter" type="text" data-filter-key="estado" placeholder="Filtrar" aria-label="Filtrar por estado" /></th>
                     <th><input class="column-filter" type="text" data-filter-key="producto" placeholder="Filtrar" aria-label="Filtrar por producto" /></th>
                     <th><input class="column-filter" type="text" data-filter-key="proveedor" placeholder="Filtrar" aria-label="Filtrar por proveedor" /></th>
                     <th><input class="column-filter" type="text" data-filter-key="cantidad" placeholder="Filtrar" aria-label="Filtrar por cantidad" /></th>
-                    <th><input class="column-filter" type="text" data-filter-key="estado" placeholder="Filtrar" aria-label="Filtrar por estado" /></th>
                     <th></th>
+                    <th><input class="column-filter" type="text" data-filter-key="vencimiento" placeholder="Filtrar" aria-label="Filtrar por vencimiento" /></th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr><td colspan="5">Sin datos por el momento.</td></tr>
+                  <tr><td colspan="6">Sin datos por el momento.</td></tr>
                 </tbody>
               </table>
             </div>

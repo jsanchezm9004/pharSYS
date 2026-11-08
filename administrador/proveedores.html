@@ -79,17 +79,22 @@
                 </div>
 
                 <div class="field">
-                  <label for="supplier-rfc">RFC</label>
-                  <input id="supplier-rfc" name="supplier-rfc" type="text" placeholder="DEL140215ABC" />
+                  <label for="supplier-nit">NIT</label>
+                  <input id="supplier-nit" name="supplier-nit" type="text" placeholder="900123456-7" />
                 </div>
 
                 <div class="field">
-                  <label for="supplier-contact">Contacto</label>
-                  <input id="supplier-contact" name="supplier-contact" type="text" placeholder="María López" />
+                  <label for="supplier-manager">Encargado</label>
+                  <input id="supplier-manager" name="supplier-manager" type="text" placeholder="María López" />
+                </div>
+
+                <div class="field">
+                  <label for="supplier-phone">Teléfono / celular</label>
+                  <input id="supplier-phone" name="supplier-phone" type="tel" placeholder="300 123 4567" />
                 </div>
 
                 <div class="field field--full">
-                  <label for="supplier-email">Correo</label>
+                  <label for="supplier-email">Correo electrónico</label>
                   <input id="supplier-email" name="supplier-email" type="email" placeholder="contacto@proveedor.com" />
                 </div>
               </div>
@@ -98,6 +103,64 @@
                 <button class="primary-btn" type="submit">Registrar proveedor</button>
               </div>
             </form>
+          </article>
+
+          <article class="panel">
+            <div class="panel__header">
+              <div>
+                <h3 class="panel__title">Proveedores registrados</h3>
+                <span class="panel__subtitle">Solo el administrador puede modificar o eliminar proveedores y cambiar su estado.</span>
+              </div>
+              <div class="table-actions supplier-summary-actions">
+                <span id="supplier-summary-count" class="status-badge status-badge--info">0 proveedores</span>
+                <button id="delete-selected-suppliers" class="table-btn table-btn--danger" type="button" disabled>Eliminar seleccionados</button>
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table class="suppliers-table">
+                <thead>
+                  <tr>
+                    <th scope="col" aria-label="Seleccionar proveedores">
+                      <input id="supplier-select-all" type="checkbox" aria-label="Seleccionar todos los proveedores" />
+                    </th>
+                    <th scope="col">Nombre del proveedor</th>
+                    <th scope="col">NIT</th>
+                    <th scope="col">Encargado</th>
+                    <th scope="col">Teléfono / celular</th>
+                    <th scope="col">Correo electrónico</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="supplier-summary-body"></tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel__header">
+              <div>
+                <h3 class="panel__title">Órdenes recibidas</h3>
+                <span class="panel__subtitle">Revisa los productos solicitados y confirma para calcular el costo.</span>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table class="purchases-table">
+                <thead>
+                  <tr>
+                    <th>Orden</th>
+                    <th>Proveedor</th>
+                    <th>Productos y cantidades</th>
+                    <th>Costo</th>
+                    <th>Estado / acción</th>
+                  </tr>
+                </thead>
+                <tbody id="supplier-orders-body">
+                  <tr><td colspan="5">Aún no hay órdenes recibidas.</td></tr>
+                </tbody>
+              </table>
+            </div>
           </article>
         </section>
       </main>

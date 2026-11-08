@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const sidebarLinks = document.querySelectorAll('.sidebar__nav a');
   const toast = document.getElementById('toast');
   const logoutBtn = document.getElementById('logout-admin');
+  const CLAVE_PRODUCTOS_COMPRA_TEMPORALES = 'pharsysSeleccionCompra';
+  const productosOrdenCompra = leerProductosCompraPendientes();
 
   if (sidebarToggle && sidebar) {
     sidebarToggle.addEventListener('click', () => {
@@ -48,6 +50,43 @@ document.addEventListener('DOMContentLoaded', () => {
       return fallback;
     }
   };
+
+  function leerProductosCompraPendientes() {
+    try {
+      const productos = JSON.parse(localStorage.getItem(CLAVE_PRODUCTOS_COMPRA_TEMPORALES) || '[]');
+      return Array.isArray(productos)
+        ? productos.filter((producto) =>
+          producto
+          && producto.id !== undefined
+          && typeof producto.nombre === 'string'
+          && Number.isFinite(Number(producto.precioUnitario))
+          && Number(producto.precioUnitario) >= 0
+          && Number.isInteger(Number(producto.cantidad))
+          && Number(producto.cantidad) > 0
+        ).map((producto) => ({
+          ...producto,
+          id: String(producto.id),
+          precioUnitario: Number(producto.precioUnitario),
+          cantidad: Number(producto.cantidad)
+        }))
+        : [];
+    } catch (error) {
+      return [];
+    }
+  }
+
+  function guardarProductosCompraPendientes() {
+    localStorage.setItem(CLAVE_PRODUCTOS_COMPRA_TEMPORALES, JSON.stringify(productosOrdenCompra));
+  }
+
+  const obtenerEstadoProveedor = (proveedor) => {
+    const estado = String(proveedor && proveedor.estado || 'Activo').trim().toLowerCase();
+    if (estado === 'inactivo') return 'Inactivo';
+    if (estado === 'desactivado') return 'Desactivado';
+    return 'Activo';
+  };
+
+  const proveedorEstaActivo = (proveedor) => Boolean(proveedor && obtenerEstadoProveedor(proveedor) === 'Activo');
 
   const formatearMoneda = (valor) => {
     const numero = Number(valor || 0);
@@ -125,6 +164,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const productos = leerJSON('pharsysProductos');
     const proveedores = leerJSON('pharsysProveedores');
     const totalInventarioProblema = inventario.filter((item) => Number(item.cantidad || 0) <= 10).length;
+    const porVencer = inventario.filter((item) =>
+      obtenerEstadoVencimiento(obtenerFechaVencimientoInventario(item, productos)).texto === 'Por vencer'
+    ).length;
     const pendientesAprobacion = pedidos.filter((pedido) => {
       const estado = String(pedido.estado || '').toLowerCase();
       return estado !== 'aprobado' && estado !== 'despachado' && estado !== 'cancelado';
@@ -152,13 +194,19 @@ document.addEventListener('DOMContentLoaded', () => {
     setText('pedidos-aprobados-total', String(aprobados.length));
     setText('pedidos-pendientes-total', String(pendientes.length));
     setText('inventario-resumen-total', String(totalInventarioProblema));
+    setText('inventario-proximos-vencer-total', String(porVencer));
     setText('empleados-resumen-total', String(empleados.length));
     setText('productos-resumen-total', String(productos.length));
     setText('proveedores-resumen-total', String(proveedores.length));
     setText('caja-pendiente-aprobar', formatearMoneda(pendientesAprobacion));
     setText('caja-pendiente-despachar', formatearMoneda(pendientesDespacho));
     setText('caja-despachados', formatearMoneda(despachados));
-    setText('inventory-alerts', indicadorBajo === 'Sin datos' && indicadorAgotados === 'Sin datos' ? 'Sin datos' : `${bajo.length || 0} bajo / ${agotados.length || 0} agotados`);
+    setText(
+      'inventory-alerts',
+      indicadorBajo === 'Sin datos' && indicadorAgotados === 'Sin datos' && porVencer === 0
+        ? 'Sin datos'
+        : `${bajo.length || 0} bajo / ${agotados.length || 0} agotados / ${porVencer} por vencer`
+    );
 
     const trendVentas = ventas > 0 ? 'Datos reales' : 'Sin historial';
     const trendPendientes = pendientes.length ? 'Requiere revisión' : 'Sin pendientes';
@@ -207,6 +255,29 @@ document.addEventListener('DOMContentLoaded', () => {
       resultado[key] = (input.value || '').trim().toLowerCase();
       return resultado;
     }, {});
+  }
+
+  function obtenerFechaVencimientoInventario(item, productosCatalogo) {
+    const producto = productosCatalogo.find((registro) =>
+      String(registro.nombre || '').toLowerCase() === String(item.nombreProducto || '').toLowerCase()
+    );
+    return String(item.fechaVencimiento || producto?.fechaVencimiento || '').slice(0, 10);
+  }
+
+  function obtenerEstadoVencimiento(fecha) {
+    if (!fecha) return { texto: 'Sin fecha', clase: 'status-badge--info' };
+    const [year, month, day] = fecha.split('-').map(Number);
+    const fechaVencimiento = new Date(year, month - 1, day);
+    if (!year || Number.isNaN(fechaVencimiento.getTime())) {
+      return { texto: 'Sin fecha', clase: 'status-badge--info' };
+    }
+
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const diasRestantes = Math.ceil((fechaVencimiento - hoy) / 86400000);
+    if (diasRestantes < 0) return { texto: 'Vencido', clase: 'status-badge--danger' };
+    if (diasRestantes <= 30) return { texto: 'Por vencer', clase: 'status-badge--warning' };
+    return { texto: 'Vigente', clase: 'status-badge--success' };
   }
 
   function renderPedidos() {
@@ -317,24 +388,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const { inventario } = obtenerDatosDashboard();
     const esVistaInventario = document.body.dataset.page === 'inventario' || window.location.pathname.endsWith('/inventario.html');
     const filtros = obtenerFiltrosColumna();
+    const productosCatalogo = leerJSON('pharsysProductos');
 
     const productos = esVistaInventario
       ? inventario.filter((item) => {
           const producto = String(item.nombreProducto || '').toLowerCase();
           const proveedor = String(item.nombreProveedor || '').toLowerCase();
           const cantidad = String(item.cantidad || '').toLowerCase();
+          const vencimiento = obtenerFechaVencimientoInventario(item, productosCatalogo);
           const estado = obtenerEstadoInventario(item).toLowerCase();
 
           return Object.entries(filtros).every(([key, value]) => {
             if (!value) return true;
-            const valor = { producto, proveedor, cantidad, estado }[key] || '';
+            const valor = { producto, proveedor, cantidad, vencimiento, estado }[key] || '';
             return valor.includes(value);
           });
         })
       : inventario.filter((item) => Number(item.cantidad || 0) <= 10);
 
     if (!productos.length) {
-      tbody.innerHTML = '<tr><td colspan="5">Sin datos por el momento.</td></tr>';
+      tbody.innerHTML = `<tr><td colspan="${esVistaInventario ? 6 : 5}">Sin datos por el momento.</td></tr>`;
       return;
     }
 
@@ -344,17 +417,28 @@ document.addEventListener('DOMContentLoaded', () => {
         const estado = obtenerEstadoInventario(item);
         const clase = cantidad === 0 ? 'status-badge--danger' : cantidad <= 10 ? 'status-badge--warning' : 'status-badge--success';
         const nombreProducto = encodeURIComponent(item.nombreProducto || 'Producto sin nombre');
+        const fechaVencimiento = obtenerFechaVencimientoInventario(item, productosCatalogo);
+        const estadoVencimiento = obtenerEstadoVencimiento(fechaVencimiento);
+        const claseFecha = estadoVencimiento.texto === 'Vencido'
+          ? 'inventory-expiration--expired'
+          : estadoVencimiento.texto === 'Por vencer' ? 'inventory-expiration--soon' : '';
         return `
           <tr>
+            <td><span class="status-badge ${clase}">${estado}</span></td>
             <td>${item.nombreProducto || 'Producto sin nombre'}</td>
             <td>${item.nombreProveedor || 'Proveedor'}</td>
             <td>${cantidad} unidades</td>
-            <td><span class="status-badge ${clase}">${estado}</span></td>
             <td>
               <div class="inventory-adjust">
                 <button class="table-btn table-btn--danger" type="button" data-action="stock-down" data-product="${nombreProducto}">-</button>
                 <input class="stock-quantity" type="number" min="1" value="1" data-product="${nombreProducto}" aria-label="Cantidad para ${item.nombreProducto || 'producto'}" />
                 <button class="table-btn table-btn--approve" type="button" data-action="stock-up" data-product="${nombreProducto}">+</button>
+              </div>
+            </td>
+            <td>
+              <div class="inventory-expiration ${claseFecha}">
+                <input class="column-filter" type="date" value="${fechaVencimiento}" data-action="update-expiration" data-product="${nombreProducto}" aria-label="Fecha de vencimiento de ${item.nombreProducto || 'producto'}" />
+                <span class="status-badge ${estadoVencimiento.clase}">${estadoVencimiento.texto}</span>
               </div>
             </td>
           </tr>
@@ -391,6 +475,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function obtenerCorreoEmpleado(empleado) {
     return empleado?.email || empleado?.correo || 'Sin correo';
+  }
+
+  function escaparHTML(valor) {
+    return String(valor ?? '').replace(/[&<>"']/g, (caracter) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    })[caracter]);
   }
 
   function obtenerEstadoEmpleado(empleado) {
@@ -437,11 +531,11 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="employee-summary-filters">
         <div class="employee-summary-filter">
           <label>Nombre</label>
-          <input id="employee-filter-name" class="column-filter" type="text" value="${filtroNombre || ''}" placeholder="Buscar nombre" />
+          <input id="employee-filter-name" class="column-filter" type="text" value="${escaparHTML(filtroNombre)}" placeholder="Buscar nombre" />
         </div>
         <div class="employee-summary-filter">
           <label>Documento</label>
-          <input id="employee-filter-document" class="column-filter" type="text" value="${filtroDocumento || ''}" placeholder="Buscar documento" />
+          <input id="employee-filter-document" class="column-filter" type="text" value="${escaparHTML(filtroDocumento)}" placeholder="Buscar documento" />
         </div>
         <div class="employee-summary-filter">
           <label>Estado</label>
@@ -458,6 +552,8 @@ document.addEventListener('DOMContentLoaded', () => {
           <thead>
             <tr>
               <th>Nombre</th>
+              <th>Cargo</th>
+              <th>Turno</th>
               <th>Documento</th>
               <th>Correo</th>
               <th>Estado</th>
@@ -466,26 +562,30 @@ document.addEventListener('DOMContentLoaded', () => {
           <tbody>
             ${empleadosFiltrados.length ? empleadosFiltrados.map((empleado) => {
               const nombre = obtenerNombreEmpleado(empleado);
+              const cargo = empleado.cargo || 'Sin cargo';
+              const turno = empleado.turno || 'Sin turno';
               const documento = obtenerDocumentoEmpleado(empleado);
               const email = obtenerCorreoEmpleado(empleado);
               const activo = obtenerEstadoEmpleado(empleado) === 'Activo';
               const estadoClass = activo ? 'status-badge--success' : 'status-badge--danger';
               return `
                 <tr>
-                  <td>${nombre}</td>
-                  <td>${documento}</td>
-                  <td>${email}</td>
+                  <td>${escaparHTML(nombre)}</td>
+                  <td>${escaparHTML(cargo)}</td>
+                  <td>${escaparHTML(turno)}</td>
+                  <td>${escaparHTML(documento)}</td>
+                  <td>${escaparHTML(email)}</td>
                   <td>
                     <div class="employee-status-cell">
                       <span class="status-badge ${estadoClass}">${activo ? 'Activo' : 'Inactivo'}</span>
-                      <button class="table-btn ${activo ? 'table-btn--danger' : 'table-btn--approve'}" type="button" data-toggle-employee-status data-email="${email}" data-document="${documento}" data-active="${String(activo)}">
+                      <button class="table-btn ${activo ? 'table-btn--danger' : 'table-btn--approve'}" type="button" data-toggle-employee-status data-email="${escaparHTML(email)}" data-document="${escaparHTML(documento)}" data-active="${String(activo)}">
                         ${activo ? 'Desactivar' : 'Activar'}
                       </button>
                     </div>
                   </td>
                 </tr>
               `;
-            }).join('') : '<tr><td colspan="4" class="employee-summary-empty-row">No hay empleados que coincidan con los filtros.</td></tr>'}
+            }).join('') : '<tr><td colspan="6" class="employee-summary-empty-row">No hay empleados que coincidan con los filtros.</td></tr>'}
           </tbody>
         </table>
       </div>
@@ -560,17 +660,88 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!body) return;
 
     if (!ordenes.length) {
-      body.innerHTML = '<tr><td colspan="3">Sin datos por el momento.</td></tr>';
+      body.innerHTML = '<tr><td colspan="5">Sin datos por el momento.</td></tr>';
       return;
     }
 
-    body.innerHTML = ordenes.map((orden) => `
-      <tr>
-        <td>${orden.proveedor || 'Proveedor'}</td>
-        <td>${formatearMoneda(orden.monto || 0)}</td>
-        <td><span class="status-badge status-badge--info">${orden.estado || 'Enviado'}</span></td>
-      </tr>
-    `).join('');
+    body.innerHTML = ordenes.slice().reverse().map((orden) => {
+      const productos = Array.isArray(orden.productos) ? orden.productos : [];
+      const detalle = productos.length
+        ? productos.map((producto) => `${escaparHTML(producto.nombre || 'Producto')} × ${Number(producto.cantidad || 0)}`).join('<br>')
+        : 'Sin detalle de productos';
+      const costo = orden.estado === 'Confirmada' || orden.estado === 'Recibida'
+        ? formatearMoneda(orden.monto || 0)
+        : Number(orden.montoEstimado || 0) > 0
+          ? `Estimado: ${formatearMoneda(orden.montoEstimado)}`
+          : 'Pendiente de confirmación';
+      const claseEstado = orden.estado === 'Recibida'
+        ? 'status-badge--success'
+        : orden.estado === 'Confirmada'
+          ? 'status-badge--warning'
+          : 'status-badge--info';
+
+      return `
+        <tr>
+          <td>#${escaparHTML(orden.id || '—')}</td>
+          <td>${escaparHTML(orden.proveedor || 'Proveedor')}</td>
+          <td>${detalle}</td>
+          <td>${costo}</td>
+          <td><span class="status-badge ${claseEstado}">${escaparHTML(orden.estado || 'Enviado')}</span></td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function renderOrdenesProveedor() {
+    const body = document.getElementById('supplier-orders-body');
+    if (!body) return;
+
+    const ordenes = leerJSON('pharsysOrdenesCompra');
+    if (!ordenes.length) {
+      body.innerHTML = '<tr><td colspan="5">Aún no hay órdenes recibidas.</td></tr>';
+      return;
+    }
+
+    body.innerHTML = ordenes.slice().reverse().map((orden) => {
+      const productos = Array.isArray(orden.productos) ? orden.productos : [];
+      const detalle = productos.length
+        ? productos.map((producto) => `
+          <div>${escaparHTML(producto.nombre || 'Producto')} × ${Number(producto.cantidad || 0)}
+            <small>(${formatearMoneda(producto.precioUnitario || 0)} c/u${orden.estado === 'Confirmada' || orden.estado === 'Recibida' ? ` · ${formatearMoneda(producto.subtotal || 0)}` : ''})</small>
+          </div>
+        `).join('')
+        : '<span>Orden anterior sin detalle de productos</span>';
+      const estadoActual = ['Enviado', 'Confirmada', 'Recibida'].includes(orden.estado) ? orden.estado : 'Enviado';
+      const claseEstado = estadoActual === 'Recibida'
+        ? 'purchase-order-action--received'
+        : estadoActual === 'Confirmada'
+          ? 'purchase-order-action--confirmed'
+          : 'purchase-order-action--sent';
+      const estaConfirmada = estadoActual === 'Confirmada';
+      const estaRecibida = estadoActual === 'Recibida';
+      const accion = `
+        <select class="purchase-order-state ${claseEstado}" data-purchase-order-state="${escaparHTML(orden.id)}" aria-label="Cambiar estado de la orden ${escaparHTML(orden.id)}">
+          <option value="Enviado" ${estadoActual === 'Enviado' ? 'selected' : ''}>Enviado</option>
+          <option value="Confirmada" ${estadoActual === 'Confirmada' ? 'selected' : ''}>Confirmada</option>
+          <option value="Recibida" ${estadoActual === 'Recibida' ? 'selected' : ''}>Recibida</option>
+        </select>
+      `;
+      const costo = estaConfirmada || estaRecibida
+        ? formatearMoneda(orden.monto || 0)
+        : Number(orden.montoEstimado || 0) > 0
+          ? `Estimado: ${formatearMoneda(orden.montoEstimado)}`
+          : 'Pendiente';
+
+      return `
+        <tr>
+          <td>#${escaparHTML(orden.id || '—')}</td>
+          <td>${escaparHTML(orden.proveedor || 'Proveedor')}</td>
+          <td>${detalle}</td>
+          <td>${costo}</td>
+          <td>${accion}</td>
+        </tr>
+      `;
+    }).join('');
   }
 
   function renderMovimientosInventario() {
@@ -637,6 +808,17 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function registrarProductoEnSistema(datos) {
+    const nombreProveedor = String(datos.proveedor || '').trim();
+    if (nombreProveedor) {
+      const proveedor = leerJSON('pharsysProveedores').find((item) =>
+        String(item.nombre || '').trim().toLowerCase() === nombreProveedor.toLowerCase()
+      );
+      if (!proveedor || !proveedorEstaActivo(proveedor)) {
+        showToast('No se pueden agregar productos con un proveedor inactivo o desactivado.');
+        return false;
+      }
+    }
+
     const productosActuales = leerJSON('pharsysProductos');
     const productoId = datos.id || datos.codigo || `PRO-${Date.now()}`;
     const productoExistenteIndex = productosActuales.findIndex((producto) => String(producto.id) === String(productoId) || (producto.nombre || '').toLowerCase() === String(datos.nombre || '').toLowerCase());
@@ -676,20 +858,98 @@ document.addEventListener('DOMContentLoaded', () => {
     if (stockActual) {
       stockActual.cantidad = String(Number(stockActual.cantidad || 0) + Number(datos.stock || 0));
       stockActual.nombreProveedor = producto.proveedor;
+      stockActual.fechaVencimiento = String(producto.fechaVencimiento || '').slice(0, 10);
     } else {
       inventarioActual.push({
         nombreProducto: producto.nombre,
         nombreProveedor: producto.proveedor,
-        cantidad: String(Number(datos.stock || 0))
+        cantidad: String(Number(datos.stock || 0)),
+        fechaVencimiento: String(producto.fechaVencimiento || '').slice(0, 10)
       });
     }
 
     localStorage.setItem('pharsysInventario', JSON.stringify(inventarioActual));
     window.dispatchEvent(new CustomEvent('pharsys:catalogo-updated'));
     actualizarCatalogoYInventario();
+    return true;
   }
 
   document.body.addEventListener('click', (event) => {
+    const editSupplierButton = event.target.closest('[data-action="edit-supplier"]');
+    if (editSupplierButton) {
+      const tbody = document.getElementById('supplier-summary-body');
+      if (tbody) {
+        tbody.dataset.editingIndex = editSupplierButton.dataset.index;
+        renderProveedores();
+      }
+      return;
+    }
+
+    const cancelSupplierButton = event.target.closest('[data-action="cancel-supplier-edit"]');
+    if (cancelSupplierButton) {
+      const tbody = document.getElementById('supplier-summary-body');
+      if (tbody) {
+        delete tbody.dataset.editingIndex;
+        renderProveedores();
+      }
+      return;
+    }
+
+    const saveSupplierButton = event.target.closest('[data-action="save-supplier"]');
+    if (saveSupplierButton) {
+      const tbody = document.getElementById('supplier-summary-body');
+      const row = saveSupplierButton.closest('tr');
+      const nombreInput = row?.querySelector('[data-supplier-field="nombre"]');
+      const nitInput = row?.querySelector('[data-supplier-field="nit"]');
+      const encargadoInput = row?.querySelector('[data-supplier-field="encargado"]');
+      const telefonoInput = row?.querySelector('[data-supplier-field="telefono"]');
+      const correoInput = row?.querySelector('[data-supplier-field="correo"]');
+      if (!nombreInput?.checkValidity() || !correoInput?.checkValidity()) {
+        nombreInput?.reportValidity();
+        correoInput?.reportValidity();
+        return;
+      }
+
+      const proveedores = leerJSON('pharsysProveedores');
+      const proveedor = proveedores[Number(saveSupplierButton.dataset.index)];
+      if (!proveedor) {
+        showToast('No se encontró el proveedor seleccionado.');
+        return;
+      }
+
+      proveedor.nombre = nombreInput.value.trim();
+      proveedor.nit = nitInput.value.trim();
+      proveedor.encargado = encargadoInput.value.trim();
+      proveedor.telefono = telefonoInput.value.trim();
+      proveedor.correo = correoInput.value.trim();
+      localStorage.setItem('pharsysProveedores', JSON.stringify(proveedores));
+      if (tbody) delete tbody.dataset.editingIndex;
+      renderProveedores();
+      poblarSelectorProveedoresProducto();
+      showToast(`Información de ${proveedor.nombre} actualizada.`);
+      return;
+    }
+
+    const supplierStatusButton = event.target.closest('[data-action="toggle-supplier-status"]');
+    if (supplierStatusButton) {
+      const supplierIndex = Number(supplierStatusButton.dataset.index);
+      const proveedores = leerJSON('pharsysProveedores');
+      const proveedor = proveedores[supplierIndex];
+      if (!proveedor) {
+        showToast('No se encontró el proveedor seleccionado.');
+        return;
+      }
+
+      const estados = ['Activo', 'Inactivo', 'Desactivado'];
+      const estadoActual = obtenerEstadoProveedor(proveedor);
+      proveedor.estado = estados[(estados.indexOf(estadoActual) + 1) % estados.length];
+      localStorage.setItem('pharsysProveedores', JSON.stringify(proveedores));
+      renderProveedores();
+      poblarSelectorProveedoresProducto();
+      showToast(`Estado de ${proveedor.nombre || 'proveedor'} actualizado: ${proveedor.estado}.`);
+      return;
+    }
+
     const stockAction = event.target.closest('[data-action="stock-up"]') || event.target.closest('[data-action="stock-down"]');
     if (stockAction) {
       const accion = stockAction.dataset.action;
@@ -775,6 +1035,36 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.body.addEventListener('change', (event) => {
+    const expirationInput = event.target.closest('[data-action="update-expiration"]');
+    if (expirationInput) {
+      const nombreProducto = decodeURIComponent(expirationInput.dataset.product || '');
+      const fechaVencimiento = expirationInput.value;
+      const inventario = leerJSON('pharsysInventario');
+      const itemInventario = inventario.find((item) =>
+        String(item.nombreProducto || '').toLowerCase() === nombreProducto.toLowerCase()
+      );
+      if (!itemInventario) {
+        showToast('No se encontró el producto del inventario.');
+        return;
+      }
+
+      itemInventario.fechaVencimiento = fechaVencimiento;
+      localStorage.setItem('pharsysInventario', JSON.stringify(inventario));
+
+      const productos = leerJSON('pharsysProductos');
+      const producto = productos.find((item) =>
+        String(item.nombre || '').toLowerCase() === nombreProducto.toLowerCase()
+      );
+      if (producto) {
+        producto.fechaVencimiento = fechaVencimiento;
+        localStorage.setItem('pharsysProductos', JSON.stringify(productos));
+      }
+
+      renderInventario();
+      showToast(fechaVencimiento ? 'Fecha de vencimiento actualizada.' : 'Fecha de vencimiento eliminada.');
+      return;
+    }
+
     const approvedCheck = event.target.closest('[data-action="toggle-approved"]');
     if (approvedCheck) {
       const pedidoId = Number(approvedCheck.dataset.id || 0);
@@ -829,15 +1119,320 @@ document.addEventListener('DOMContentLoaded', () => {
     const select = document.getElementById('product-supplier');
     if (!select) return;
 
-    const proveedores = leerJSON('pharsysProveedores');
+    const proveedores = leerJSON('pharsysProveedores').filter(proveedorEstaActivo);
     const opciones = proveedores.length
       ? proveedores.map((proveedor) => `
         <option value="${(proveedor.nombre || '').trim()}">${proveedor.nombre || 'Proveedor sin nombre'}</option>
       `).join('')
-      : '<option value="">Sin proveedores registrados</option>';
+      : '<option value="">Sin proveedores activos</option>';
 
-    select.innerHTML = `<option value="">Selecciona un proveedor</option>${opciones}`;
+    select.innerHTML = `<option value="">Selecciona un proveedor</option>${opciones}<option value="__crear_proveedor__">＋ Crear nuevo proveedor...</option>`;
   }
+
+  function poblarSelectorProveedoresCompra() {
+    const select = document.getElementById('purchase-provider');
+    if (!select) return;
+
+    const proveedores = leerJSON('pharsysProveedores').filter(proveedorEstaActivo);
+    select.replaceChildren();
+
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = proveedores.length ? 'Selecciona un proveedor' : 'No hay proveedores activos';
+    placeholder.selected = true;
+    select.appendChild(placeholder);
+
+    proveedores.forEach((proveedor) => {
+      const option = document.createElement('option');
+      option.value = String(proveedor.nombre || '').trim();
+      option.textContent = proveedor.nombre || 'Proveedor sin nombre';
+      select.appendChild(option);
+    });
+
+    select.disabled = proveedores.length === 0;
+  }
+
+  function obtenerClaveProducto(producto) {
+    return String(producto.id ?? producto.codigo ?? producto.nombre ?? '');
+  }
+
+  function renderProductosSeleccionablesCompra() {
+    const body = document.getElementById('purchase-product-selection-body');
+    if (!body) return;
+
+    const productos = leerJSON('pharsysProductos');
+
+    if (!productos.length) {
+      body.innerHTML = '<tr><td colspan="6">No hay productos en el catálogo.</td></tr>';
+      return;
+    }
+
+    body.innerHTML = productos.map((producto) => {
+      const id = obtenerClaveProducto(producto);
+      return `
+        <tr>
+          <td><input type="checkbox" data-order-product-check="${escaparHTML(id)}" aria-label="Seleccionar ${escaparHTML(producto.nombre || 'producto')}" /></td>
+          <td>${escaparHTML(producto.nombre || 'Producto sin nombre')}</td>
+          <td>${escaparHTML(producto.categoria || 'Sin categoría')}</td>
+          <td>${escaparHTML(producto.proveedor || 'Sin proveedor asignado')}</td>
+          <td>${formatearMoneda(producto.precio || 0)}</td>
+          <td><input class="column-filter" type="number" min="1" step="1" value="1" data-order-product-quantity="${escaparHTML(id)}" aria-label="Cantidad de ${escaparHTML(producto.nombre || 'producto')}" /></td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function renderProductosSeleccionadosCompra() {
+    const body = document.getElementById('purchase-selected-products');
+    const total = document.getElementById('purchase-total');
+    if (!body || !total) return;
+
+    if (!productosOrdenCompra.length) {
+      body.innerHTML = '<tr><td colspan="5">Selecciona productos del catálogo.</td></tr>';
+      total.value = formatearMoneda(0);
+      return;
+    }
+
+    let montoEstimado = 0;
+    body.innerHTML = productosOrdenCompra.map((producto) => {
+      const subtotal = producto.precioUnitario * producto.cantidad;
+      montoEstimado += subtotal;
+      return `
+        <tr>
+          <td>${escaparHTML(producto.nombre)}</td>
+          <td>${formatearMoneda(producto.precioUnitario)}</td>
+          <td><input class="column-filter" type="number" min="1" step="1" value="${producto.cantidad}" data-selected-purchase-quantity="${escaparHTML(producto.id)}" aria-label="Cantidad de ${escaparHTML(producto.nombre)}" /></td>
+          <td>${formatearMoneda(subtotal)}</td>
+          <td><button class="table-btn table-btn--danger" type="button" data-remove-purchase-product="${escaparHTML(producto.id)}">Quitar</button></td>
+        </tr>
+      `;
+    }).join('');
+    total.value = formatearMoneda(montoEstimado);
+  }
+
+  document.getElementById('add-selected-products-to-purchase')?.addEventListener('click', () => {
+    const seleccionados = Array.from(document.querySelectorAll('[data-order-product-check]:checked'));
+    if (!seleccionados.length) {
+      showToast('Selecciona al menos un producto para agregar a la orden.');
+      return;
+    }
+
+    const catalogo = leerJSON('pharsysProductos');
+    const productosParaAgregar = [];
+    for (const checkbox of seleccionados) {
+      const id = checkbox.dataset.orderProductCheck;
+      const producto = catalogo.find((item) => obtenerClaveProducto(item) === id);
+      const cantidadInput = Array.from(document.querySelectorAll('[data-order-product-quantity]'))
+        .find((input) => input.dataset.orderProductQuantity === id);
+      const cantidad = Number(cantidadInput?.value);
+      const precioUnitario = Number(producto?.precio);
+
+      if (!producto || !Number.isInteger(cantidad) || cantidad < 1 || !Number.isFinite(precioUnitario) || precioUnitario < 0) {
+        showToast('Revisa el producto seleccionado y asegúrate de que tenga precio y cantidad válidos.');
+        return;
+      }
+
+      productosParaAgregar.push({
+        id,
+        nombre: String(producto.nombre || 'Producto sin nombre'),
+        precioUnitario,
+        cantidad
+      });
+    }
+
+    for (const producto of productosParaAgregar) {
+      const existente = productosOrdenCompra.find((item) => String(item.id) === producto.id);
+      if (existente) {
+        existente.cantidad += producto.cantidad;
+        existente.precioUnitario = producto.precioUnitario;
+        existente.nombre = producto.nombre;
+      } else {
+        productosOrdenCompra.push(producto);
+      }
+    }
+
+    guardarProductosCompraPendientes();
+    document.querySelectorAll('[data-order-product-check]').forEach((checkbox) => {
+      checkbox.checked = false;
+    });
+    renderProductosSeleccionadosCompra();
+    showToast('Productos agregados a la orden. Vuelve a Órdenes de compra para enviarla.');
+  });
+
+  document.getElementById('purchase-selected-products')?.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-remove-purchase-product]');
+    if (!button) return;
+    const index = productosOrdenCompra.findIndex((producto) => producto.id === button.dataset.removePurchaseProduct);
+    if (index >= 0) productosOrdenCompra.splice(index, 1);
+    guardarProductosCompraPendientes();
+    renderProductosSeleccionadosCompra();
+  });
+
+  document.getElementById('purchase-selected-products')?.addEventListener('change', (event) => {
+    const input = event.target.closest('[data-selected-purchase-quantity]');
+    if (!input) return;
+
+    const cantidad = Number(input.value);
+    const producto = productosOrdenCompra.find((item) => item.id === input.dataset.selectedPurchaseQuantity);
+    if (!producto || !Number.isInteger(cantidad) || cantidad < 1) {
+      showToast('La cantidad debe ser un número entero mayor que cero.');
+      renderProductosSeleccionadosCompra();
+      return;
+    }
+
+    producto.cantidad = cantidad;
+    guardarProductosCompraPendientes();
+    renderProductosSeleccionadosCompra();
+  });
+
+  function renderProveedores() {
+    const tbody = document.getElementById('supplier-summary-body');
+    renderOrdenesProveedor();
+    if (!tbody) return;
+
+    const proveedores = leerJSON('pharsysProveedores');
+    const count = document.getElementById('supplier-summary-count');
+    if (count) {
+      count.textContent = `${proveedores.length} ${proveedores.length === 1 ? 'proveedor' : 'proveedores'}`;
+    }
+
+    tbody.replaceChildren();
+    if (!proveedores.length) {
+      const row = document.createElement('tr');
+      const cell = document.createElement('td');
+      cell.colSpan = 8;
+      cell.textContent = 'Aún no hay proveedores registrados.';
+      row.appendChild(cell);
+      tbody.appendChild(row);
+      actualizarSeleccionProveedores();
+      return;
+    }
+
+    proveedores.forEach((proveedor, index) => {
+      const row = document.createElement('tr');
+      const selectionCell = document.createElement('td');
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.dataset.action = 'select-supplier';
+      checkbox.dataset.index = String(index);
+      checkbox.setAttribute('aria-label', `Seleccionar ${proveedor.nombre || 'proveedor'}`);
+      selectionCell.appendChild(checkbox);
+      row.appendChild(selectionCell);
+
+      const editingIndex = Number(tbody.dataset.editingIndex);
+      const isEditing = editingIndex === index;
+      [
+        ['nombre', proveedor.nombre, 'Nombre del proveedor', 'text'],
+        ['nit', proveedor.nit || proveedor.rfc, 'NIT', 'text'],
+        ['encargado', proveedor.encargado || proveedor.contacto, 'Encargado', 'text'],
+        ['telefono', proveedor.telefono, 'Teléfono / celular', 'tel'],
+        ['correo', proveedor.correo, 'Correo electrónico', 'email']
+      ].forEach(([field, value, label, type]) => {
+        const cell = document.createElement('td');
+        if (isEditing) {
+          const input = document.createElement('input');
+          input.type = type;
+          input.value = value || '';
+          input.className = 'column-filter';
+          input.dataset.supplierField = field;
+          input.setAttribute('aria-label', label);
+          if (field === 'nombre') input.required = true;
+          cell.appendChild(input);
+        } else {
+          cell.textContent = value || '—';
+        }
+        row.appendChild(cell);
+      });
+
+      const statusCell = document.createElement('td');
+      const statusButton = document.createElement('button');
+      const estado = obtenerEstadoProveedor(proveedor);
+      statusButton.type = 'button';
+      statusButton.className = `supplier-status-button supplier-status-button--${estado.toLowerCase()}`;
+      statusButton.dataset.action = 'toggle-supplier-status';
+      statusButton.dataset.index = String(index);
+      statusButton.textContent = estado;
+      statusButton.setAttribute('aria-label', `Cambiar estado de ${proveedor.nombre || 'proveedor'}; estado actual: ${estado}`);
+      statusCell.appendChild(statusButton);
+      row.appendChild(statusCell);
+
+      const actionsCell = document.createElement('td');
+      if (isEditing) {
+        const saveButton = document.createElement('button');
+        saveButton.type = 'button';
+        saveButton.className = 'table-btn table-btn--approve';
+        saveButton.dataset.action = 'save-supplier';
+        saveButton.dataset.index = String(index);
+        saveButton.textContent = 'Guardar';
+        const cancelButton = document.createElement('button');
+        cancelButton.type = 'button';
+        cancelButton.className = 'table-btn table-btn--review';
+        cancelButton.dataset.action = 'cancel-supplier-edit';
+        cancelButton.textContent = 'Cancelar';
+        actionsCell.append(saveButton, cancelButton);
+      } else {
+        const editButton = document.createElement('button');
+        editButton.type = 'button';
+        editButton.className = 'table-btn table-btn--review';
+        editButton.dataset.action = 'edit-supplier';
+        editButton.dataset.index = String(index);
+        editButton.textContent = 'Modificar';
+        actionsCell.appendChild(editButton);
+      }
+      actionsCell.className = 'table-actions';
+      row.appendChild(actionsCell);
+      tbody.appendChild(row);
+    });
+    actualizarSeleccionProveedores();
+  }
+
+  function actualizarSeleccionProveedores() {
+    const tbody = document.getElementById('supplier-summary-body');
+    const selectAll = document.getElementById('supplier-select-all');
+    const deleteButton = document.getElementById('delete-selected-suppliers');
+    if (!tbody || !selectAll || !deleteButton) return;
+
+    const checkboxes = Array.from(tbody.querySelectorAll('[data-action="select-supplier"]'));
+    const seleccionados = checkboxes.filter((checkbox) => checkbox.checked).length;
+    selectAll.checked = checkboxes.length > 0 && seleccionados === checkboxes.length;
+    selectAll.indeterminate = seleccionados > 0 && seleccionados < checkboxes.length;
+    selectAll.disabled = checkboxes.length === 0;
+    deleteButton.disabled = seleccionados === 0;
+    deleteButton.textContent = seleccionados
+      ? `Eliminar seleccionados (${seleccionados})`
+      : 'Eliminar seleccionados';
+  }
+
+  document.getElementById('supplier-select-all')?.addEventListener('change', (event) => {
+    const tbody = document.getElementById('supplier-summary-body');
+    tbody?.querySelectorAll('[data-action="select-supplier"]').forEach((checkbox) => {
+      checkbox.checked = event.currentTarget.checked;
+    });
+    actualizarSeleccionProveedores();
+  });
+
+  document.getElementById('supplier-summary-body')?.addEventListener('change', (event) => {
+    if (event.target.matches('[data-action="select-supplier"]')) {
+      actualizarSeleccionProveedores();
+    }
+  });
+
+  document.getElementById('delete-selected-suppliers')?.addEventListener('click', () => {
+    const seleccionados = Array.from(document.querySelectorAll('#supplier-summary-body [data-action="select-supplier"]:checked'))
+      .map((checkbox) => Number(checkbox.dataset.index));
+    if (!seleccionados.length) return;
+
+    const proveedores = leerJSON('pharsysProveedores');
+    const cantidad = seleccionados.length;
+    if (!window.confirm(`¿Eliminar ${cantidad} ${cantidad === 1 ? 'proveedor seleccionado' : 'proveedores seleccionados'}?`)) return;
+
+    const indices = new Set(seleccionados);
+    const restantes = proveedores.filter((proveedor, index) => !indices.has(index));
+    localStorage.setItem('pharsysProveedores', JSON.stringify(restantes));
+    renderProveedores();
+    poblarSelectorProveedoresProducto();
+    showToast(`${cantidad} ${cantidad === 1 ? 'proveedor eliminado' : 'proveedores eliminados'}.`);
+  });
 
   function actualizarVistaPreviaProducto() {
     const previewName = document.getElementById('preview-name');
@@ -895,7 +1490,13 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('product-form')?.addEventListener('input', actualizarVistaPreviaProducto);
-  document.getElementById('product-form')?.addEventListener('change', actualizarVistaPreviaProducto);
+  document.getElementById('product-form')?.addEventListener('change', (event) => {
+    if (event.target.id === 'product-supplier' && event.target.value === '__crear_proveedor__') {
+      window.location.href = 'proveedores.html';
+      return;
+    }
+    actualizarVistaPreviaProducto();
+  });
 
   document.getElementById('product-form')?.addEventListener('submit', (event) => {
     event.preventDefault();
@@ -921,7 +1522,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    registrarProductoEnSistema({
+    const guardado = registrarProductoEnSistema({
       id: productId || `PRO-${Date.now()}`,
       nombre: productName,
       categoria: productCategory,
@@ -940,6 +1541,8 @@ document.addEventListener('DOMContentLoaded', () => {
       etiqueta: productEtiqueta === 'Sin etiqueta' ? '' : productEtiqueta,
       imagen: ''
     });
+
+    if (!guardado) return;
 
     showToast(`Producto registrado: ${productName}`);
     event.currentTarget.reset();
@@ -994,12 +1597,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const proveedores = leerJSON('pharsysProveedores');
     proveedores.push({
       nombre: supplierName,
-      rfc: document.getElementById('supplier-rfc').value.trim(),
-      contacto: document.getElementById('supplier-contact').value.trim(),
-      correo: document.getElementById('supplier-email').value.trim()
+      nit: document.getElementById('supplier-nit').value.trim(),
+      encargado: document.getElementById('supplier-manager').value.trim(),
+      telefono: document.getElementById('supplier-phone').value.trim(),
+      correo: document.getElementById('supplier-email').value.trim(),
+      estado: 'Activo'
     });
 
     localStorage.setItem('pharsysProveedores', JSON.stringify(proveedores));
+    renderProveedores();
     poblarSelectorProveedoresProducto();
     showToast(`Proveedor registrado: ${supplierName}`);
     event.currentTarget.reset();
@@ -1027,6 +1633,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const direccion = document.getElementById('employee-address')?.value.trim() || '';
     const ciudad = document.getElementById('employee-city')?.value.trim() || '';
     const correo = document.getElementById('employee-email')?.value.trim() || '';
+    const cargo = document.getElementById('employee-role')?.value.trim() || '';
+    const turno = document.getElementById('employee-shift')?.value || '';
     const password = document.getElementById('employee-password')?.value || '';
     const estadoEmpleado = document.getElementById('employee-status')?.value || 'Activo';
 
@@ -1040,6 +1648,8 @@ document.addEventListener('DOMContentLoaded', () => {
       direccion,
       ciudad,
       correo,
+      cargo,
+      turno,
       password,
       estadoEmpleado,
       activo: estadoEmpleado !== 'Inactivo'
@@ -1089,6 +1699,8 @@ document.addEventListener('DOMContentLoaded', () => {
       celular: datos.celular || '',
       direccion: datos.direccion || '',
       ciudad: datos.ciudad || '',
+      cargo: datos.cargo || '',
+      turno: datos.turno || '',
       email,
       password: datos.password || '',
       perfil: 'Empleado',
@@ -1104,9 +1716,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('clear-employee-form')?.addEventListener('click', limpiarFormularioEmpleado);
 
   document.getElementById('employee-register-btn')?.addEventListener('click', () => {
-    const { nombre, apellido, nombreCompleto, tipoDocumento, numeroDocumento, celular, direccion, ciudad, correo, password } = obtenerResumenEmpleado();
+    const { nombre, apellido, nombreCompleto, tipoDocumento, numeroDocumento, celular, direccion, ciudad, correo, cargo, turno, password } = obtenerResumenEmpleado();
 
-    if (!nombre || !apellido || !tipoDocumento || !numeroDocumento || !celular || !direccion || !ciudad || !correo || !password) {
+    if (!nombre || !apellido || !tipoDocumento || !numeroDocumento || !celular || !direccion || !ciudad || !correo || !cargo || !turno || !password) {
       showToast('Completa todos los campos para registrar el empleado.');
       return;
     }
@@ -1117,14 +1729,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const contenidoResumen = `
-      <div><strong>Nombres:</strong> ${nombre}</div>
-      <div><strong>Apellidos:</strong> ${apellido}</div>
-      <div><strong>Tipo de documento:</strong> ${tipoDocumento}</div>
-      <div><strong>Número de documento:</strong> ${numeroDocumento}</div>
-      <div><strong>Celular:</strong> ${celular}</div>
-      <div><strong>Dirección:</strong> ${direccion}</div>
-      <div><strong>Ciudad:</strong> ${ciudad}</div>
-      <div><strong>Correo:</strong> ${correo}</div>
+      <div><strong>Nombres:</strong> ${escaparHTML(nombre)}</div>
+      <div><strong>Apellidos:</strong> ${escaparHTML(apellido)}</div>
+      <div><strong>Tipo de documento:</strong> ${escaparHTML(tipoDocumento)}</div>
+      <div><strong>Número de documento:</strong> ${escaparHTML(numeroDocumento)}</div>
+      <div><strong>Celular:</strong> ${escaparHTML(celular)}</div>
+      <div><strong>Dirección:</strong> ${escaparHTML(direccion)}</div>
+      <div><strong>Ciudad:</strong> ${escaparHTML(ciudad)}</div>
+      <div><strong>Correo:</strong> ${escaparHTML(correo)}</div>
+      <div><strong>Cargo:</strong> ${escaparHTML(cargo)}</div>
+      <div><strong>Turno:</strong> ${escaparHTML(turno)}</div>
       <div><strong>Estado:</strong> ${document.getElementById('employee-status')?.value || 'Activo'}</div>
       <div><strong>Perfil:</strong> Empleado</div>
     `;
@@ -1149,6 +1763,8 @@ document.addEventListener('DOMContentLoaded', () => {
         direccion,
         ciudad,
         correo,
+        cargo,
+        turno,
         password
       });
 
@@ -1168,7 +1784,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('confirm-employee-register')?.addEventListener('click', () => {
-    const { nombre, apellido, nombreCompleto, tipoDocumento, numeroDocumento, celular, direccion, ciudad, correo, password } = obtenerResumenEmpleado();
+    const { nombre, apellido, nombreCompleto, tipoDocumento, numeroDocumento, celular, direccion, ciudad, correo, cargo, turno, password } = obtenerResumenEmpleado();
     const registrado = registrarEmpleadoEnSistema({
       nombre,
       apellido,
@@ -1179,6 +1795,8 @@ document.addEventListener('DOMContentLoaded', () => {
       direccion,
       ciudad,
       correo,
+      cargo,
+      turno,
       password
     });
 
@@ -1196,19 +1814,111 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('purchase-form')?.addEventListener('submit', (event) => {
     event.preventDefault();
     const proveedor = document.getElementById('purchase-provider').value;
-    const monto = Number(document.getElementById('purchase-total').value || 0);
+    if (!proveedor) {
+      showToast('Registra o selecciona un proveedor activo antes de enviar la orden.');
+      return;
+    }
+
+    if (!productosOrdenCompra.length) {
+      showToast('Agrega al menos un producto del catálogo a la orden.');
+      return;
+    }
+
+    const proveedorActivo = leerJSON('pharsysProveedores').some((item) =>
+      String(item.nombre || '').trim().toLowerCase() === proveedor.trim().toLowerCase() && proveedorEstaActivo(item)
+    );
+    if (!proveedorActivo) {
+      showToast('El proveedor seleccionado ya no está activo. Selecciona otro proveedor.');
+      poblarSelectorProveedoresCompra();
+      return;
+    }
+
+    const montoEstimado = productosOrdenCompra.reduce(
+      (total, producto) => total + producto.precioUnitario * producto.cantidad,
+      0
+    );
     const ordenes = leerJSON('pharsysOrdenesCompra');
+    let id = Date.now();
+    while (ordenes.some((orden) => String(orden.id) === String(id))) id += 1;
     ordenes.push({
-      id: Date.now(),
+      id,
       proveedor,
-      monto,
+      productos: productosOrdenCompra.map((producto) => ({
+        ...producto,
+        subtotal: 0
+      })),
+      monto: 0,
+      montoEstimado,
       fecha: new Date().toISOString(),
       estado: 'Enviado'
     });
     localStorage.setItem('pharsysOrdenesCompra', JSON.stringify(ordenes));
     renderOrdenesCompra();
-    showToast('Orden de compra enviada al proveedor.');
     event.currentTarget.reset();
+    productosOrdenCompra.splice(0, productosOrdenCompra.length);
+    guardarProductosCompraPendientes();
+    renderProductosSeleccionadosCompra();
+    showToast('Orden de compra enviada al proveedor.');
+  });
+
+  document.getElementById('supplier-orders-body')?.addEventListener('change', (event) => {
+    const select = event.target.closest('[data-purchase-order-state]');
+    if (!select) return;
+
+    const ordenes = leerJSON('pharsysOrdenesCompra');
+    const orden = ordenes.find((item) => String(item.id) === select.dataset.purchaseOrderState);
+    if (!orden) return;
+
+    const nuevoEstado = select.value;
+    if (nuevoEstado === 'Recibida' && orden.estado !== 'Confirmada') {
+      showToast('Primero confirma la orden para poder marcarla como recibida.');
+      renderOrdenesProveedor();
+      return;
+    }
+
+    if (nuevoEstado === 'Confirmada') {
+      if (!Array.isArray(orden.productos) || !orden.productos.length) {
+        showToast('Esta orden no tiene productos registrados y no se puede confirmar.');
+        renderOrdenesProveedor();
+        return;
+      }
+
+      let costoTotal = 0;
+      for (const producto of orden.productos) {
+        const precio = Number(producto.precioUnitario);
+        const cantidad = Number(producto.cantidad);
+        if (!Number.isFinite(precio) || precio < 0 || !Number.isInteger(cantidad) || cantidad < 1) {
+          showToast('La orden contiene un precio o cantidad inválidos y no se puede confirmar.');
+          renderOrdenesProveedor();
+          return;
+        }
+        producto.subtotal = precio * cantidad;
+        costoTotal += producto.subtotal;
+      }
+
+      orden.monto = costoTotal;
+      orden.fechaConfirmacion = new Date().toISOString();
+    } else if (nuevoEstado === 'Enviado') {
+      orden.monto = 0;
+      if (Array.isArray(orden.productos)) {
+        orden.productos.forEach((producto) => {
+          producto.subtotal = 0;
+        });
+      }
+      delete orden.fechaConfirmacion;
+      delete orden.fechaRecepcion;
+    } else if (nuevoEstado === 'Recibida') {
+      orden.fechaRecepcion = new Date().toISOString();
+    }
+
+    orden.estado = nuevoEstado;
+    localStorage.setItem('pharsysOrdenesCompra', JSON.stringify(ordenes));
+    renderOrdenesProveedor();
+    renderOrdenesCompra();
+    renderCashData();
+    showToast(nuevoEstado === 'Confirmada'
+      ? `Orden confirmada. Costo total: ${formatearMoneda(orden.monto)}.`
+      : `Estado de la orden actualizado a ${nuevoEstado}.`);
   });
 
   document.querySelectorAll('.pill-group button').forEach((button) => {
@@ -1279,11 +1989,20 @@ document.addEventListener('DOMContentLoaded', () => {
       actualizarCatalogoYInventario();
       poblarSelectorProductosPrecio();
       poblarSelectorProveedoresProducto();
+      poblarSelectorProveedoresCompra();
+      renderProductosSeleccionablesCompra();
+      renderProveedores();
       actualizarVistaPreviaProducto();
     }
   });
 
+  window.addEventListener('pharsys:pedidos-updated', actualizarCatalogoYInventario);
+
+  renderProveedores();
   poblarSelectorProveedoresProducto();
+  poblarSelectorProveedoresCompra();
+  renderProductosSeleccionablesCompra();
+  renderProductosSeleccionadosCompra();
   poblarSelectorProductosPrecio();
   actualizarVistaPreviaProducto();
   actualizarCatalogoYInventario();

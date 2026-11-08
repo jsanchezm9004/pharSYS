@@ -14,7 +14,7 @@ function requiereSesionActiva() {
 
   try {
     const sesion = JSON.parse(localStorage.getItem("pharsysSesion") || "null");
-    if (!sesion) {
+    if (!sesion || (typeof haySesionActiva === "function" && !haySesionActiva())) {
       window.location.replace(loginRedirect);
       return false;
     }
