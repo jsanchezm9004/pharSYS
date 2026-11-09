@@ -2,6 +2,26 @@
 const productos = [];        // aquí se guardan los objetos Producto
 const inventario = [];       // aquí se guardan los objetos Inventario
 const favoritos = new Set(); // ids marcados con el corazón (solo visual)
+const CATEGORIAS_PRODUCTO_PREDEFINIDAS = ["Medicamentos", "Vitaminas", "Dermocosmética", "Higiene", "Suplementos", "Cuidado personal", "Primeros auxilios"];
+
+function obtenerCategoriasProductos() {
+  const categoriasGuardadas = JSON.parse(localStorage.getItem("pharsysCategorias") || "[]");
+  const productosPersistidos = JSON.parse(localStorage.getItem("pharsysProductos") || "[]");
+  const categoriasDesdeProductos = (Array.isArray(productosPersistidos) ? productosPersistidos : [])
+    .map((producto) => String(producto.categoria || '').trim())
+    .filter(Boolean);
+
+  const categorias = Array.from(new Set([...CATEGORIAS_PRODUCTO_PREDEFINIDAS, ...((Array.isArray(categoriasGuardadas) ? categoriasGuardadas : [])), ...categoriasDesdeProductos])).filter(Boolean);
+  localStorage.setItem("pharsysCategorias", JSON.stringify(categorias));
+  return categorias;
+}
+
+function guardarCategoriasProductos(categorias) {
+  const lista = Array.isArray(categorias) ? categorias.filter(Boolean) : [];
+  const categoriasFinales = Array.from(new Set([...CATEGORIAS_PRODUCTO_PREDEFINIDAS, ...lista])).filter(Boolean);
+  localStorage.setItem("pharsysCategorias", JSON.stringify(categoriasFinales));
+  return categoriasFinales;
+}
 
 // Convierte un número a pesos colombianos
 function formatoPrecio(n) {
@@ -196,8 +216,11 @@ if (!localStorage.getItem("pharsysProductos") || !JSON.parse(localStorage.getIte
 }
 
 window.addEventListener("storage", (event) => {
-  if (event.key === "pharsysProductos" || event.key === "pharsysInventario") {
+  if (event.key === "pharsysProductos" || event.key === "pharsysInventario" || event.key === "pharsysCategorias") {
     sincronizarProductosDesdeStorage();
+    if (typeof renderCategoriasDeCatalogo === "function") {
+      renderCategoriasDeCatalogo();
+    }
     if (typeof pintarProductos === "function") {
       pintarProductos();
     }
@@ -210,6 +233,9 @@ window.addEventListener("storage", (event) => {
 
 window.addEventListener("pharsys:catalogo-updated", () => {
   sincronizarProductosDesdeStorage();
+  if (typeof renderCategoriasDeCatalogo === "function") {
+    renderCategoriasDeCatalogo();
+  }
   if (typeof pintarProductos === "function") {
     pintarProductos();
   }

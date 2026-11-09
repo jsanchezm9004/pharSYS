@@ -38,7 +38,7 @@
         </div>
 
         <div class="sidebar__meta">
-          <strong>Empleados</strong>
+          <strong>Indicador del día</strong>
           <p id="sidebar-status">Administración del personal operativo.</p>
         </div>
       </aside>
@@ -196,6 +196,101 @@
           <button class="secondary-btn" type="button" id="close-employee-summary">Cancelar</button>
           <button class="primary-btn" type="button" id="confirm-employee-register">Confirmar registro</button>
         </div>
+      </div>
+    </div>
+
+    <div id="employee-edit-modal" class="modal-backdrop" hidden>
+      <div class="panel modal-panel" role="dialog" aria-modal="true" aria-labelledby="employee-edit-title" style="width: min(760px, 92vw);">
+        <button id="close-employee-edit" class="modal-close" type="button" aria-label="Cerrar edición de empleado">×</button>
+        <div class="panel__header modal-header">
+          <div>
+            <h3 id="employee-edit-title" class="panel__title">Editar empleado</h3>
+            <span class="panel__subtitle">Actualiza los datos del trabajador</span>
+          </div>
+        </div>
+
+        <form id="employee-edit-form">
+          <div class="form-grid">
+            <div class="field">
+              <label for="edit-employee-name">Nombres</label>
+              <input id="edit-employee-name" name="edit-employee-name" type="text" required />
+            </div>
+
+            <div class="field">
+              <label for="edit-employee-last-name">Apellidos</label>
+              <input id="edit-employee-last-name" name="edit-employee-last-name" type="text" required />
+            </div>
+
+            <div class="field">
+              <label for="edit-employee-document-type">Tipo de documento</label>
+              <select id="edit-employee-document-type" name="edit-employee-document-type" required>
+                <option value="">Seleccione</option>
+                <option>Cédula de ciudadanía</option>
+                <option>Cédula de extranjería</option>
+                <option>Tarjeta de identidad</option>
+                <option>Pasaporte</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="edit-employee-document-number">Número de documento</label>
+              <input id="edit-employee-document-number" name="edit-employee-document-number" type="text" required />
+            </div>
+
+            <div class="field">
+              <label for="edit-employee-phone">Celular</label>
+              <input id="edit-employee-phone" name="edit-employee-phone" type="tel" required />
+            </div>
+
+            <div class="field">
+              <label for="edit-employee-address">Dirección</label>
+              <input id="edit-employee-address" name="edit-employee-address" type="text" required />
+            </div>
+
+            <div class="field">
+              <label for="edit-employee-city">Ciudad</label>
+              <input id="edit-employee-city" name="edit-employee-city" type="text" required />
+            </div>
+
+            <div class="field">
+              <label for="edit-employee-email">Correo</label>
+              <input id="edit-employee-email" name="edit-employee-email" type="email" required />
+            </div>
+
+            <div class="field">
+              <label for="edit-employee-role">Cargo</label>
+              <input id="edit-employee-role" name="edit-employee-role" type="text" maxlength="80" required />
+            </div>
+
+            <div class="field">
+              <label for="edit-employee-shift">Franja de turno (8 horas)</label>
+              <select id="edit-employee-shift" name="edit-employee-shift" required>
+                <option value="">Seleccione un turno</option>
+                <option value="Mañana | 06:00-14:00">Mañana (06:00 - 14:00)</option>
+                <option value="Tarde | 14:00-22:00">Tarde (14:00 - 22:00)</option>
+                <option value="Noche | 22:00-06:00">Noche (22:00 - 06:00)</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="edit-employee-status">Estado</label>
+              <select id="edit-employee-status" name="edit-employee-status">
+                <option value="Activo">Activo</option>
+                <option value="Inactivo">Inactivo</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="edit-employee-password">Nueva contraseña</label>
+              <input id="edit-employee-password" name="edit-employee-password" type="password" placeholder="Opcional para cambiarla" />
+            </div>
+          </div>
+
+          <div style="margin-top: 18px; display: flex; justify-content: flex-end; gap: 12px;">
+            <button class="secondary-btn" type="button" id="cancel-employee-edit">Cancelar</button>
+            <button class="primary-btn" type="submit">Guardar cambios</button>
+          </div>
+        </form>
       </div>
     </div>
 

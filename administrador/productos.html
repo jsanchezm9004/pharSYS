@@ -38,7 +38,7 @@
         </div>
 
         <div class="sidebar__meta">
-          <strong>Productos</strong>
+          <strong>Indicador del día</strong>
           <p id="sidebar-status">Gestiona el catálogo del negocio.</p>
         </div>
       </aside>
@@ -62,209 +62,170 @@
           </div>
         </section>
 
-        <section class="content-grid">
-          <article class="panel form-panel" id="productos">
+        <section class="content-grid product-layout">
+          <article class="panel product-list-panel">
             <div class="panel__header">
               <div>
-                <h3 class="panel__title">Crear producto nuevo</h3>
-                <span class="panel__subtitle">Registrar artículo con toda la información del catálogo</span>
+                <h3 class="panel__title">Listado de productos</h3>
+                <span class="panel__subtitle">Consulta nombre, precio y acciones del catálogo.</span>
               </div>
             </div>
 
-            <form id="product-form">
-              <div class="form-grid">
-                <div class="field">
-                  <label for="product-id">ID</label>
-                  <input id="product-id" name="product-id" type="text" placeholder="Ej. P-1045" />
-                </div>
-
-                <div class="field">
-                  <label for="product-name">Nombre</label>
-                  <input id="product-name" name="product-name" type="text" placeholder="Ej. Antigripal Plus" />
-                </div>
-
-                <div class="field">
-                  <label for="product-category">Categoría</label>
-                  <select id="product-category" name="product-category">
-                    <option>Medicamentos</option>
-                    <option>Vitaminas</option>
-                    <option>Dermocosmética</option>
-                    <option>Higiene</option>
-                    <option>Suplementos</option>
-                  </select>
-                </div>
-
-                <div class="field">
-                  <label for="product-principio-activo">Principio activo</label>
-                  <input id="product-principio-activo" name="product-principio-activo" type="text" placeholder="Ej. Paracetamol" />
-                </div>
-
-                <div class="field">
-                  <label for="product-concentracion">Concentración</label>
-                  <input id="product-concentracion" name="product-concentracion" type="text" placeholder="Ej. 500 mg" />
-                </div>
-
-                <div class="field">
-                  <label for="product-forma-farmaceutica">Forma farmacéutica</label>
-                  <input id="product-forma-farmaceutica" name="product-forma-farmaceutica" type="text" placeholder="Ej. Tableta" />
-                </div>
-
-                <div class="field">
-                  <label for="product-presentacion">Presentación</label>
-                  <input id="product-presentacion" name="product-presentacion" type="text" placeholder="Ej. Caja x 20 tabletas" />
-                </div>
-
-                <div class="field">
-                  <label for="product-laboratorio">Laboratorio</label>
-                  <input id="product-laboratorio" name="product-laboratorio" type="text" placeholder="Ej. Genfar" />
-                </div>
-
-                <div class="field">
-                  <label for="product-supplier">Proveedor</label>
-                  <select id="product-supplier" name="product-supplier">
-                    <option value="">Selecciona un proveedor</option>
-                  </select>
-                </div>
-
-                <div class="field">
-                  <label for="product-lote">Lote</label>
-                  <input id="product-lote" name="product-lote" type="text" placeholder="Ej. L-3024" />
-                </div>
-
-                <div class="field">
-                  <label for="product-fecha-vencimiento">Fecha de vencimiento</label>
-                  <input id="product-fecha-vencimiento" name="product-fecha-vencimiento" type="date" />
-                </div>
-
-                <div class="field">
-                  <label for="product-registro-invima">Registro INVIMA</label>
-                  <input id="product-registro-invima" name="product-registro-invima" type="text" placeholder="Ej. INVIMA-12345" />
-                </div>
-
-                <div class="field">
-                  <label for="product-price">Precio de venta</label>
-                  <input id="product-price" name="product-price" type="number" min="0" step="0.01" value="420" />
-                </div>
-
-                <div class="field">
-                  <label for="product-etiqueta">Etiqueta</label>
-                  <select id="product-etiqueta" name="product-etiqueta">
-                    <option>Nuevo</option>
-                    <option>Más vendido</option>
-                    <option>Oferta</option>
-                    <option>Recomendado</option>
-                    <option>Sin etiqueta</option>
-                  </select>
-                </div>
-
-                <div class="field">
-                  <label for="product-stock">Stock inicial</label>
-                  <input id="product-stock" name="product-stock" type="number" value="120" min="0" />
-                </div>
-
-                <div class="field field--full">
-                  <label for="product-notes">Descripción</label>
-                  <textarea id="product-notes" name="product-notes" rows="3" placeholder="Describa las indicaciones, uso y observaciones del producto..."></textarea>
-                </div>
-              </div>
-
-              <div class="pill-group" aria-label="Acciones de producto">
-                <button type="button" class="is-selected">Activo</button>
-                <button type="button">Inactivo</button>
-                <button type="button">Oferta</button>
-              </div>
-
-              <div class="product-preview" id="product-preview" aria-live="polite" style="margin-top: 22px; border: 1px solid rgba(96, 109, 169, 0.2); border-radius: 18px; background: linear-gradient(135deg, rgba(113, 87, 255, 0.08), rgba(24, 183, 143, 0.06)); padding: 18px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px;">
-                  <strong style="font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; color: #4563c6;">Vista previa</strong>
-                  <span id="preview-category" style="font-size: 0.72rem; padding: 6px 10px; border-radius: 999px; background: rgba(52, 86, 203, 0.1); color: #1c2a5e;">Medicamentos</span>
-                </div>
-
-                <h4 id="preview-name" style="margin: 0 0 10px; font-size: 1.25rem; color: #101a2e;">Nombre del producto</h4>
-                <div style="display: flex; flex-wrap: wrap; gap: 8px 12px; color: #4f5b79; font-size: 0.82rem; margin-bottom: 10px;">
-                  <span id="preview-supplier">Proveedor</span>
-                  <span>•</span>
-                  <span id="preview-stock">Stock: 120</span>
-                </div>
-                <p id="preview-description" style="margin: 0 0 12px; color: #36405f; line-height: 1.5;">La descripción del producto aparecerá aquí.</p>
-                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(96, 109, 169, 0.18); padding-top: 12px;">
-                  <span style="color: #5d6d90; font-size: 0.8rem;">Precio</span>
-                  <strong id="preview-price" style="font-size: 1.1rem; color: #101a2e;">$420</strong>
-                </div>
-              </div>
-
-              <div style="margin-top: 18px; display: flex; justify-content: flex-end;">
-                <button class="primary-btn" type="submit">Guardar producto</button>
-              </div>
-            </form>
-          </article>
-
-          <article class="panel form-panel" id="actualizar-precio">
-            <div class="panel__header">
-              <div>
-                <h3 class="panel__title">Actualizar precio</h3>
-                <span class="panel__subtitle">Ajustar el valor del producto en el catálogo</span>
-              </div>
-            </div>
-
-            <form id="update-price-form">
-              <div class="form-grid">
-                <div class="field">
-                  <label for="price-product-select">Producto</label>
-                  <select id="price-product-select" name="price-product-select">
-                    <option value="">Selecciona un producto</option>
-                  </select>
-                </div>
-
-                <div class="field">
-                  <label for="current-product-price">Precio actual</label>
-                  <input id="current-product-price" name="current-product-price" type="text" readonly value="$0" />
-                </div>
-
-                <div class="field">
-                  <label for="new-product-price">Nuevo precio</label>
-                  <input id="new-product-price" name="new-product-price" type="number" min="0" step="0.01" placeholder="Ej. 55000" />
-                </div>
-              </div>
-
-              <div style="margin-top: 18px; display: flex; justify-content: flex-end;">
-                <button class="primary-btn" type="submit">Actualizar precio</button>
-              </div>
-            </form>
-          </article>
-        </section>
-
-        <section class="content-grid" id="purchase-product-selection">
-          <article class="panel">
-            <div class="panel__header">
-              <div>
-                <h3 class="panel__title">Seleccionar productos para compra</h3>
-                <span class="panel__subtitle">Marca productos del catálogo e indica la cantidad que deseas solicitar.</span>
-              </div>
-              <a class="secondary-btn" href="compras.html#purchase-form-panel">Volver a la orden</a>
-            </div>
             <div class="table-wrap">
               <table class="purchases-table">
                 <thead>
                   <tr>
-                    <th>Seleccionar</th>
-                    <th>Producto</th>
-                    <th>Categoría</th>
-                    <th>Proveedor asignado</th>
-                    <th>Precio unitario</th>
-                    <th>Cantidad</th>
+                    <th>Nombre</th>
+                    <th>Precio</th>
+                    <th>Acciones</th>
                   </tr>
                 </thead>
-                <tbody id="purchase-product-selection-body">
-                  <tr><td colspan="6">No hay productos en el catálogo.</td></tr>
+                <tbody id="product-price-list-body">
+                  <tr><td colspan="3">No hay productos registrados.</td></tr>
                 </tbody>
               </table>
             </div>
-            <div style="margin-top: 18px; display: flex; justify-content: flex-end;">
-              <button id="add-selected-products-to-purchase" class="primary-btn" type="button">Agregar seleccionados a la orden</button>
-            </div>
           </article>
+
+          <aside class="panel product-action-panel">
+            <div class="product-action-card">
+              <h3>Crear producto</h3>
+              <p>Registra un nuevo artículo para que aparezca en el catálogo del cliente.</p>
+              <button id="open-create-product-modal" class="primary-btn" type="button">Crear producto</button>
+            </div>
+          </aside>
         </section>
+
+        <div id="create-product-modal" class="modal-backdrop" hidden>
+          <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="create-product-title">
+            <button type="button" class="modal-close" data-close-modal="create-product-modal" aria-label="Cerrar">×</button>
+            <div class="modal-header">
+              <h3 id="create-product-title" class="panel__title">Crear producto nuevo</h3>
+              <span class="panel__subtitle">Registrar artículo con toda la información del catálogo</span>
+            </div>
+            <div class="modal-body">
+              <form id="product-form">
+                <div class="form-grid">
+                  <input id="product-id" name="product-id" type="hidden" />
+
+                  <div class="field">
+                    <label for="product-name">Nombre</label>
+                    <input id="product-name" name="product-name" type="text" placeholder="Ej. Antigripal Plus" />
+                  </div>
+
+                  <div class="field">
+                    <label for="product-category">Categoría</label>
+                    <select id="product-category" name="product-category"></select>
+                    <input id="product-category-custom" name="product-category-custom" type="text" placeholder="Nueva categoría" hidden style="margin-top: 8px;" />
+                  </div>
+
+                  <div class="field">
+                    <label for="product-principio-activo">Principio activo</label>
+                    <input id="product-principio-activo" name="product-principio-activo" type="text" placeholder="Ej. Paracetamol" />
+                  </div>
+
+                  <div class="field">
+                    <label for="product-concentracion">Concentración</label>
+                    <input id="product-concentracion" name="product-concentracion" type="text" placeholder="Ej. 500 mg" />
+                  </div>
+
+                  <div class="field">
+                    <label for="product-forma-farmaceutica">Forma farmacéutica</label>
+                    <input id="product-forma-farmaceutica" name="product-forma-farmaceutica" type="text" placeholder="Ej. Tableta" />
+                  </div>
+
+                  <div class="field">
+                    <label for="product-presentacion">Presentación</label>
+                    <input id="product-presentacion" name="product-presentacion" type="text" placeholder="Ej. Caja x 20 tabletas" />
+                  </div>
+
+                  <div class="field">
+                    <label for="product-laboratorio">Laboratorio</label>
+                    <input id="product-laboratorio" name="product-laboratorio" type="text" placeholder="Ej. Genfar" />
+                  </div>
+
+                  <div class="field">
+                    <label for="product-supplier">Proveedor</label>
+                    <select id="product-supplier" name="product-supplier">
+                      <option value="">Selecciona un proveedor</option>
+                    </select>
+                  </div>
+
+                  <div class="field">
+                    <label for="product-lote">Lote</label>
+                    <input id="product-lote" name="product-lote" type="text" placeholder="Ej. L-3024" />
+                  </div>
+
+                  <div class="field">
+                    <label for="product-fecha-vencimiento">Fecha de vencimiento</label>
+                    <input id="product-fecha-vencimiento" name="product-fecha-vencimiento" type="date" />
+                  </div>
+
+                  <div class="field">
+                    <label for="product-registro-invima">Registro INVIMA</label>
+                    <input id="product-registro-invima" name="product-registro-invima" type="text" placeholder="Ej. INVIMA-12345" />
+                  </div>
+
+                  <div class="field">
+                    <label for="product-price">Precio de venta</label>
+                    <input id="product-price" name="product-price" type="number" min="0" step="0.01" value="420" />
+                  </div>
+
+                  <div class="field">
+                    <label for="product-etiqueta">Etiqueta</label>
+                    <select id="product-etiqueta" name="product-etiqueta">
+                      <option>Nuevo</option>
+                      <option>Más vendido</option>
+                      <option>Oferta</option>
+                      <option>Recomendado</option>
+                      <option>Sin etiqueta</option>
+                    </select>
+                  </div>
+
+                  <div class="field">
+                    <label for="product-stock">Stock inicial</label>
+                    <input id="product-stock" name="product-stock" type="number" value="120" min="0" />
+                  </div>
+
+                  <div class="field field--full">
+                    <label for="product-notes">Descripción</label>
+                    <textarea id="product-notes" name="product-notes" rows="3" placeholder="Describa las indicaciones, uso y observaciones del producto..."></textarea>
+                  </div>
+                </div>
+
+                <div class="pill-group" aria-label="Acciones de producto">
+                  <button type="button" class="is-selected">Activo</button>
+                  <button type="button">Inactivo</button>
+                  <button type="button">Oferta</button>
+                </div>
+
+                <div class="product-preview" id="product-preview" aria-live="polite" style="margin-top: 22px; border: 1px solid rgba(96, 109, 169, 0.2); border-radius: 18px; background: linear-gradient(135deg, rgba(113, 87, 255, 0.08), rgba(24, 183, 143, 0.06)); padding: 18px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px;">
+                    <strong style="font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; color: #4563c6;">Vista previa</strong>
+                    <span id="preview-category" style="font-size: 0.72rem; padding: 6px 10px; border-radius: 999px; background: rgba(52, 86, 203, 0.1); color: #1c2a5e;">Medicamentos</span>
+                  </div>
+
+                  <h4 id="preview-name" style="margin: 0 0 10px; font-size: 1.25rem; color: #101a2e;">Nombre del producto</h4>
+                  <div style="display: flex; flex-wrap: wrap; gap: 8px 12px; color: #4f5b79; font-size: 0.82rem; margin-bottom: 10px;">
+                    <span id="preview-supplier">Proveedor</span>
+                    <span>•</span>
+                    <span id="preview-stock">Stock: 120</span>
+                  </div>
+                  <p id="preview-description" style="margin: 0 0 12px; color: #36405f; line-height: 1.5;">La descripción del producto aparecerá aquí.</p>
+                  <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(96, 109, 169, 0.18); padding-top: 12px;">
+                    <span style="color: #5d6d90; font-size: 0.8rem;">Precio</span>
+                    <strong id="preview-price" style="font-size: 1.1rem; color: #101a2e;">$420</strong>
+                  </div>
+                </div>
+
+                <div style="margin-top: 18px; display: flex; justify-content: flex-end;">
+                  <button class="primary-btn" type="submit">Guardar producto</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
       </main>
     </div>
 

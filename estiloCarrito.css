@@ -770,6 +770,20 @@ img {
     margin: 18px auto;
   }
 
+  .topbar {
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .topbar-actions {
+    order: 2;
+  }
+
+  .pharsys-menu-root[data-layout="inline"] {
+    order: 3;
+    margin-left: auto;
+  }
+
   .topbar,
   .cart-page {
     padding-left: 18px;

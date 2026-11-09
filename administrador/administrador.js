@@ -51,6 +51,61 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
+  const CATEGORIAS_PRODUCTO_PREDEFINIDAS = ['Medicamentos', 'Vitaminas', 'Dermocosmética', 'Higiene', 'Suplementos', 'Cuidado personal', 'Primeros auxilios'];
+
+  function leerCategoriasProductos() {
+    const guardadas = leerJSON('pharsysCategorias', []);
+    const productos = leerJSON('pharsysProductos', []);
+    const generadas = productos
+      .map((producto) => String(producto && producto.categoria ? producto.categoria : '').trim())
+      .filter(Boolean);
+
+    const categorias = Array.from(new Set([...CATEGORIAS_PRODUCTO_PREDEFINIDAS, ...guardadas, ...generadas])).filter(Boolean);
+    if (!categorias.length) {
+      categorias.push(...CATEGORIAS_PRODUCTO_PREDEFINIDAS);
+    }
+
+    localStorage.setItem('pharsysCategorias', JSON.stringify(categorias));
+    return categorias;
+  }
+
+  function guardarCategoriasProductos(categorias) {
+    const lista = Array.isArray(categorias) ? categorias.filter(Boolean) : [];
+    const categoriasFinales = Array.from(new Set([...CATEGORIAS_PRODUCTO_PREDEFINIDAS, ...lista])).filter(Boolean);
+    localStorage.setItem('pharsysCategorias', JSON.stringify(categoriasFinales));
+    return categoriasFinales;
+  }
+
+  function poblarCategoriasProducto() {
+    const select = document.getElementById('product-category');
+    if (!select) return;
+
+    const categorias = leerCategoriasProductos();
+    const opciones = categorias.map((categoria) => `<option value="${categoria}">${categoria}</option>`).join('');
+    select.innerHTML = `${opciones}<option value="__nueva_categoria__">+ Agregar nueva categoría</option>`;
+
+    const categoriaActual = select.dataset.value || categorias[0] || 'Medicamentos';
+    select.value = categorias.includes(categoriaActual) ? categoriaActual : categorias[0];
+    const customInput = document.getElementById('product-category-custom');
+    if (customInput) {
+      const mostrar = select.value === '__nueva_categoria__';
+      customInput.hidden = !mostrar;
+      customInput.required = mostrar;
+      customInput.placeholder = 'Escribe la nueva categoría';
+      if (!mostrar) customInput.value = '';
+    }
+  }
+
+  function activarCampoCategoriaNueva() {
+    const select = document.getElementById('product-category');
+    const customInput = document.getElementById('product-category-custom');
+    if (!select || !customInput) return;
+    const mostrar = select.value === '__nueva_categoria__';
+    customInput.hidden = !mostrar;
+    customInput.required = mostrar;
+    if (!mostrar) customInput.value = '';
+  }
+
   function leerProductosCompraPendientes() {
     try {
       const productos = JSON.parse(localStorage.getItem(CLAVE_PRODUCTOS_COMPRA_TEMPORALES) || '[]');
@@ -222,9 +277,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const ta = document.getElementById('trend-agotados');
     if (ta) ta.textContent = trendAgotados;
 
-    const textoSidebar = ventas > 0 || pendientes.length || bajo.length || agotados.length || empleados.length
-      ? `Ventas: ${ventas > 0 ? formatearMoneda(ventas) : 'sin datos'} · Pendientes: ${pendientes.length || 0} · Bajas: ${bajo.length || 0} · Agotados: ${agotados.length || 0}`
-      : 'Sin historial para mostrar por el momento.';
+    const hayDatosRelevantes = ventas > 0 || pendientes.length || bajo.length || agotados.length || porVencer > 0 || empleados.length;
+
+    if (!hayDatosRelevantes) {
+      setStatusText('Sin historial para mostrar por el momento.');
+      return;
+    }
+
+    const textoSidebar = [
+      `Hoy: ${pendientes.length || 0} pedidos pendientes${empleados.length ? ` · Empleados: ${empleados.length}` : ''}`,
+      `Inventario: ${bajo.length || 0} bajo stock / ${agotados.length || 0} agotado${agotados.length === 1 ? '' : 's'} / ${porVencer || 0} por vencer`,
+      `Caja del día: ${ventas > 0 ? formatearMoneda(ventas) : '$0'}`
+    ].join('\n');
+
     setStatusText(textoSidebar);
   }
 
@@ -557,6 +622,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <th>Documento</th>
               <th>Correo</th>
               <th>Estado</th>
+              <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -578,6 +644,11 @@ document.addEventListener('DOMContentLoaded', () => {
                   <td>
                     <div class="employee-status-cell">
                       <span class="status-badge ${estadoClass}">${activo ? 'Activo' : 'Inactivo'}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="table-actions">
+                      <button class="table-btn table-btn--review" type="button" data-edit-employee data-email="${escaparHTML(email)}" data-document="${escaparHTML(documento)}">Editar</button>
                       <button class="table-btn ${activo ? 'table-btn--danger' : 'table-btn--approve'}" type="button" data-toggle-employee-status data-email="${escaparHTML(email)}" data-document="${escaparHTML(documento)}" data-active="${String(activo)}">
                         ${activo ? 'Desactivar' : 'Activar'}
                       </button>
@@ -585,7 +656,7 @@ document.addEventListener('DOMContentLoaded', () => {
                   </td>
                 </tr>
               `;
-            }).join('') : '<tr><td colspan="6" class="employee-summary-empty-row">No hay empleados que coincidan con los filtros.</td></tr>'}
+            }).join('') : '<tr><td colspan="7" class="employee-summary-empty-row">No hay empleados que coincidan con los filtros.</td></tr>'}
           </tbody>
         </table>
       </div>
@@ -618,7 +689,122 @@ document.addEventListener('DOMContentLoaded', () => {
     `).join('');
   }
 
+  function abrirModalEdicionEmpleado(empleado) {
+    const modal = document.getElementById('employee-edit-modal');
+    const form = document.getElementById('employee-edit-form');
+    if (!modal || !form) return;
+
+    const emailOriginal = String(empleado?.email || empleado?.correo || '').trim();
+    const documentoOriginal = String(empleado?.numeroDocumento || empleado?.numDoc || empleado?.documento || '').trim();
+    const nombre = String(empleado?.nombreEmpleado || empleado?.nombre || '').trim();
+    const apellido = String(empleado?.apellidoEmpleado || empleado?.apellido || '').trim();
+    const estado = obtenerEstadoEmpleado(empleado);
+
+    form.dataset.employeeKey = JSON.stringify({ email: emailOriginal, documento: documentoOriginal });
+    document.getElementById('edit-employee-name').value = nombre;
+    document.getElementById('edit-employee-last-name').value = apellido;
+    document.getElementById('edit-employee-document-type').value = empleado?.tipoDocumento || '';
+    document.getElementById('edit-employee-document-number').value = documentoOriginal;
+    document.getElementById('edit-employee-phone').value = empleado?.celular || empleado?.telefono || '';
+    document.getElementById('edit-employee-address').value = empleado?.direccion || '';
+    document.getElementById('edit-employee-city').value = empleado?.ciudad || '';
+    document.getElementById('edit-employee-email').value = emailOriginal;
+    document.getElementById('edit-employee-role').value = empleado?.cargo || '';
+    document.getElementById('edit-employee-shift').value = empleado?.turno || '';
+    document.getElementById('edit-employee-status').value = estado;
+    const passwordField = document.getElementById('edit-employee-password');
+    passwordField.dataset.currentPassword = String(empleado?.password || '');
+    passwordField.value = '';
+
+    modal.hidden = false;
+    modal.setAttribute('aria-hidden', 'false');
+    document.getElementById('edit-employee-name')?.focus();
+  }
+
+  function cerrarModalEdicionEmpleado() {
+    const modal = document.getElementById('employee-edit-modal');
+    if (!modal) return;
+    modal.hidden = true;
+    modal.setAttribute('aria-hidden', 'true');
+    const form = document.getElementById('employee-edit-form');
+    if (form) {
+      form.reset();
+      delete form.dataset.employeeKey;
+    }
+  }
+
+  function actualizarEmpleadoEnSistema(empleadoActualizado) {
+    const usuarios = JSON.parse(localStorage.getItem('pharsysUsuarios') || '[]');
+    const empleados = leerJSON('pharsysEmpleados') || [];
+    const editorKey = JSON.parse(document.getElementById('employee-edit-form')?.dataset.employeeKey || '{}');
+    const emailOriginal = String(editorKey.email || '').trim().toLowerCase();
+    const documentoOriginal = String(editorKey.documento || '').trim().toLowerCase();
+
+    empleados.forEach((empleado) => {
+      const coincideEmail = String(empleado.email || empleado.correo || '').trim().toLowerCase() === emailOriginal;
+      const coincideDocumento = String(empleado.numeroDocumento || empleado.numDoc || empleado.documento || '').trim().toLowerCase() === documentoOriginal;
+      if (!coincideEmail && !coincideDocumento) return;
+
+      empleado.nombre = `${empleadoActualizado.nombre} ${empleadoActualizado.apellido}`.trim();
+      empleado.nombreEmpleado = empleadoActualizado.nombre;
+      empleado.apellidoEmpleado = empleadoActualizado.apellido;
+      empleado.tipoDocumento = empleadoActualizado.tipoDocumento;
+      empleado.numeroDocumento = empleadoActualizado.numeroDocumento;
+      empleado.celular = empleadoActualizado.celular;
+      empleado.direccion = empleadoActualizado.direccion;
+      empleado.ciudad = empleadoActualizado.ciudad;
+      empleado.cargo = empleadoActualizado.cargo;
+      empleado.turno = empleadoActualizado.turno;
+      empleado.email = empleadoActualizado.email;
+      empleado.password = empleadoActualizado.password || empleado.password || '';
+      empleado.estado = empleadoActualizado.estado;
+      empleado.activo = empleadoActualizado.activo;
+      empleado.perfil = 'Empleado';
+    });
+
+    usuarios.forEach((usuario) => {
+      const coincideEmail = String(usuario.email || usuario.usuario || '').trim().toLowerCase() === emailOriginal;
+      const coincideDocumento = String(usuario.numDoc || usuario.documento || '').trim().toLowerCase() === documentoOriginal;
+      if (!coincideEmail && !coincideDocumento) return;
+
+      usuario.nombre = empleadoActualizado.nombre;
+      usuario.apellido = empleadoActualizado.apellido;
+      usuario.email = empleadoActualizado.email;
+      usuario.usuario = empleadoActualizado.email;
+      usuario.tipoDoc = empleadoActualizado.tipoDocumento;
+      usuario.numDoc = empleadoActualizado.numeroDocumento;
+      usuario.telefono = empleadoActualizado.celular;
+      usuario.direccion = empleadoActualizado.direccion;
+      usuario.ciudad = empleadoActualizado.ciudad;
+      usuario.clave = empleadoActualizado.password || usuario.clave || '';
+      usuario.perfil = 'Empleado';
+      usuario.activo = empleadoActualizado.activo;
+      usuario.estado = empleadoActualizado.estado;
+    });
+
+    localStorage.setItem('pharsysEmpleados', JSON.stringify(empleados));
+    localStorage.setItem('pharsysUsuarios', JSON.stringify(usuarios));
+    renderResumenEmpleados();
+  }
+
   document.getElementById('employee-summary-list')?.addEventListener('click', (event) => {
+    const editTrigger = event.target.closest('[data-edit-employee]');
+    if (editTrigger) {
+      const email = (editTrigger.dataset.email || '').trim();
+      const documento = (editTrigger.dataset.document || '').trim();
+      const empleados = leerJSON('pharsysEmpleados') || [];
+      const empleado = empleados.find((item) => {
+        const coincideEmail = String(item.email || item.correo || '').trim().toLowerCase() === email.toLowerCase();
+        const coincideDocumento = String(item.numeroDocumento || item.numDoc || item.documento || '').trim().toLowerCase() === documento.toLowerCase();
+        return coincideEmail || coincideDocumento;
+      });
+
+      if (empleado) {
+        abrirModalEdicionEmpleado(empleado);
+      }
+      return;
+    }
+
     const trigger = event.target.closest('[data-toggle-employee-status]');
     if (!trigger) return;
 
@@ -652,6 +838,75 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('pharsysEmpleados', JSON.stringify(empleados));
     renderResumenEmpleados();
     showToast(`Empleado ${nuevoEstado ? 'activado' : 'desactivado'} correctamente.`);
+  });
+
+  document.getElementById('employee-edit-form')?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const nombre = document.getElementById('edit-employee-name')?.value.trim() || '';
+    const apellido = document.getElementById('edit-employee-last-name')?.value.trim() || '';
+    const tipoDocumento = document.getElementById('edit-employee-document-type')?.value.trim() || '';
+    const numeroDocumento = document.getElementById('edit-employee-document-number')?.value.trim() || '';
+    const celular = document.getElementById('edit-employee-phone')?.value.trim() || '';
+    const direccion = document.getElementById('edit-employee-address')?.value.trim() || '';
+    const ciudad = document.getElementById('edit-employee-city')?.value.trim() || '';
+    const email = document.getElementById('edit-employee-email')?.value.trim() || '';
+    const cargo = document.getElementById('edit-employee-role')?.value.trim() || '';
+    const turno = document.getElementById('edit-employee-shift')?.value || '';
+    const estado = document.getElementById('edit-employee-status')?.value || 'Activo';
+    const password = document.getElementById('edit-employee-password')?.value || '';
+
+    if (!nombre || !apellido || !tipoDocumento || !numeroDocumento || !celular || !direccion || !ciudad || !email || !cargo || !turno) {
+      showToast('Completa todos los campos para guardar la edición del empleado.');
+      return;
+    }
+
+    const editorKey = JSON.parse(form.dataset.employeeKey || '{}');
+    const emailOriginal = String(editorKey.email || '').trim().toLowerCase();
+    const documentoOriginal = String(editorKey.documento || '').trim().toLowerCase();
+    const usuarios = JSON.parse(localStorage.getItem('pharsysUsuarios') || '[]');
+    const empleadoExiste = usuarios.some((usuario) => {
+      const usuarioEmail = String(usuario.email || usuario.usuario || '').trim().toLowerCase();
+      const usuarioDocumento = String(usuario.numDoc || usuario.documento || '').trim().toLowerCase();
+      const mismoCorreo = usuarioEmail === email.toLowerCase() && usuarioEmail !== emailOriginal;
+      const mismoDocumento = usuarioDocumento === numeroDocumento.toLowerCase() && usuarioDocumento !== documentoOriginal;
+      return mismoCorreo || mismoDocumento;
+    });
+
+    if (empleadoExiste) {
+      showToast('Ya existe otro empleado con ese correo o documento.');
+      return;
+    }
+
+    const activo = String(estado).toLowerCase() !== 'inactivo';
+    const empleadoActualizado = {
+      nombre,
+      apellido,
+      tipoDocumento,
+      numeroDocumento,
+      celular,
+      direccion,
+      ciudad,
+      email,
+      cargo,
+      turno,
+      estado,
+      activo,
+      password: password || document.getElementById('edit-employee-password')?.dataset.currentPassword || ''
+    };
+
+    actualizarEmpleadoEnSistema(empleadoActualizado);
+    cerrarModalEdicionEmpleado();
+    showToast('Empleado actualizado correctamente.');
+  });
+
+  document.getElementById('close-employee-edit')?.addEventListener('click', cerrarModalEdicionEmpleado);
+  document.getElementById('cancel-employee-edit')?.addEventListener('click', cerrarModalEdicionEmpleado);
+
+  document.getElementById('employee-edit-modal')?.addEventListener('click', (event) => {
+    if (event.target === event.currentTarget) {
+      cerrarModalEdicionEmpleado();
+    }
   });
 
   function renderOrdenesCompra() {
@@ -775,26 +1030,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const cashIn = document.getElementById('cash-in');
     const cashOut = document.getElementById('cash-out');
     const cashBalance = document.getElementById('cash-balance');
-    const cashTransactions = document.getElementById('cash-transactions');
 
     if (cashIn) cashIn.textContent = ventas > 0 ? formatearMoneda(ventas) : 'Sin datos';
     if (cashOut) cashOut.textContent = pagosProveedores > 0 ? formatearMoneda(pagosProveedores) : 'Sin datos';
     if (cashBalance) cashBalance.textContent = ventas > 0 || pagosProveedores > 0 ? formatearMoneda(Math.max(0, ventas - pagosProveedores)) : 'Sin datos';
-
-    if (cashTransactions) {
-      if (!pedidos.length && !proveedores.length) {
-        cashTransactions.innerHTML = '<li><div><strong>Sin información historica</strong><br /><small>Por el momento no hay movimientos registrados.</small></div></li>';
-      } else {
-        const transacciones = [];
-        pedidos.slice(-3).forEach((pedido) => {
-          transacciones.push(`<li><div><strong>Pedido #${pedido.numeroPedido || 'N/A'}</strong><br /><small>${pedido.cliente || pedido.usuario || 'Cliente'}</small></div><span class="currency currency--positive">+${formatearMoneda(pedido.valor || 0)}</span></li>`);
-        });
-        proveedores.slice(-2).forEach((orden) => {
-          transacciones.push(`<li><div><strong>Orden a proveedor</strong><br /><small>${orden.proveedor || 'Proveedor'}</small></div><span class="currency currency--negative">-${formatearMoneda(orden.monto || 0)}</span></li>`);
-        });
-        cashTransactions.innerHTML = transacciones.join('');
-      }
-    }
   }
 
   function actualizarCatalogoYInventario() {
@@ -1210,6 +1449,22 @@ document.addEventListener('DOMContentLoaded', () => {
     total.value = formatearMoneda(montoEstimado);
   }
 
+  function alternarSelectorProductosCompra(mostrar = null) {
+    const panel = document.getElementById('purchase-product-selection-panel');
+    const boton = document.getElementById('toggle-product-selection');
+    if (!panel || !boton) return;
+
+    const shouldShow = mostrar === null ? panel.hidden : mostrar;
+    panel.hidden = !shouldShow;
+    boton.textContent = shouldShow ? 'Ocultar productos' : 'Seleccionar productos';
+  }
+
+  document.getElementById('toggle-product-selection')?.addEventListener('click', () => {
+    const panel = document.getElementById('purchase-product-selection-panel');
+    if (!panel) return;
+    alternarSelectorProductosCompra(panel.hidden);
+  });
+
   document.getElementById('add-selected-products-to-purchase')?.addEventListener('click', () => {
     const seleccionados = Array.from(document.querySelectorAll('[data-order-product-check]:checked'));
     if (!seleccionados.length) {
@@ -1256,6 +1511,7 @@ document.addEventListener('DOMContentLoaded', () => {
       checkbox.checked = false;
     });
     renderProductosSeleccionadosCompra();
+    alternarSelectorProductosCompra(false);
     showToast('Productos agregados a la orden. Vuelve a Órdenes de compra para enviarla.');
   });
 
@@ -1434,6 +1690,25 @@ document.addEventListener('DOMContentLoaded', () => {
     showToast(`${cantidad} ${cantidad === 1 ? 'proveedor eliminado' : 'proveedores eliminados'}.`);
   });
 
+  function obtenerSiguienteIdProducto() {
+    const productos = leerJSON('pharsysProductos') || [];
+    const idsNumericos = productos
+      .map((producto) => Number(producto?.id))
+      .filter((valor) => Number.isFinite(valor) && valor > 0);
+
+    const maxId = idsNumericos.length ? Math.max(...idsNumericos) : 0;
+    return String(maxId + 1);
+  }
+
+  function inicializarCampoIdProducto() {
+    const inputId = document.getElementById('product-id');
+    if (!inputId) return;
+
+    if (!inputId.value.trim()) {
+      inputId.value = obtenerSiguienteIdProducto();
+    }
+  }
+
   function actualizarVistaPreviaProducto() {
     const previewName = document.getElementById('preview-name');
     const previewCategory = document.getElementById('preview-category');
@@ -1480,6 +1755,124 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentPriceInput) currentPriceInput.value = '$0';
   }
 
+  function renderListadoProductosPrecio() {
+    const body = document.getElementById('product-price-list-body');
+    if (!body) return;
+
+    const productos = leerJSON('pharsysProductos');
+    if (!productos.length) {
+      body.innerHTML = '<tr><td colspan="3">No hay productos registrados.</td></tr>';
+      return;
+    }
+
+    body.innerHTML = productos.map((producto) => `
+      <tr data-product-row-id="${escaparHTML(String(producto.id))}">
+        <td>${escaparHTML(producto.nombre || 'Producto sin nombre')}</td>
+        <td>
+          <div class="product-price-inline">
+            <span class="product-price-inline__text">${formatearMoneda(Number(producto.precio || 0))}</span>
+            <input class="product-price-inline__input" type="number" min="0" step="0.01" value="${Number(producto.precio || 0)}" hidden />
+          </div>
+        </td>
+        <td>
+          <div class="table-actions">
+            <button class="table-btn table-btn--secondary" type="button" data-inline-edit-product="${escaparHTML(String(producto.id))}">MODIFICAR</button>
+            <button class="table-btn table-btn--approve" type="button" data-inline-save-product="${escaparHTML(String(producto.id))}" hidden>Guardar</button>
+            <button class="table-btn table-btn--danger" type="button" data-inline-cancel-product="${escaparHTML(String(producto.id))}" hidden>Cancelar</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  const abrirModal = (id) => {
+    const modal = document.getElementById(id);
+    if (modal) modal.hidden = false;
+  };
+
+  const cerrarModal = (id) => {
+    const modal = document.getElementById(id);
+    if (modal) modal.hidden = true;
+  };
+
+  document.getElementById('open-create-product-modal')?.addEventListener('click', () => {
+    abrirModal('create-product-modal');
+  });
+
+  document.querySelectorAll('[data-close-modal]').forEach((button) => {
+    button.addEventListener('click', () => cerrarModal(button.dataset.closeModal));
+  });
+
+  document.getElementById('create-product-modal')?.addEventListener('click', (event) => {
+    if (event.target.classList.contains('modal-backdrop')) {
+      cerrarModal('create-product-modal');
+    }
+  });
+
+  document.getElementById('product-price-list-body')?.addEventListener('click', (event) => {
+    const editButton = event.target.closest('[data-inline-edit-product]');
+    const saveButton = event.target.closest('[data-inline-save-product]');
+    const cancelButton = event.target.closest('[data-inline-cancel-product]');
+
+    if (editButton) {
+      const productId = editButton.dataset.inlineEditProduct;
+      const row = document.querySelector(`[data-product-row-id="${CSS.escape(productId)}"]`);
+      if (!row) return;
+
+      const text = row.querySelector('.product-price-inline__text');
+      const input = row.querySelector('.product-price-inline__input');
+      const editBtn = row.querySelector('[data-inline-edit-product]');
+      const saveBtn = row.querySelector('[data-inline-save-product]');
+      const cancelBtn = row.querySelector('[data-inline-cancel-product]');
+
+      if (!text || !input || !editBtn || !saveBtn || !cancelBtn) return;
+
+      text.hidden = true;
+      input.hidden = false;
+      input.focus();
+      input.select();
+      editBtn.hidden = true;
+      saveBtn.hidden = false;
+      cancelBtn.hidden = false;
+      return;
+    }
+
+    if (saveButton) {
+      const productId = saveButton.dataset.inlineSaveProduct;
+      const row = document.querySelector(`[data-product-row-id="${CSS.escape(productId)}"]`);
+      if (!row) return;
+
+      const input = row.querySelector('.product-price-inline__input');
+      const nuevoPrecio = Number(input?.value || 0);
+
+      if (!Number.isFinite(nuevoPrecio) || nuevoPrecio < 0) {
+        showToast('Ingresa un precio válido para el producto.');
+        return;
+      }
+
+      const productosDisponibles = leerJSON('pharsysProductos');
+      const producto = productosDisponibles.find((item) => String(item.id) === String(productId));
+      if (!producto) {
+        showToast('No se encontró el producto seleccionado.');
+        return;
+      }
+
+      producto.precio = Number(nuevoPrecio);
+      localStorage.setItem('pharsysProductos', JSON.stringify(productosDisponibles));
+      window.dispatchEvent(new CustomEvent('pharsys:catalogo-updated'));
+      actualizarCatalogoYInventario();
+      renderListadoProductosPrecio();
+      showToast(`Precio actualizado para ${producto.nombre}.`);
+      return;
+    }
+
+    if (cancelButton) {
+      const productId = cancelButton.dataset.inlineCancelProduct;
+      renderListadoProductosPrecio();
+      return;
+    }
+  });
+
   document.getElementById('price-product-select')?.addEventListener('change', (event) => {
     const currentPriceInput = document.getElementById('current-product-price');
     if (!currentPriceInput) return;
@@ -1489,8 +1882,16 @@ document.addEventListener('DOMContentLoaded', () => {
     currentPriceInput.value = producto ? formatearMoneda(Number(producto.precio || 0)) : '$0';
   });
 
+  inicializarCampoIdProducto();
+
+  poblarCategoriasProducto();
+  renderListadoProductosPrecio();
+
   document.getElementById('product-form')?.addEventListener('input', actualizarVistaPreviaProducto);
   document.getElementById('product-form')?.addEventListener('change', (event) => {
+    if (event.target.id === 'product-category') {
+      activarCampoCategoriaNueva();
+    }
     if (event.target.id === 'product-supplier' && event.target.value === '__crear_proveedor__') {
       window.location.href = 'proveedores.html';
       return;
@@ -1501,11 +1902,17 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('product-form')?.addEventListener('submit', (event) => {
     event.preventDefault();
     const productName = document.getElementById('product-name').value.trim();
-    const productCategory = document.getElementById('product-category').value;
+    const productCategorySelect = document.getElementById('product-category');
+    const productCategoryCustom = document.getElementById('product-category-custom');
+    const productCategoryValue = productCategorySelect?.value || 'Medicamentos';
+    const productCategory = productCategoryValue === '__nueva_categoria__'
+      ? (productCategoryCustom?.value || '').trim()
+      : productCategoryValue;
     const productSupplier = document.getElementById('product-supplier').value.trim();
     const productPrice = Number(document.getElementById('product-price').value || 0);
     const productStock = Number(document.getElementById('product-stock').value || 0);
-    const productId = document.getElementById('product-id').value.trim();
+    const productIdInput = document.getElementById('product-id');
+    const productId = (productIdInput?.value || '').trim() || obtenerSiguienteIdProducto();
     const productPrincipioActivo = document.getElementById('product-principio-activo').value.trim();
     const productConcentracion = document.getElementById('product-concentracion').value.trim();
     const productFormaFarmaceutica = document.getElementById('product-forma-farmaceutica').value.trim();
@@ -1520,6 +1927,28 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!productName) {
       showToast('Completa el nombre del producto.');
       return;
+    }
+
+    if (!productCategory) {
+      showToast('Selecciona o crea una categoría para el producto.');
+      return;
+    }
+
+    if (productCategoryValue === '__nueva_categoria__' && !productCategory) {
+      showToast('Escribe el nombre de la nueva categoría.');
+      return;
+    }
+
+    if (productCategoryValue === '__nueva_categoria__') {
+      const categoriasActualizadas = guardarCategoriasProductos([...leerCategoriasProductos(), productCategory]);
+      const nuevoSelect = document.getElementById('product-category');
+      if (nuevoSelect) {
+        nuevoSelect.dataset.value = productCategory;
+      }
+      poblarCategoriasProducto();
+      if (nuevoSelect) {
+        nuevoSelect.value = productCategory;
+      }
     }
 
     const guardado = registrarProductoEnSistema({
@@ -1546,44 +1975,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     showToast(`Producto registrado: ${productName}`);
     event.currentTarget.reset();
+    inicializarCampoIdProducto();
     poblarSelectorProveedoresProducto();
     poblarSelectorProductosPrecio();
+    renderListadoProductosPrecio();
+    cerrarModal('create-product-modal');
     actualizarVistaPreviaProducto();
-  });
-
-  document.getElementById('update-price-form')?.addEventListener('submit', (event) => {
-    event.preventDefault();
-    const select = document.getElementById('price-product-select');
-    const nuevoPrecio = Number(document.getElementById('new-product-price').value || 0);
-
-    if (!select || !select.value) {
-      showToast('Selecciona un producto para actualizar el precio.');
-      return;
-    }
-
-    if (!Number.isFinite(nuevoPrecio) || nuevoPrecio <= 0) {
-      showToast('Ingresa un precio válido.');
-      return;
-    }
-
-    const productosDisponibles = leerJSON('pharsysProductos');
-    const producto = productosDisponibles.find((item) => String(item.id) === String(select.value));
-    if (!producto) {
-      showToast('No se encontró el producto seleccionado.');
-      return;
-    }
-
-    const precioAnterior = Number(producto.precio || 0);
-    producto.precioAnterior = precioAnterior;
-    producto.precio = nuevoPrecio;
-
-    localStorage.setItem('pharsysProductos', JSON.stringify(productosDisponibles));
-    window.dispatchEvent(new CustomEvent('pharsys:catalogo-updated'));
-    actualizarCatalogoYInventario();
-    showToast(`Precio actualizado para ${producto.nombre}: ${formatearMoneda(nuevoPrecio)}`);
-    document.getElementById('new-product-price').value = '';
-    document.getElementById('current-product-price').value = formatearMoneda(nuevoPrecio);
-    poblarSelectorProductosPrecio();
   });
 
   document.getElementById('supplier-form')?.addEventListener('submit', (event) => {

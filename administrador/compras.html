@@ -36,7 +36,7 @@
         </div>
 
         <div class="sidebar__meta">
-          <strong>Compras</strong>
+          <strong>Indicador del día</strong>
           <p id="sidebar-status">Solicitudes a proveedores y seguimiento.</p>
         </div>
       </aside>
@@ -87,6 +87,31 @@
             </div>
           </article>
 
+          <article class="panel">
+            <div class="panel__header">
+              <div>
+                <h3 class="panel__title">Órdenes recibidas</h3>
+                <span class="panel__subtitle">Revisa los productos solicitados y confirma para calcular el costo.</span>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table class="purchases-table">
+                <thead>
+                  <tr>
+                    <th>Orden</th>
+                    <th>Proveedor</th>
+                    <th>Productos y cantidades</th>
+                    <th>Costo</th>
+                    <th>Estado / acción</th>
+                  </tr>
+                </thead>
+                <tbody id="supplier-orders-body">
+                  <tr><td colspan="5">Aún no hay órdenes recibidas.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+
           <article class="panel form-panel" id="purchase-form-panel">
             <div class="panel__header">
               <div>
@@ -130,10 +155,41 @@
               </div>
 
               <div style="margin-top: 18px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
-                <a class="secondary-btn" href="productos.html#purchase-product-selection">Seleccionar productos</a>
+                <button id="toggle-product-selection" class="secondary-btn" type="button">Seleccionar productos</button>
                 <button class="primary-btn" type="submit">Enviar orden</button>
               </div>
             </form>
+          </article>
+        </section>
+
+        <section class="content-grid" id="purchase-product-selection">
+          <article class="panel" id="purchase-product-selection-panel" hidden>
+            <div class="panel__header">
+              <div>
+                <h3 class="panel__title">Seleccionar productos para compra</h3>
+                <span class="panel__subtitle">Marca productos del catálogo e indica la cantidad que deseas solicitar.</span>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table class="purchases-table">
+                <thead>
+                  <tr>
+                    <th>Seleccionar</th>
+                    <th>Producto</th>
+                    <th>Categoría</th>
+                    <th>Proveedor asignado</th>
+                    <th>Precio unitario</th>
+                    <th>Cantidad</th>
+                  </tr>
+                </thead>
+                <tbody id="purchase-product-selection-body">
+                  <tr><td colspan="6">No hay productos en el catálogo.</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div style="margin-top: 18px; display: flex; justify-content: flex-end;">
+              <button id="add-selected-products-to-purchase" class="primary-btn" type="button">Agregar seleccionados a la orden</button>
+            </div>
           </article>
         </section>
       </main>

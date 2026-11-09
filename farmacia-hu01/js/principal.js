@@ -1,6 +1,30 @@
 // ===== Página principal (HU-01) =====
 let categoriaActiva = "Todos";
 
+function renderCategoriasDeCatalogo() {
+  const categorias = ["Todos", ...obtenerCategoriasProductos()];
+  const wrapperTarjetas = document.querySelector(".tarjetas-categoria");
+  const wrapperFiltros = document.querySelector(".filtros");
+
+  if (wrapperTarjetas) {
+    wrapperTarjetas.innerHTML = categorias.filter(categoria => categoria !== "Todos").map((categoria) => {
+      const icono = categoria.trim().charAt(0).toUpperCase() || "•";
+      const nombre = categoria.trim();
+      return `<button class="tarjeta-categoria" data-categoria="${nombre}"><span class="icono-categoria">${icono}</span><span><strong>${nombre}</strong><small>Descubre productos de esta categoría</small></span><span class="flecha-categoria">›</span></button>`;
+    }).join('');
+  }
+
+  if (wrapperFiltros) {
+    wrapperFiltros.innerHTML = categorias.map((categoria) => `
+      <button class="filtro ${categoriaActiva === categoria ? 'activo' : ''}">${categoria}</button>
+    `).join('');
+  }
+
+  document.querySelectorAll("[data-categoria]").forEach((enlace) => {
+    enlace.addEventListener("click", () => seleccionarCategoria(enlace.dataset.categoria));
+  });
+}
+
 // Dibuja los productos de la categoría elegida
 function pintarProductos() {
   document.getElementById("listaProductos").innerHTML = "";
@@ -28,9 +52,11 @@ document.querySelector(".filtros").addEventListener("click", e => {
   const boton = e.target.closest(".filtro");
   if (!boton) return;
   document.querySelectorAll(".filtro").forEach(b => b.classList.toggle("activo", b === boton));
-  categoriaActiva = boton.textContent;
+  categoriaActiva = boton.textContent.trim();
   pintarProductos();
 });
+
+renderCategoriasDeCatalogo();
 
 function seleccionarCategoria(categoria) {
   categoriaActiva = categoria;
